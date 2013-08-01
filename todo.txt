@@ -1,0 +1,22 @@
+
+rename GameApplication files
+ui system with widgets.
+add selection to ui system.
+asset manager
+set up texture manager
+texture assets
+effect file
+depth stencil
+data driven scene
+data driven render targets
+data driven resolve targets
+data driven constant buffers
+material
+time
+sound
+pre-compiled shaders
+console
+make unit tests run in x64.
+move settings out from renderer.
+remove some singletons.
+add a way to access modules easily.

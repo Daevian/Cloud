@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/makefiles/vs71
+END
+test_lib_json.vcproj
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/makefiles/vs71/test_lib_json.vcproj
+END
+lib_json.vcproj
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/makefiles/vs71/lib_json.vcproj
+END
+jsoncpp.sln
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/makefiles/vs71/jsoncpp.sln
+END
+UpgradeLog.XML
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/makefiles/vs71/UpgradeLog.XML
+END
+jsontest.vcproj
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/makefiles/vs71/jsontest.vcproj
+END

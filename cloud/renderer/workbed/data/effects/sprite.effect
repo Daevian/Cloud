@@ -1,0 +1,8 @@
+{
+	"Shader" : "data/shaders/sprite.fx",
+	"Input" :
+	[
+		[ "POSITION", "R32G32_FLOAT"],
+		[ "SCALE", "R32G32_FLOAT"]
+	]
+}

@@ -1,0 +1,7 @@
+Animate hand to select different sprites.
+Animate text to glow when selected.
+"Continue" should be faded out if no saved games are present.
+When pressing new game, carry on into game.
+Turn background into a 3D-scene rotating around the sword.
+Add glyphs for menu choices.
+Add sounds in the menu.

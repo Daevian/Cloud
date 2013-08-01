@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/src/test_lib_json
+END
+jsontest.h
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/src/test_lib_json/jsontest.h
+END
+main.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/src/test_lib_json/main.cpp
+END
+sconscript
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/src/test_lib_json/sconscript
+END
+jsontest.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/src/test_lib_json/jsontest.cpp
+END

@@ -1,0 +1,33 @@
+{
+	{
+		"Sprite" : "main_menu_background"
+		"PositionX" : 0.0,
+		"PositionY" : 0.0,
+		"ScaleX" : 1.0,
+		"ScaleY" : 1.0,
+	},
+	
+	{
+		"Sprite" : "main_menu_new_game"
+		"PositionX" : 0.403125,
+		"PositionY" : 0.44306,
+		"ScaleX" : 0.2,
+		"ScaleY" : 0.089,
+	},
+	
+	{
+		"Sprite" : "main_menu_continue"
+		"PositionX" : 0.39609375,
+		"PositionY" : 0.4986,
+		"ScaleX" : 0.2,
+		"ScaleY" : 0.089,
+	},
+	
+	{
+		"Sprite" : "main_menu_cursor"
+		"PositionX" : 0.35546875,
+		"PositionY" : 0.4986,
+		"ScaleX" : 0.1,
+		"ScaleY" : 0.089,
+	},
+}

@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/src/lib_json
+END
+json_valueiterator.inl
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/src/lib_json/json_valueiterator.inl
+END
+json_batchallocator.h
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/src/lib_json/json_batchallocator.h
+END
+json_internalmap.inl
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/src/lib_json/json_internalmap.inl
+END
+json_internalarray.inl
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/src/lib_json/json_internalarray.inl
+END
+json_value.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/src/lib_json/json_value.cpp
+END
+json_writer.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/src/lib_json/json_writer.cpp
+END
+sconscript
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/src/lib_json/sconscript
+END
+json_reader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/cloud_projects/!svn/ver/50/cloud/externals/jsoncpp-src-0.5.0/src/lib_json/json_reader.cpp
+END
