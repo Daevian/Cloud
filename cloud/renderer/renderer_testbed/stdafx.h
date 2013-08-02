@@ -25,6 +25,7 @@
 #include <fstream>
 
 #include <d3d11.h>
+#include <dxgi.h>
 #include <d3dx11.h>
 
 #include <math.h>
@@ -44,4 +45,5 @@
 #include "../../core_libraries/utilities/Float4.h"
 #include "../../core_libraries/utilities/Float3.h"
 #include "../../core_libraries/utilities/Float2.h"
+#include "../../core_libraries/utilities/Matrix4.h"
 

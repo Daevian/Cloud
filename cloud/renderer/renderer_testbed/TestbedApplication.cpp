@@ -30,7 +30,7 @@ CLbool RPG::TestbedApplication::CreateSingletons()
 
     if (!Cloud::Renderer::Settings::Create()) { return false; }
 
-    Cloud::Renderer::RenderCoreSettings renderCoreSettings;
+    Cloud::Renderer::RenderCore::Settings renderCoreSettings;
     renderCoreSettings.m_hInstance = m_appInfo.m_hInstance;
     renderCoreSettings.m_cmdShow = m_appInfo.m_cmdShow;
 
