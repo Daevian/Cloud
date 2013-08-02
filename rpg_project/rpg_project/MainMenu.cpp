@@ -16,23 +16,23 @@ void RPG::MainMenu::Initialise()
     background->Initialise(m_backgroundSprite);
     background->SetPosition(Cloud::Math::Float2(0.0f, 0.0f));
     background->SetScale(Cloud::Math::Float2(1.0f, 1.0f));
-    m_uiElements.Add(background);
+    //m_uiElements.Add(background);
 
     UIElement* newGame = new UIElement();
     newGame->Initialise(m_newGameSprite);
     newGame->SetPosition(Cloud::Math::Float2(0.403125f, 0.44306f));
     newGame->SetScale(Cloud::Math::Float2(0.2f, 0.089f));
-    m_uiElements.Add(newGame);
+    //m_uiElements.Add(newGame);
 
     UIElement* continueE = new UIElement();
     continueE->Initialise(m_continueSprite);
     continueE->SetPosition(Cloud::Math::Float2(0.39609375f, 0.4986f));
     continueE->SetScale(Cloud::Math::Float2(0.2f, 0.089f));
-    m_uiElements.Add(continueE);
+    //m_uiElements.Add(continueE);
 
     UIElement* cursor = new UIElement();
     cursor->Initialise(m_cursorSprite);
     cursor->SetPosition(Cloud::Math::Float2(0.35546875f, 0.4986f));
     cursor->SetScale(Cloud::Math::Float2(0.1f, 0.089f));
-    m_uiElements.Add(cursor);
+   // m_uiElements.Add(cursor);
 }
