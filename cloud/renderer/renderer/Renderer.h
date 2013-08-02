@@ -2,35 +2,39 @@
 #define CLOUD_RENDERER_RENDERER_HEADER
 
 #include "SpriteManager.h"
+#include "ParticleManager.h"
 
 namespace Cloud
 {
-    namespace Renderer
+namespace Renderer
+{
+    struct ConstantBuffer
     {
-        struct ConstantBuffer
-        {
-            Math::Matrix4 m_projection;
-        };
+        Math::Matrix4 m_projection;
+    };
 
-        class Renderer
-        {
-        public:
-            Renderer();
+    class Renderer
+    {
+    public:
+        Renderer();
 
-            CLbool Initialise();
-            void Shutdown();
+        CLbool Initialise();
+        void Shutdown();
 
-            void Render();
+        void Update();
+        void Render();
 
-            SpriteManager& GetSpriteManager() { return m_spriteManager; }
+        SpriteManager& GetSpriteManager() { return m_spriteManager; }
+        ParticleManager& GetParticleManager() { return m_particleManager; }
 
-        private:
-            SpriteManager m_spriteManager;
-            Math::Matrix4 m_view;
-            Math::Matrix4 m_projection;
-            ID3D11Buffer* m_constantBuffer;
-        };
-    }
+    private:
+        SpriteManager m_spriteManager;
+        ParticleManager m_particleManager;
+        Math::Matrix4 m_view;
+        Math::Matrix4 m_projection;
+        ID3D11Buffer* m_constantBuffer;
+    };
+}
 }
 
 #endif // CLOUD_RENDERER_RENDERER_HEADER

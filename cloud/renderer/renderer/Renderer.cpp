@@ -39,6 +39,12 @@ void Cloud::Renderer::Renderer::Shutdown()
     }
 }
 
+void Cloud::Renderer::Renderer::Update()
+{
+    m_particleManager.Update();
+}
+
+
 void Cloud::Renderer::Renderer::Render()
 {
     ConstantBuffer constantBuffer;
@@ -49,6 +55,7 @@ void Cloud::Renderer::Renderer::Render()
     immediateContext->VSSetConstantBuffers( 0, 1, &m_constantBuffer);
 
     m_spriteManager.Render();
+    m_particleManager.Render();
     
     RenderCore::Instance().Present();
 }

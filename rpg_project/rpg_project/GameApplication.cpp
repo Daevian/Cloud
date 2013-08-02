@@ -206,6 +206,7 @@ void RPG::Application::Update()
     m_inputManager.Update();
     m_game.Update();
     m_uiManager.Update();
+    m_renderer.Update();
 
     if (m_inputManager.GetKeyPressed(Cloud::Input::Keyboard::Escape))
     {
