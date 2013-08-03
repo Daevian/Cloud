@@ -1,0 +1,8 @@
+{
+	"Shader" : "data/shaders/pfx.fx",
+	"Input" :
+	[
+		[ "POSITION", "R32G32B32_FLOAT"],
+		[ "SCALE", "R32G32_FLOAT"]
+	]
+}
