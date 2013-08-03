@@ -33,6 +33,7 @@
 #include "utilities/StaticArray.h"
 #include "utilities/DynamicArray.h"
 
+#include "utilities/MathUtilities.h"
 #include "utilities/Float4.h"
 #include "utilities/Float3.h"
 #include "utilities/Float2.h"

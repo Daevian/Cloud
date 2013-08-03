@@ -21,7 +21,7 @@ Cloud::Renderer::VertexBuffer::VertexBuffer(const VertexBuffer& vertexBuffer)
 {
 }
 
-CLbool Cloud::Renderer::VertexBuffer::Init()
+CLbool Cloud::Renderer::VertexBuffer::Initialise()
 {
     D3D11_BUFFER_DESC bufferDesc;
     bufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -45,7 +45,7 @@ CLbool Cloud::Renderer::VertexBuffer::Init()
     return true;
 }
 
-void Cloud::Renderer::VertexBuffer::Unload()
+void Cloud::Renderer::VertexBuffer::Uninitialise()
 {
     CL_ASSERT(m_vertexBuffer != 0, "Can't unload uninitialised effect!");
 

@@ -66,10 +66,9 @@ void Cloud::Renderer::InputLayout::GPUSetInputLayout()
 
 DXGI_FORMAT Cloud::Renderer::InputLayout::GetFormat(const std::string& formatName)
 {
-    if (formatName == "R32G32_FLOAT")
-    {
-        return DXGI_FORMAT_R32G32_FLOAT;
-    }
+    if (formatName == "R32G32_FLOAT")           return DXGI_FORMAT_R32G32_FLOAT;
+    if (formatName == "R32G32B32_FLOAT")        return DXGI_FORMAT_R32G32B32_FLOAT;
+    if (formatName == "R32G32B32A32_FLOAT")     return DXGI_FORMAT_R32G32B32A32_FLOAT;
     
     return DXGI_FORMAT_UNKNOWN;
 }
@@ -78,11 +77,14 @@ CLuint Cloud::Renderer::InputLayout::GetFormatSize(DXGI_FORMAT format)
 {
     switch (format)
     {
-    case DXGI_FORMAT_R32G32_FLOAT:
-        return 8;
-
-    case DXGI_FORMAT_UNKNOWN:
-    default:
-        return 0;
+        case DXGI_FORMAT_R32G32_FLOAT:
+            return 8;
+        case DXGI_FORMAT_R32G32B32_FLOAT:
+            return 12;
+        case DXGI_FORMAT_R32G32B32A32_FLOAT:
+            return 12;
+        case DXGI_FORMAT_UNKNOWN:
+        default:
+            return 0;
     }
 }

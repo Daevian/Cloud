@@ -162,4 +162,9 @@ Cloud::Math::Float4& Cloud::Math::Float4::Normalize()
     return *this;
 }
 
+const DirectX::XMVECTOR& Cloud::Math::Float4::GetDxVector() const
+{
+    return m_dxVector;
+}
+
 #endif // CLOUD_MATH_FLOAT4_INLINE

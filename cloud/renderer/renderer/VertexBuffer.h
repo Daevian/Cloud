@@ -11,8 +11,8 @@ namespace Cloud
             VertexBuffer();
             VertexBuffer(const VertexBuffer& vertexBuffer);
 
-            CLbool Init();
-            void Unload();
+            CLbool Initialise();
+            void Uninitialise();
 
             CLint   GetVertexCount()    const { return m_vertexCount; }
             CLint   GetVertexSize()     const { return m_vertexSize; }

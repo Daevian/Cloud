@@ -3,29 +3,29 @@
 
 #include "DefinesAsserts.h"
 
-template<class Type, CLint Size>
+template<class Type, CLuint Size>
 Cloud::Utils::StaticArray<Type, Size>::StaticArray()
 {
 }
 
-template<class Type, CLint Size>
+template<class Type, CLuint Size>
 Cloud::Utils::StaticArray<Type, Size>::StaticArray(const StaticArray& staticArray)
 {
-    for (CLint i = 0; i < Size; ++i)
+    for (CLuint i = 0; i < Size; ++i)
     {
         this->m_items[i] = staticArray[i];
     }
 }
 
-template<class Type, CLint Size>
+template<class Type, CLuint Size>
 Cloud::Utils::StaticArray<Type, Size>::~StaticArray()
 {
 }
 
-template<class Type, CLint Size>
+template<class Type, CLuint Size>
 Cloud::Utils::StaticArray<Type, Size>& Cloud::Utils::StaticArray<Type, Size>::operator=(const StaticArray<Type, Size>& staticArray)
 {
-    for (CLint i = 0; i < Size; ++i)
+    for (CLuint i = 0; i < Size; ++i)
     {
         m_items[i] = staticArray[i];
     }
@@ -33,26 +33,26 @@ Cloud::Utils::StaticArray<Type, Size>& Cloud::Utils::StaticArray<Type, Size>::op
     return *this;
 }
 
-template<class Type, CLint Size>
-Type& Cloud::Utils::StaticArray<Type, Size>::operator[](const CLint& index)
+template<class Type, CLuint Size>
+Type& Cloud::Utils::StaticArray<Type, Size>::operator[](const CLuint& index)
 {
     CL_ASSERT(index >= 0 && index < Size, "Index is out of bounds!");
     return m_items[index];
 }
 
-template<class Type, CLint Size>
-const Type& Cloud::Utils::StaticArray<Type, Size>::operator[](const CLint& index) const
+template<class Type, CLuint Size>
+const Type& Cloud::Utils::StaticArray<Type, Size>::operator[](const CLuint& index) const
 {
     CL_ASSERT(index >= 0 && index < Size, "Index is out of bounds!");
     return m_items[index];
 }
 
-template<class Type, CLint Size>
-void Cloud::Utils::StaticArray<Type, Size>::Insert(const CLint& index, const Type& item)
+template<class Type, CLuint Size>
+void Cloud::Utils::StaticArray<Type, Size>::Insert(const CLuint& index, const Type& item)
 {
     CL_ASSERT(index >= 0 && index < Size, "Index is out of bounds!");
 
-    for (CLint i = Size - 1; i >= index; --i)
+    for (CLuint i = Size - 1; i >= index; --i)
     {
         m_items[i] = m_items[i - 1];
     }

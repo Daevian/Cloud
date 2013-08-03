@@ -1,6 +1,7 @@
 #ifndef CLOUD_MATH_FLOAT4_HEADER
 #define CLOUD_MATH_FLOAT4_HEADER
 
+#include <DirectXMath.h>
 #include "SSEScalar.h"
 
 #pragma warning (disable:4201)
@@ -45,8 +46,11 @@ namespace Cloud
 
             inline Float4& Normalize();
 
+            inline const DirectX::XMVECTOR& GetDxVector() const;
+
             CL_ALIGN(16) union
             {
+                DirectX::XMVECTOR m_dxVector;
                 __m128 v;
                 CLfloat a[4];
                 struct
@@ -57,6 +61,8 @@ namespace Cloud
         };
     }
 }
+
+typedef Cloud::Math::Float4 ClFloat4;
 
 #include "Float4.inl"
 

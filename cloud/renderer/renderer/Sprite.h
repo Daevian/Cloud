@@ -12,9 +12,9 @@ namespace Cloud
     {
         struct SpriteVertex
         {
-            Math::Float2 pos;   //8
-            Math::Float2 scale; //8
-        }; //16
+            Math::Float2 pos;
+            Math::Float2 scale;
+        };
 
         class ShaderEffect;
         class Texture;

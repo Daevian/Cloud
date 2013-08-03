@@ -34,14 +34,14 @@ CLbool Cloud::Renderer::Sprite::Init(Texture* texture)
     m_vertexBuffer.SetVertexData((CLchar*)&m_vertex);
     m_vertexBuffer.SetTopology(D3D10_PRIMITIVE_TOPOLOGY_POINTLIST);
 
-    if (!m_vertexBuffer.Init()) return false;
+    if (!m_vertexBuffer.Initialise()) return false;
 
     return true;
 }
 
 void Cloud::Renderer::Sprite::Unload()
 {
-    m_vertexBuffer.Unload();
+    m_vertexBuffer.Uninitialise();
 }
 
 void Cloud::Renderer::Sprite::Render()

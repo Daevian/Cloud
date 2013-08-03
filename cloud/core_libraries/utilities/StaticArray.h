@@ -7,7 +7,7 @@ namespace Cloud
 {
     namespace Utils
     {
-        template<class Type, CLint Size>
+        template<class Type, CLuint Size>
         class StaticArray
         {
         public:
@@ -17,12 +17,12 @@ namespace Cloud
 
             StaticArray<Type, Size>& operator=(const StaticArray<Type, Size>& staticArray);
 
-            inline Type& operator[](const CLint& index);
-            inline const Type& operator[](const CLint& index) const;
+            inline Type& operator[](const CLuint& index);
+            inline const Type& operator[](const CLuint& index) const;
 
-            inline void Insert(const CLint& index, const Type& item);
+            inline void Insert(const CLuint& index, const Type& item);
 
-            CLint Count()   { return Size; }
+            CLuint Count()   { return Size; }
             CLuint SizeOf() { return sizeof(Type) * Size; }
 
         protected:

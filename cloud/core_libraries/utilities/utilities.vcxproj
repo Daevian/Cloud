@@ -140,6 +140,7 @@
     <ClInclude Include="CloudDelegate.h" />
     <ClInclude Include="CloudEvent.h" />
     <ClInclude Include="DynamicArray.h" />
+    <ClInclude Include="MathUtilities.h" />
     <ClInclude Include="Matrix4.h" />
     <ClInclude Include="StaticArray.h" />
     <ClInclude Include="DefinesAsserts.h" />

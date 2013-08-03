@@ -3,6 +3,7 @@
 
 #include "SpriteManager.h"
 #include "ParticleManager.h"
+#include "Camera.h"
 
 namespace Cloud
 {
@@ -10,6 +11,7 @@ namespace Renderer
 {
     struct ConstantBuffer
     {
+        Math::Matrix4 m_view;
         Math::Matrix4 m_projection;
     };
 
@@ -33,6 +35,7 @@ namespace Renderer
         Math::Matrix4 m_view;
         Math::Matrix4 m_projection;
         ID3D11Buffer* m_constantBuffer;
+        Camera m_camera;
     };
 }
 }
