@@ -27,7 +27,12 @@ CLbool Cloud::Renderer::ParticleManager::Initialise()
 
     for (CLuint i = 0; i < m_particles.Count(); i++)
     {
-        m_particles[i].position = ClFloat4(0.0f, 0.0f, 0.0f, 0.0f);
+        CLfloat velX = (ClRandFloat() - 0.5f) * 0.05f;
+        CLfloat velY = (ClRandFloat() - 0.5f) * 0.05f;
+        CLfloat velZ = (ClRandFloat() - 0.5f) * 0.05f;
+
+        m_particles[i].position = ClFloat4(0.0f, 0.0f, 0.0f, 1.0f);
+        m_particles[i].velocity = ClFloat4(velX, velY, velZ, 0.0f);
     }
 
     return true;
@@ -38,8 +43,15 @@ void Cloud::Renderer::ParticleManager::Uninitialise()
     m_vertexBuffer.Uninitialise();
 }
 
-void Cloud::Renderer::ParticleManager::Update()
+void Cloud::Renderer::ParticleManager::Update(CLfloat timeStep)
 {
+    ClFloat4 timeStepVector(timeStep);
+
+    for (CLuint particleIndex = 0, count = m_particles.Count(); particleIndex < count; ++particleIndex)
+    {
+        Particle& particle = m_particles[particleIndex];
+        particle.position += particle.velocity * timeStepVector;
+    }
 }
 
 void Cloud::Renderer::ParticleManager::Fill()

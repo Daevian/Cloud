@@ -147,6 +147,9 @@
     <ClInclude Include="DefinesMacros.h" />
     <ClInclude Include="DefinesTypes.h" />
     <ClInclude Include="IntrinsicFunctions.h" />
+    <ClInclude Include="String.h" />
+    <ClInclude Include="StringStream.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="Windows.h" />
     <ClInclude Include="Float2.h" />
     <ClInclude Include="Float3.h" />
@@ -164,6 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="temp.cpp" />
+    <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -23,7 +23,7 @@ namespace Renderer
         CLbool Initialise();
         void Shutdown();
 
-        void Update();
+        void Update(CLdouble totalTime, CLdouble timeStep);
         void Render();
 
         SpriteManager& GetSpriteManager() { return m_spriteManager; }

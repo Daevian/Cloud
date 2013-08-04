@@ -42,6 +42,11 @@ inline Cloud::Math::Float4 Cloud::Math::Float4::operator-(const Float4& float4) 
     return Float4(*this) -= float4;
 }
 
+inline Cloud::Math::Float4 Cloud::Math::Float4::operator*(const Float4& float4) const
+{
+    return Float4(*this) *= float4;
+}
+
 inline Cloud::Math::Float4& Cloud::Math::Float4::operator+=(const Float4& float4)
 {
     this->v = _mm_add_ps(this->v, float4.v);
@@ -51,6 +56,12 @@ inline Cloud::Math::Float4& Cloud::Math::Float4::operator+=(const Float4& float4
 inline Cloud::Math::Float4& Cloud::Math::Float4::operator-=(const Float4& float4)
 {
     this->v = _mm_sub_ps(this->v, float4.v);
+    return *this;
+}
+
+inline Cloud::Math::Float4& Cloud::Math::Float4::operator*=(const Float4& float4)
+{
+    this->v = _mm_mul_ps(this->v, float4.v);
     return *this;
 }
 

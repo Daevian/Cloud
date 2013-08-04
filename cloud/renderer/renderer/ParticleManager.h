@@ -13,6 +13,7 @@ namespace Renderer
     struct Particle
     {
         ClFloat4 position;
+        ClFloat4 velocity;
     };
 
     struct ParticleVertex
@@ -30,15 +31,16 @@ namespace Renderer
         CLbool Initialise();
         void Uninitialise();
 
-        void Update();
+        void Update(CLfloat timeStep);
         void Fill();
         void Render();
 
     private:
-        Utils::StaticArray<Particle, 128> m_particles;
+        static const CLuint s_maxParticles = 102400;
+        Utils::StaticArray<Particle, s_maxParticles> m_particles;
 
         VertexBuffer m_vertexBuffer;
-        Utils::StaticArray<ParticleVertex, 128> m_particleVertexData;
+        Utils::StaticArray<ParticleVertex, s_maxParticles> m_particleVertexData;
 
         ShaderEffect* m_effect;
         Texture* m_texture;

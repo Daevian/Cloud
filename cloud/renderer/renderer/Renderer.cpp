@@ -30,7 +30,7 @@ CLbool Cloud::Renderer::Renderer::Initialise()
     m_camera.SetCameraMatrix(ClMatrix4::Identity());
     m_camera.SetPerspective(Math::ToRadians(45.0f), 1.0f, 0.1f, 100.f);
 
-    m_camera.SetTranslation(ClFloat4(-1.0f, 0.0f, -5.0f, 1.0f));
+    m_camera.SetTranslation(ClFloat4(0.0f, 0.0f, -5.0f, 1.0f));
 
     return true;
 }
@@ -47,11 +47,13 @@ void Cloud::Renderer::Renderer::Shutdown()
     }
 }
 
-void Cloud::Renderer::Renderer::Update()
+void Cloud::Renderer::Renderer::Update(CLdouble totalTime, CLdouble timeStep)
 {
+    CL_UNUSED(totalTime);
+
     m_camera.UpdateView();
 
-    m_particleManager.Update();
+    m_particleManager.Update(static_cast<CLfloat>(timeStep));
     m_particleManager.Fill();
 }
 

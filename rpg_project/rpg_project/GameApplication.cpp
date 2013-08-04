@@ -33,6 +33,7 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 
 RPG::Application::Application()
     : m_exitFlag(false)
+    , m_frameCount(0)
 {
 }
 
@@ -93,6 +94,8 @@ CLbool RPG::Application::Initialise()
     if (!m_uiManager.Initialise(m_renderer)) { return false; }
     CL_TRACE_CHANNEL("INIT", "UIManager initialised!");
 
+    m_time.Initialise();
+
     return true;
 }
 
@@ -121,6 +124,12 @@ void RPG::Application::Run()
         {
             Update();
             Render();
+
+            ++m_frameCount;
+            const CLfloat fps = static_cast<CLfloat>(m_frameCount) / static_cast<CLfloat>(m_time.GetTotalTime());
+            ClStringStream windowText;
+            windowText << "FPS: " << fps;
+            SetWindowText(m_appInfo.m_hWnd, windowText.str().c_str());
         }
     }
 }
@@ -203,10 +212,11 @@ CLbool RPG::Application::CreateWindowsWindow()
 
 void RPG::Application::Update()
 {
+    m_time.Update();
     m_inputManager.Update();
     m_game.Update();
     m_uiManager.Update();
-    m_renderer.Update();
+    m_renderer.Update(m_time.GetTotalTime(), m_time.GetTimeStep());
 
     if (m_inputManager.GetKeyPressed(Cloud::Input::Keyboard::Escape))
     {

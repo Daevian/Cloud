@@ -7,6 +7,7 @@
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, LPWSTR cmdLine, CLint cmdShow)
 {
+    //ClSRand(ClTime());
     RPG::Application::Create();
 
     auto& application = RPG::Application::Instance();

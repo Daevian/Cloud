@@ -49,12 +49,14 @@ namespace RPG
 
         static Application* s_instance;
 
+        Cloud::Utils::Timer m_time;
         Cloud::Renderer::Renderer m_renderer;
         Cloud::Input::InputManager m_inputManager;
         UIManager m_uiManager;
         Game m_game;
 
         CLbool m_exitFlag;
+        CLuint m_frameCount;
     };
 }
 

@@ -34,6 +34,10 @@
 #include "utilities/DefinesMacros.h"
 #include "utilities/DefinesTypes.h"
 
+#include "utilities/Timer.h"
+#include "utilities/String.h"
+#include "utilities/StringStream.h"
+
 #include "utilities/IntrinsicFunctions.h"
 #include "utilities/StaticArray.h"
 #include "utilities/DynamicArray.h"

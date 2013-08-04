@@ -23,8 +23,10 @@ namespace Cloud
 
             inline Float4 operator+(const Float4& float4) const;
             inline Float4 operator-(const Float4& float4) const;
+            inline Float4 operator*(const Float4& float4) const;
             inline Float4& operator+=(const Float4& float4);
             inline Float4& operator-=(const Float4& float4);
+            inline Float4& operator*=(const Float4& float4);
 
             inline Float4 operator+(const CLfloat& scalar) const;
             inline Float4 operator-(const CLfloat& scalar) const;
