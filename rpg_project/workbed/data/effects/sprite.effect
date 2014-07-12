@@ -1,5 +1,19 @@
 {
-	"Shader" : "data/shaders/sprite.fx",
+	"VertexShader" : 
+	{
+		"File" : "data/shaders/sprite.fx",
+		"EntryPoint" : "VShader"
+	},
+	"GeometryShader" : 
+	{
+		"File" : "data/shaders/sprite.fx",
+		"EntryPoint" : "GShader"
+	},
+	"PixelShader" : 
+	{
+		"File" : "data/shaders/sprite.fx",
+		"EntryPoint" : "PShader"
+	},
 	"Input" :
 	[
 		[ "POSITION", "R32G32_FLOAT"],

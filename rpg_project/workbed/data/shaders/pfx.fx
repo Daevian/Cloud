@@ -8,6 +8,8 @@ static const float2 c_texcoords[4] =
 };
 
 Texture2D g_diffuseTexture : register(t0);
+
+
 SamplerState g_sampler : register(s0);
 
 cbuffer ConstantBuffer : register( b0 )
@@ -18,9 +20,11 @@ cbuffer ConstantBuffer : register( b0 )
 
 struct VSInput
 {
-    float3 position : POSITION;
-    float2 scale : SCALE;
+    float4 position : POSITION;
+    float4 scale : SCALE;
 };
+
+StructuredBuffer<VSInput> g_vertexBuffer : register(t1);
 
 struct GSInput
 {
@@ -34,16 +38,26 @@ struct PSInput
     float2 uv : TEXCOORD;
 };
 
-GSInput VShader(VSInput input)
+GSInput VShader(/*VSInput input, */uint id : SV_VertexID)
 {
     GSInput output;
+
     
-    float4 pos = float4(input.position, 1);
+    /*float4 pos = float4(input.position.xyz, 1);
     pos = mul(view, pos);
     pos = mul(projection, pos);
     
     output.position = pos;
-    output.scale = input.scale;
+    output.scale = input.scale.xy;
+    
+*/
+    VSInput input = g_vertexBuffer[id];
+    float4 pos = float4(input.position.xyz, 1);
+    pos = mul(view, pos);
+    pos = mul(projection, pos);
+    
+    output.position = pos;
+    output.scale = input.scale.xy;
     
     return output;
 }

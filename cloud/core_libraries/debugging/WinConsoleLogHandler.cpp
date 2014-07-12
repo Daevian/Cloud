@@ -4,6 +4,6 @@
 
 void Cloud::Debug::WinConsoleLogHandler::HandleTrace(const CLchar* output) const
 {
-    OutputDebugString(output);
-    OutputDebugString("\n");
+    OutputDebugStringA(output);
+    OutputDebugStringA("\n");
 }

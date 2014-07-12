@@ -2,74 +2,101 @@
 #include "Renderer.h"
 
 #include "RenderCore.h"
+#include "Settings.h"
 
 Cloud::Renderer::Renderer::Renderer()
 {
-    m_view = Math::Matrix4::Identity();
-    m_projection = Math::Matrix4::Orthographic(1.0f, 1.0f, 0.0f, 1.0f);
 }
 
 CLbool Cloud::Renderer::Renderer::Initialise()
 {
-    D3D11_BUFFER_DESC constantBufferDesc;
-    ClMemZero(&constantBufferDesc, sizeof(D3D11_BUFFER_DESC));
+    m_debugRenderer.Initialise();
 
-    constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    constantBufferDesc.ByteWidth = sizeof(ConstantBuffer);
-    constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    constantBufferDesc.CPUAccessFlags = 0;
-    auto result = RenderCore::Instance().GetDevice()->CreateBuffer(&constantBufferDesc, 0, &m_constantBuffer);
-    if( FAILED( result) )
+    //m_csTest.Initialise();
+    //m_particleManager.Initialise();
+
+    const CLfloat width  = (CLfloat)Cloud::Renderer::Settings::Instance().GetRoot()["Resolution"]["Width"].asDouble();
+    const CLfloat height = (CLfloat)Cloud::Renderer::Settings::Instance().GetRoot()["Resolution"]["Height"].asDouble();
+
+    m_camera.SetCameraTransform(ClMatrix4::Identity());
+    m_camera.SetPerspective(Math::ToRadians(45.0f), width / height, 0.1f, 1000.f);
+
+    
+    m_camera.SetTranslation(ClFloat4(0.0f, 2.0f, -10.0f, 1.0f));
+    ClMatrix4 cameraRotation = ClMatrix4::Rotation(0.2f, 0.0f, 0.0f);
+    m_camera.SetRotation(cameraRotation);
+
+    for (int i = 0; i < c_boxes; ++i)
     {
-        CL_ASSERT_MSG("Couldn't create constant buffer!");
-        return false;
+        m_randomRotations[i] = ClFloat3(ClRandFloat(), ClRandFloat(), ClRandFloat());
+        m_randomScales[i] = ClRandFloat() * 0.5f + 0.5f;
     }
-
-    m_particleManager.Initialise();
-
-    m_camera.SetCameraMatrix(ClMatrix4::Identity());
-    m_camera.SetPerspective(Math::ToRadians(45.0f), 1.0f, 0.1f, 100.f);
-
-    m_camera.SetTranslation(ClFloat4(0.0f, 0.0f, -5.0f, 1.0f));
 
     return true;
 }
 
 void Cloud::Renderer::Renderer::Shutdown()
 {
-    m_particleManager.Uninitialise();
+   // m_csTest.Uninitialise();
+   // m_particleManager.Uninitialise();
     m_spriteManager.Unload();
-
-    if (m_constantBuffer)
-    {
-        m_constantBuffer->Release();
-        m_constantBuffer = 0;
-    }
+    m_debugRenderer.Uninitialise();
 }
 
 void Cloud::Renderer::Renderer::Update(CLdouble totalTime, CLdouble timeStep)
 {
     CL_UNUSED(totalTime);
+    CL_UNUSED(timeStep);
+    
+    static CLfloat rotationX = 0.0f;
+    rotationX += 1.0f * (CLfloat)timeStep;
+
+    const CLfloat c_distance = 100.0f;
+    const CLint c_boxesPerRow = 25;
+    const CLfloat c_width = c_distance * c_boxesPerRow;
+
+    CLfloat x = -c_width * 0.5f;
+    CLfloat y = -5.0f;
+    CLfloat z = -3.0f;
+    for (int i = 0; i < c_boxes; ++i)
+    {
+        ClFloat3 position = ClFloat3(x, y, z);
+        ClFloat3 rotation = m_randomRotations[i] + ClFloat3(rotationX, 0.0f, 0.0f);;
+        ClFloat3 scale    = ClFloat3(m_randomScales[i], m_randomScales[i], m_randomScales[i]);
+
+        x += c_distance;
+        if (x > c_width * 0.5f)
+        {
+            x = -c_width * 0.5f;
+            z += c_distance;
+        }
+        
+        m_debugRenderer.AddBox(position, rotation, scale, FLOAT4_WHITE(1.0f));
+    }
 
     m_camera.UpdateView();
 
-    m_particleManager.Update(static_cast<CLfloat>(timeStep));
-    m_particleManager.Fill();
+   // m_csTest.Update();
+    //m_particleManager.Update(static_cast<CLfloat>(timeStep));
+    //m_particleManager.Fill();
 }
+
 
 
 void Cloud::Renderer::Renderer::Render()
 {
-    ConstantBuffer constantBuffer;
-    constantBuffer.m_view = m_camera.GetView();
-    constantBuffer.m_projection = m_camera.GetProjection();
-    auto immediateContext = RenderCore::Instance().GetDeviceContext();
-    immediateContext->UpdateSubresource(m_constantBuffer, 0, 0, &constantBuffer, 0, 0 );
+    auto& renderCore = RenderCore::Instance();
 
-    immediateContext->VSSetConstantBuffers( 0, 1, &m_constantBuffer);
+    auto& perSceneConstBuffer = renderCore.GetPerSceneConstData();
+    perSceneConstBuffer.view = m_camera.GetView();
+    perSceneConstBuffer.projection = m_camera.GetProjection();
+    renderCore.GpuUpdatePerSceneConstBuffer();
 
+    //m_csTest.Render();
     //m_spriteManager.Render();
-    m_particleManager.Render();
+    //m_particleManager.Render();
     
+    m_debugRenderer.Render();
+
     RenderCore::Instance().Present();
 }

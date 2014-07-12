@@ -33,22 +33,20 @@ CLbool Cloud::Renderer::ShaderEffect::Load(const std::string& effectPath)
         return false;
     }
 
-    std::string shaderPath = root["Shader"].asString();
-    if (shaderPath == "")
-    {
-        std::stringstream assertMessage;
-        assertMessage << "Shader missing in '" << effectPath << "'";
-
-        CL_TRACE_CHANNEL("ERROR", assertMessage.str().c_str());
-        CL_ASSERT_MSG(assertMessage.str().c_str());
-        return false;
-    }
+    m_vsFile        = root["VertexShader"]["File"].asString();
+    m_vsEntryPoint  = root["VertexShader"]["EntryPoint"].asString();
+    m_gsFile        = root["GeometryShader"]["File"].asString();
+    m_gsEntryPoint  = root["GeometryShader"]["EntryPoint"].asString();
+    m_psFile        = root["PixelShader"]["File"].asString();
+    m_psEntryPoint  = root["PixelShader"]["EntryPoint"].asString();
 
     InputLayout::InputLayoutDesc inputLayoutDesc;
-    ParseInputLayout(root["Input"], inputLayoutDesc);
+    ParseInputLayout(root["Input"], root["InstanceInput"], inputLayoutDesc);
 
-    if (!LoadShaders(shaderPath, inputLayoutDesc)) return false;
-    if (!CreateBlendState()) return false;
+    if (!LoadShaders(inputLayoutDesc))
+        return false;
+    if (!CreateBlendState())
+        return false;
 
     m_effectPath = effectPath;
 
@@ -87,30 +85,29 @@ void Cloud::Renderer::ShaderEffect::Unload()
     }
 }
 
-void Cloud::Renderer::ShaderEffect::Apply()
-{
-    CL_ASSERT_NULL(m_vertexShader);
-    CL_ASSERT_NULL(m_geometryShader);
-    CL_ASSERT_NULL(m_pixelShader);
-    CL_ASSERT_NULL(m_blendState);
-
-    auto immediateContext = RenderCore::Instance().GetDeviceContext();
-
-    immediateContext->VSSetShader(m_vertexShader, 0, 0 );
-    immediateContext->GSSetShader(m_geometryShader, 0, 0 );
-    immediateContext->PSSetShader(m_pixelShader, 0, 0 );
-    immediateContext->OMSetBlendState(m_blendState, 0, 0xffffffff);
-}
-
-CLbool Cloud::Renderer::ShaderEffect::LoadShaders(const std::string& shaderPath, const InputLayout::InputLayoutDesc& inputLayoutDesc)
+CLbool Cloud::Renderer::ShaderEffect::LoadShaders(const InputLayout::InputLayoutDesc& inputLayoutDesc)
 {
     ID3DBlob* vertexShaderBlob = 0;
     ID3DBlob* geometryShaderBlob = 0;
     ID3DBlob* pixelShaderBlob = 0;
 
-    if (!CompileShader(shaderPath, "VShader", "vs_5_0", vertexShaderBlob)) return false;
-    if (!CompileShader(shaderPath, "GShader", "gs_5_0", geometryShaderBlob)) return false;
-    if (!CompileShader(shaderPath, "PShader", "ps_5_0", pixelShaderBlob)) return false;
+    if (!m_vsFile.empty() && !m_vsEntryPoint.empty())
+    {
+        if (!CompileShader(m_vsFile, m_vsEntryPoint, "vs_5_0", vertexShaderBlob))
+            return false;
+    }
+
+    if (!m_gsFile.empty() && !m_gsEntryPoint.empty())
+    {
+        if (!CompileShader(m_gsFile, m_gsEntryPoint, "gs_5_0", geometryShaderBlob))
+            return false;
+    }
+
+    if (!m_psFile.empty() && !m_psEntryPoint.empty())
+    {
+        if (!CompileShader(m_psFile, m_psEntryPoint, "ps_5_0", pixelShaderBlob))
+            return false;
+    }
 
     auto cleanUp = [](ID3DBlob* vsBlob, ID3DBlob* gsBlob, ID3DBlob* psBlob)
     {
@@ -133,22 +130,31 @@ CLbool Cloud::Renderer::ShaderEffect::LoadShaders(const std::string& shaderPath,
         }
     };
 
-    if (!CreateVertexShader(vertexShaderBlob))
+    if (vertexShaderBlob)
     {
-        cleanUp(vertexShaderBlob, geometryShaderBlob, pixelShaderBlob);
-        return false;
+        if (!CreateVertexShader(vertexShaderBlob))
+        {
+            cleanUp(vertexShaderBlob, geometryShaderBlob, pixelShaderBlob);
+            return false;
+        }
     }
 
-    if (!CreateGeometryShader(geometryShaderBlob))
+    if (geometryShaderBlob)
     {
-        cleanUp(vertexShaderBlob, geometryShaderBlob, pixelShaderBlob);
-        return false;
+        if (!CreateGeometryShader(geometryShaderBlob))
+        {
+            cleanUp(vertexShaderBlob, geometryShaderBlob, pixelShaderBlob);
+            return false;
+        }
     }
 
-    if (!CreatePixelShader(pixelShaderBlob))
+    if (pixelShaderBlob)
     {
-        cleanUp(vertexShaderBlob, geometryShaderBlob, pixelShaderBlob);
-        return false;
+        if (!CreatePixelShader(pixelShaderBlob))
+        {
+            cleanUp(vertexShaderBlob, geometryShaderBlob, pixelShaderBlob);
+            return false;
+        }
     }
 
     if (!m_inputLayout.Init(vertexShaderBlob, inputLayoutDesc))
@@ -161,49 +167,75 @@ CLbool Cloud::Renderer::ShaderEffect::LoadShaders(const std::string& shaderPath,
     return true;
 }
 
-CLbool Cloud::Renderer::ShaderEffect::ParseInputLayout(const Json::Value& inputLayout, InputLayout::InputLayoutDesc& inputLayoutDescOutput)
+CLbool Cloud::Renderer::ShaderEffect::ParseInputLayout(const Json::Value& inputLayout,const Json::Value& instanceInputLayout, InputLayout::InputLayoutDesc& inputLayoutDescOutput)
 {
     enum ElementVariables
     {
         Name = 0,
         Format,
+        SemanticIndex,
+        InstanceDataStepRate,
     };
 
-    if (inputLayout.size() <= 0)
+    if (inputLayout.size() <= 0 && instanceInputLayout.size() <= 0)
     {
         return false;
-    }    
+    }
 
-    inputLayoutDescOutput.Init(inputLayout.size(), 1);
+    inputLayoutDescOutput.Init(inputLayout.size() + instanceInputLayout.size(), 1);
+
+    CLint elementByteOffset = 0;
     for (CLuint i = 0; i < inputLayout.size(); ++i)
     {
         inputLayoutDescOutput.Add(InputElementDesc());
-        inputLayoutDescOutput[i].name   = inputLayout[i][Name].asString();
-        inputLayoutDescOutput[i].format = inputLayout[i][Format].asString();
+        inputLayoutDescOutput[i].name                 = inputLayout[i][Name].asString();
+        inputLayoutDescOutput[i].format               = GetFormat(inputLayout[i][Format].asString());
+        inputLayoutDescOutput[i].semanticIndex        = inputLayout[i][SemanticIndex].asInt();
+        inputLayoutDescOutput[i].byteOffset           = elementByteOffset;
+        inputLayoutDescOutput[i].instanceDataStepRate = 0;
+        inputLayoutDescOutput[i].isInstanceData       = false;
+
+        elementByteOffset += GetFormatSize(inputLayoutDescOutput[i].format);
+    }
+    
+    elementByteOffset = 0;
+    for (CLuint targetIndex = inputLayoutDescOutput.Count(), sourceIndex = 0; sourceIndex < instanceInputLayout.size(); ++targetIndex, ++sourceIndex)
+    {
+        inputLayoutDescOutput.Add(InputElementDesc());
+        inputLayoutDescOutput[targetIndex].name                 = instanceInputLayout[sourceIndex][Name].asString();
+        inputLayoutDescOutput[targetIndex].format               = GetFormat(instanceInputLayout[sourceIndex][Format].asString());
+        inputLayoutDescOutput[targetIndex].semanticIndex        = instanceInputLayout[sourceIndex][SemanticIndex].asInt();
+        inputLayoutDescOutput[targetIndex].byteOffset           = elementByteOffset;
+        inputLayoutDescOutput[targetIndex].instanceDataStepRate = instanceInputLayout[sourceIndex][InstanceDataStepRate].asInt();
+        inputLayoutDescOutput[targetIndex].isInstanceData       = true;
+
+        elementByteOffset += GetFormatSize(inputLayoutDescOutput[targetIndex].format);
     }
 
     return true;
 }
 
-CLbool Cloud::Renderer::ShaderEffect::CompileShader(const std::string& shaderPath, const std::string& entryPoint, const std::string& shaderModel, ID3DBlob*& shaderBlobOutput)
+CLbool Cloud::Renderer::ShaderEffect::CompileShader(const ClString& shaderPath, const ClString& entryPoint, const ClString& shaderModel, ID3DBlob*& shaderBlobOutput)
 {
     CLdword shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 #if defined( DEBUG ) || defined( _DEBUG )
     shaderFlags |= D3DCOMPILE_DEBUG;
 #endif
 
+    CL_UNUSED(shaderBlobOutput);
+    CL_UNUSED(shaderModel);
+    CL_UNUSED(entryPoint);
     ID3DBlob* errorBlob = 0;
-    HRESULT result = D3DX11CompileFromFile( shaderPath.c_str(),
-                                            0,
-                                            0,
-                                            entryPoint.c_str(),
-                                            shaderModel.c_str(),
-                                            shaderFlags,
-                                            0,
-                                            0,
-                                            &shaderBlobOutput,
-                                            &errorBlob,
-                                            0);
+    HRESULT result = D3DCompileFromFile(
+        ClWString(shaderPath.begin(), shaderPath.end()).c_str(),
+        nullptr,
+        nullptr,
+        entryPoint.c_str(),
+        shaderModel.c_str(),
+        shaderFlags,
+        0,
+        &shaderBlobOutput,
+        &errorBlob);
 
     if (FAILED(result) || errorBlob)
     {

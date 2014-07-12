@@ -16,10 +16,16 @@ namespace Renderer
         ClFloat4 velocity;
     };
 
+    struct GpuParticle
+    {
+        ClFloat4 position;
+        ClFloat4 velocity;
+    };
+
     struct ParticleVertex
     {
-        Math::Float3 pos;
-        Math::Float2 scale;
+        Math::Float4 pos;
+        Math::Float4 scale;
     };
 
     class ParticleManager
@@ -36,14 +42,29 @@ namespace Renderer
         void Render();
 
     private:
-        static const CLuint s_maxParticles = 102400;
-        Utils::StaticArray<Particle, s_maxParticles> m_particles;
+        static const CLuint c_maxParticles = 256;
+        Utils::StaticArray<Particle, c_maxParticles> m_particles;
+
+        Utils::StaticArray<GpuParticle, c_maxParticles> m_gpuParticles;
+        Utils::StaticArray<GpuParticle, c_maxParticles> m_gpuParticlesOut;
 
         VertexBuffer m_vertexBuffer;
-        Utils::StaticArray<ParticleVertex, s_maxParticles> m_particleVertexData;
+        Utils::StaticArray<ParticleVertex, c_maxParticles> m_particleVertexData;
 
         ShaderEffect* m_effect;
         Texture* m_texture;
+
+
+        ID3D11Buffer* m_buffer;
+        ID3D11Buffer* m_bufferOut;
+        ID3D11Buffer* m_bufferVertexBuffer;
+        ID3D11ShaderResourceView* m_bufferSRV;
+        ID3D11UnorderedAccessView* m_bufferOutUAV;
+        ID3D11UnorderedAccessView* m_fillView;
+        ID3D11UnorderedAccessView* m_fillOutView;
+        ID3D11ShaderResourceView* m_vertexBufferView;
+        ID3D11ComputeShader* m_simShader;
+        ID3D11ComputeShader* m_fillShader;
     };
 }
 }

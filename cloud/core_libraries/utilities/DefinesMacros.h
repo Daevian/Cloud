@@ -12,4 +12,17 @@
 
 #define NULL 0
 
+
+
+
+
+#define FLOAT4_BLACK(alpha)     ClFloat4(0.0f, 0.0f, 0.0f, alpha)
+#define FLOAT4_WHITE(alpha)     ClFloat4(1.0f, 1.0f, 1.0f, alpha)
+#define FLOAT4_RED(alpha)       ClFloat4(1.0f, 0.0f, 0.0f, alpha)
+#define FLOAT4_GREEN(alpha)     ClFloat4(0.0f, 1.0f, 0.0f, alpha)
+#define FLOAT4_BLUE(alpha)      ClFloat4(0.0f, 0.0f, 1.0f, alpha)
+#define FLOAT4_YELLOW(alpha)    ClFloat4(1.0f, 1.0f, 0.0f, alpha)
+#define FLOAT4_MAGENTA(alpha)   ClFloat4(1.0f, 0.0f, 1.0f, alpha)
+#define FLOAT4_CYAN(alpha)      ClFloat4(0.0f, 1.0f, 1.0f, alpha)
+
 #endif // CLOUD_DEFINES_MACROS_HEADER

@@ -26,7 +26,7 @@
 
 #include <d3d11.h>
 #include <dxgi.h>
-#include <d3dx11.h>
+//#include <d3dx11.h>
 
 #include <math.h>
 
@@ -35,8 +35,8 @@
 #include "utilities/DefinesTypes.h"
 
 #include "utilities/Timer.h"
-#include "utilities/String.h"
-#include "utilities/StringStream.h"
+#include "utilities/ClString.h"
+#include "utilities/ClStringStream.h"
 
 #include "utilities/IntrinsicFunctions.h"
 #include "utilities/StaticArray.h"

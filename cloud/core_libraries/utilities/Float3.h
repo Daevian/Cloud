@@ -2,6 +2,7 @@
 #define CLOUD_MATH_FLOAT3_HEADER
 
 #include "DefinesTypes.h"
+#pragma warning (disable : 4201)
 
 namespace Cloud
 {
@@ -53,6 +54,10 @@ namespace Cloud
         };
     }
 }
+
+#pragma warning (default : 4201)
+
+typedef Cloud::Math::Float3 ClFloat3;
 
 #include "Float3.inl"
 

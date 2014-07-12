@@ -1,6 +1,8 @@
 #ifndef CLOUD_RENDERER_VERTEXBUFFER_HEADER
 #define CLOUD_RENDERER_VERTEXBUFFER_HEADER
 
+#include "GfxCommon.h"
+
 namespace Cloud
 {
     namespace Renderer
@@ -14,26 +16,26 @@ namespace Cloud
             CLbool Initialise();
             void Uninitialise();
 
-            CLint   GetVertexCount()    const { return m_vertexCount; }
-            CLint   GetVertexSize()     const { return m_vertexSize; }
-            CLchar* GetVertexData()     const { return m_vertexData; }
+            CLint   GetVertexCount()                const { return m_vertexCount; }
+            CLint   GetVertexSize()                 const { return m_vertexSize; }
+            void* GetVertexData()                 const { return m_vertexData; }
+            ID3D11Buffer* GetBuffer()               const { return m_vertexBuffer; }
+            GfxPrimitiveTopology GetTopology()      const { return m_topology; }
 
             void SetVertexCount(CLint vertexCount)              { m_vertexCount = vertexCount; }
             void SetVertexSize(CLint vertexSize)                { m_vertexSize = vertexSize; }
-            void SetVertexData(CLchar* vertexData)              { m_vertexData = vertexData; }
-            void SetTopology(D3D11_PRIMITIVE_TOPOLOGY topology) { m_topology = topology; }
+            void SetVertexData(void* vertexData)              { m_vertexData = vertexData; }
+            void SetTopology(GfxPrimitiveTopology topology)     { m_topology = topology; }
 
-            void GPUSetVertexBuffer();
             void GPUUpdateVertexBuffer();
-            void GPUSetTopology();
 
         private:
-            CLint m_vertexCount;                    //4
-            CLint m_vertexSize;                     //4
-            CLchar* m_vertexData;                   //4
-            D3D11_PRIMITIVE_TOPOLOGY m_topology;    //4
-            ID3D11Buffer* m_vertexBuffer;           //4
-        }; //20
+            CLint m_vertexCount;
+            CLint m_vertexSize;
+            void* m_vertexData;
+            GfxPrimitiveTopology m_topology;
+            ID3D11Buffer* m_vertexBuffer;
+        };
     }
 }
 

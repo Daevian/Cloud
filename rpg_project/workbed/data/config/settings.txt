@@ -1,7 +1,12 @@
 {
-	"Resolution" :
-	{
-		"Width": 1280,
-		"Height": 720
-	}
+    "Resolution" :
+    {
+        "Width": 1280,
+        "Height": 720
+    },
+    "Graphics" :
+    {
+        "MSAA" : 2,
+        "VSync" : 0
+    }
 }

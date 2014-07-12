@@ -1,6 +1,8 @@
 #ifndef CLOUD_RENDERER_INPUTLAYOUT_HEADER
 #define CLOUD_RENDERER_INPUTLAYOUT_HEADER
 
+#include "GfxFormat.h"
+
 namespace Cloud
 {
     namespace Renderer
@@ -8,8 +10,11 @@ namespace Cloud
         struct InputElementDesc
         {
             std::string name;
-            std::string format;
+            GfxFormat   format;
+            CLint       semanticIndex;
             CLint       byteOffset;
+            CLint       instanceDataStepRate;
+            CLbool      isInstanceData;
         };
 
         class InputLayout
@@ -22,14 +27,11 @@ namespace Cloud
             CLbool Init(ID3DBlob* vertexShaderBlob, const InputLayoutDesc& elementDescs);
             void Unload();
 
-            void GPUSetInputLayout();
+            ID3D11InputLayout* GetInputLayout() const { return m_inputLayout; }
 
         private:
-            DXGI_FORMAT GetFormat(const std::string& formatName);
-            CLuint      GetFormatSize(DXGI_FORMAT format);
-
-            ID3D11InputLayout* m_inputLayout; //4
-        }; //4
+            ID3D11InputLayout* m_inputLayout;
+        };
     }
 }
 

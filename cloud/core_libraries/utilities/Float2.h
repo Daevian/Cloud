@@ -18,8 +18,12 @@ namespace Cloud
 
             inline Float2 operator+(const Float2& float2) const;
             inline Float2 operator-(const Float2& float2) const;
+            inline Float2 operator*(const Float2& float2) const;
+            inline Float2 operator/(const Float2& float2) const;
             inline Float2& operator+=(const Float2& float2);
             inline Float2& operator-=(const Float2& float2);
+            inline Float2& operator*=(const Float2& float2);
+            inline Float2& operator/=(const Float2& float2);
 
             inline Float2 operator+(const CLfloat& scalar) const;
             inline Float2 operator-(const CLfloat& scalar) const;
@@ -51,6 +55,8 @@ namespace Cloud
         };
     }
 }
+
+typedef Cloud::Math::Float2 ClFloat2;
 
 #include "Float2.inl"
 

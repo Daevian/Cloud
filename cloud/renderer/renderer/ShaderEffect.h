@@ -17,28 +17,38 @@ namespace Cloud
             CLbool Load(const std::string& effectPath);
             void Unload();
 
-            InputLayout& GetInputLayout() { return m_inputLayout; }
-            void Apply();
+            const InputLayout&      GetInputLayout() const      { return m_inputLayout; }
+            ID3D11VertexShader*     GetVertexShader() const     { return m_vertexShader; }
+            ID3D11GeometryShader*   GetGeometryShader() const   { return m_geometryShader; }
+            ID3D11PixelShader*      GetPixelShader() const      { return m_pixelShader; }
+            ID3D11BlendState*       GetBlendState() const       { return m_blendState; }
 
-            const std::string& GetPath() const { return m_effectPath; }
+            const ClString&         GetPath() const             { return m_effectPath; }
 
         private:
-            CLbool LoadShaders(const std::string& shaderPath, const InputLayout::InputLayoutDesc& inputLayoutDesc);
+            CLbool LoadShaders(const InputLayout::InputLayoutDesc& inputLayoutDesc);
 
-            CLbool ParseInputLayout(const Json::Value& inputLayout, InputLayout::InputLayoutDesc& inputLayoutDescOutput);
-            CLbool CompileShader(const std::string& shaderPath, const std::string& entryPoint, const std::string& shaderModel, ID3DBlob*& shaderBlobOutput);
+            CLbool ParseInputLayout(const Json::Value& inputLayout, const Json::Value& instanceInputLayout, InputLayout::InputLayoutDesc& inputLayoutDescOutput);
+            CLbool CompileShader(const ClString& shaderPath, const ClString& entryPoint, const ClString& shaderModel, ID3DBlob*& shaderBlobOutput);
             CLbool CreateVertexShader(ID3DBlob* vertexShaderBlob);
             CLbool CreateGeometryShader(ID3DBlob* geometryShaderBlob);
             CLbool CreatePixelShader(ID3DBlob* pixelShaderBlob);
             CLbool CreateBlendState();
 
-            ID3D11VertexShader* m_vertexShader;
-            ID3D11GeometryShader* m_geometryShader;
-            ID3D11PixelShader* m_pixelShader;
-            ID3D11BlendState* m_blendState;
-            InputLayout m_inputLayout;
+            ID3D11VertexShader*     m_vertexShader;
+            ID3D11GeometryShader*   m_geometryShader;
+            ID3D11PixelShader*      m_pixelShader;
+            ID3D11BlendState*       m_blendState;
+            InputLayout             m_inputLayout;
 
-            std::string m_effectPath;
+            ClString                m_vsFile;
+            ClString                m_gsFile;
+            ClString                m_psFile;
+            ClString                m_vsEntryPoint;
+            ClString                m_gsEntryPoint;
+            ClString                m_psEntryPoint;
+
+            ClString                m_effectPath;
         };
     }
 }

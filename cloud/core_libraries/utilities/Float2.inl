@@ -37,6 +37,16 @@ inline Cloud::Math::Float2 Cloud::Math::Float2::operator-(const Cloud::Math::Flo
     return Float2(*this) -= float2;
 }
 
+inline Cloud::Math::Float2 Cloud::Math::Float2::operator*(const Cloud::Math::Float2& float2) const
+{
+    return Float2(*this) *= float2;
+}
+
+inline Cloud::Math::Float2 Cloud::Math::Float2::operator/(const Cloud::Math::Float2& float2) const
+{
+    return Float2(*this) /= float2;
+}
+
 inline Cloud::Math::Float2& Cloud::Math::Float2::operator+=(const Cloud::Math::Float2& float2)
 {
     this->x += float2.x;
@@ -48,6 +58,20 @@ inline Cloud::Math::Float2& Cloud::Math::Float2::operator-=(const Cloud::Math::F
 {
     this->x -= float2.x;
     this->y -= float2.y;
+    return(*this);
+}
+
+inline Cloud::Math::Float2& Cloud::Math::Float2::operator*=(const Cloud::Math::Float2& float2)
+{
+    this->x *= float2.x;
+    this->y *= float2.y;
+    return(*this);
+}
+
+inline Cloud::Math::Float2& Cloud::Math::Float2::operator/=(const Cloud::Math::Float2& float2)
+{
+    this->x /= float2.x;
+    this->y /= float2.y;
     return(*this);
 }
 

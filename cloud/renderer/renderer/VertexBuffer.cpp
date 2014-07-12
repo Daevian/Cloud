@@ -7,7 +7,7 @@ Cloud::Renderer::VertexBuffer::VertexBuffer()
 :m_vertexCount(0)
 ,m_vertexSize(0)
 ,m_vertexData(0)
-,m_topology(D3D10_PRIMITIVE_TOPOLOGY_UNDEFINED)
+,m_topology(GfxPrimitiveTopology::Undefined)
 ,m_vertexBuffer(0)
 {
 }
@@ -56,21 +56,9 @@ void Cloud::Renderer::VertexBuffer::Uninitialise()
     }
 }
 
-void Cloud::Renderer::VertexBuffer::GPUSetVertexBuffer()
-{
-    CLuint stride = m_vertexSize;
-    CLuint offset = 0;
-    RenderCore::Instance().GetDeviceContext()->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
-}
-
-void Cloud::Renderer::VertexBuffer::GPUSetTopology()
-{
-    RenderCore::Instance().GetDeviceContext()->IASetPrimitiveTopology(m_topology);
-}
-
 void Cloud::Renderer::VertexBuffer::GPUUpdateVertexBuffer()
 {
-    RenderCore::Instance().GetDeviceContext()->UpdateSubresource(   m_vertexBuffer,
+    RenderCore::Instance().GetContext()->UpdateSubresource(   m_vertexBuffer,
                                                                     0,
                                                                     0,
                                                                     m_vertexData,

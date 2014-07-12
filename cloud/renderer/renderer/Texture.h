@@ -17,8 +17,8 @@ namespace Cloud
 
             const std::string& GetPath() const { return m_texturePath; };
 
-            void GPUSetShaderResource();
-            void GPUSetSamplerState();
+            ID3D11ShaderResourceView* GetSRV() const    { return m_textureRV; }
+            ID3D11SamplerState* GetSamplerState() const { return m_samplerState; }
 
         private:
 

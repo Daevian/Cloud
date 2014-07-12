@@ -17,7 +17,7 @@
 
 #include <d3d11.h>
 #include <dxgi.h>
-#include <d3dx11.h>
+//#include <d3dx11.h>
 #include <d3dcompiler.h>
 
 
@@ -38,6 +38,9 @@
 #include "utilities/Float3.h"
 #include "utilities/Float2.h"
 #include "utilities/Matrix4.h"
+
+#include "utilities/ClString.h"
+#include "utilities/ClStringStream.h"
 
 #include "debugging/DebugLog.h"
 

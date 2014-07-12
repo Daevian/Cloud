@@ -24,6 +24,7 @@ namespace Cloud
 
             CLuint Count()   { return Size; }
             CLuint SizeOf() { return sizeof(Type) * Size; }
+            Type*  GetBuffer() { return &m_items[0]; }
 
         protected:
             Type m_items[Size];

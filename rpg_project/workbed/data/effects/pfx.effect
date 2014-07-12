@@ -1,8 +1,22 @@
 {
-	"Shader" : "data/shaders/pfx.fx",
+	"VertexShader" : 
+	{
+		"File" : "data/shaders/pfx.fx",
+		"EntryPoint" : "VShader"
+	},
+	"GeometryShader" : 
+	{
+		"File" : "data/shaders/pfx.fx",
+		"EntryPoint" : "GShader"
+	},
+	"PixelShader" : 
+	{
+		"File" : "data/shaders/pfx.fx",
+		"EntryPoint" : "PShader"
+	},
 	"Input" :
 	[
-		[ "POSITION", "R32G32B32_FLOAT"],
-		[ "SCALE", "R32G32_FLOAT"]
+		[ "POSITION", "R32G32B32A32_FLOAT"],
+		[ "SCALE", "R32G32B32A32_FLOAT"]
 	]
 }

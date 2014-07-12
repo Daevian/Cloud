@@ -26,24 +26,24 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -147,9 +147,10 @@
     <ClInclude Include="DefinesMacros.h" />
     <ClInclude Include="DefinesTypes.h" />
     <ClInclude Include="IntrinsicFunctions.h" />
-    <ClInclude Include="String.h" />
-    <ClInclude Include="StringStream.h" />
+    <ClInclude Include="ClString.h" />
+    <ClInclude Include="ClStringStream.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="VectorMath.h" />
     <ClInclude Include="Windows.h" />
     <ClInclude Include="Float2.h" />
     <ClInclude Include="Float3.h" />
@@ -164,6 +165,7 @@
     <None Include="Float2.inl" />
     <None Include="Float3.inl" />
     <None Include="Float4.inl" />
+    <None Include="VectorMath.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="temp.cpp" />

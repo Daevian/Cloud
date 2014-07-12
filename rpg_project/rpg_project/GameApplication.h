@@ -35,6 +35,9 @@ namespace RPG
 
         Cloud::Renderer::Renderer&  GetRenderer()   { return m_renderer; }
         UIManager&                  GetUIManager()  { return m_uiManager; }
+        Cloud::Input::InputManager& GetInput()      { return m_inputManager; }
+
+        CLbool IsDebugCameraActive() const          { return m_debugCameraActive; }
 
     private:
         Application();
@@ -47,6 +50,9 @@ namespace RPG
         void Update();
         void Render();
 
+        void UpdateDebugCamera(CLfloat timeStep);
+        void DrawInputDebug();
+
         static Application* s_instance;
 
         Cloud::Utils::Timer m_time;
@@ -57,6 +63,10 @@ namespace RPG
 
         CLbool m_exitFlag;
         CLuint m_frameCount;
+
+        CLbool m_debugCameraActive;
+        ClFloat4 m_cameraPosition;
+        ClFloat4 m_cameraRotation;
     };
 }
 

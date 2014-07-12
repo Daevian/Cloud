@@ -4,7 +4,7 @@
 #include "renderer/RenderCore.h"
 #include "renderer/Settings.h"
 
-#define GAME_WINDOW_STYLE (WS_OVERLAPPED | WS_CAPTION | WS_THICKFRAME |  WS_MINIMIZEBOX |  WS_MAXIMIZEBOX)
+#define GAME_WINDOW_STYLE (WS_OVERLAPPED | WS_CAPTION | WS_THICKFRAME |  WS_MINIMIZEBOX |  WS_MAXIMIZEBOX | WS_SYSMENU)
 
 RPG::Application* RPG::Application::s_instance = 0;
 
@@ -34,6 +34,9 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 RPG::Application::Application()
     : m_exitFlag(false)
     , m_frameCount(0)
+    , m_debugCameraActive(true)
+    , m_cameraPosition(0.0f, 5.0f, -10.0f, 1.0f)
+    , m_cameraRotation(0.3f, 0.0f, 0.0f, 0.0f)
 {
 }
 
@@ -96,6 +99,8 @@ CLbool RPG::Application::Initialise()
 
     m_time.Initialise();
 
+    m_game.Initialise();
+
     return true;
 }
 
@@ -129,7 +134,7 @@ void RPG::Application::Run()
             const CLfloat fps = static_cast<CLfloat>(m_frameCount) / static_cast<CLfloat>(m_time.GetTotalTime());
             ClStringStream windowText;
             windowText << "FPS: " << fps;
-            SetWindowText(m_appInfo.m_hWnd, windowText.str().c_str());
+            SetWindowTextA(m_appInfo.m_hWnd, windowText.str().c_str());
         }
     }
 }
@@ -167,7 +172,7 @@ CLbool RPG::Application::CreateWindowsWindowClass()
     wcex.hCursor        = LoadCursor(0, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW + 1);
     wcex.lpszMenuName   = 0;
-    wcex.lpszClassName  = "GameWindowClass";
+    wcex.lpszClassName  = L"GameWindowClass";
     wcex.hIconSm        = 0;
     if (!RegisterClassEx(&wcex))
     {
@@ -188,8 +193,8 @@ CLbool RPG::Application::CreateWindowsWindow()
 
     AdjustWindowRect(&rc, GAME_WINDOW_STYLE, false);
 
-    m_appInfo.m_hWnd = CreateWindow("GameWindowClass",
-                                    "Renderer",
+    m_appInfo.m_hWnd = CreateWindow(L"GameWindowClass",
+                                    L"Renderer",
                                     GAME_WINDOW_STYLE,
                                     CW_USEDEFAULT,
                                     CW_USEDEFAULT,
@@ -214,11 +219,18 @@ void RPG::Application::Update()
 {
     m_time.Update();
     m_inputManager.Update();
-    m_game.Update();
+    UpdateDebugCamera((CLfloat)m_time.GetTimeStep());
+    m_game.Update((CLfloat)m_time.GetTimeStep());
     m_uiManager.Update();
     m_renderer.Update(m_time.GetTotalTime(), m_time.GetTimeStep());
 
-    if (m_inputManager.GetKeyPressed(Cloud::Input::Keyboard::Escape))
+    CLbool enableInputDebug = true;
+    if (enableInputDebug)
+    {
+        DrawInputDebug();
+    }
+
+    if (m_inputManager.GetKeyPressed(Cloud::Input::Key::Escape))
     {
         Exit();
     }
@@ -226,5 +238,115 @@ void RPG::Application::Update()
 
 void RPG::Application::Render()
 {
+    m_game.Render();
     m_renderer.Render();
+}
+
+void RPG::Application::UpdateDebugCamera(CLfloat timeStep)
+{
+    if (m_inputManager.GetPadButtonPressed(0, Cloud::Input::PadButton::B))
+    {
+        m_debugCameraActive = !m_debugCameraActive;
+        if (m_debugCameraActive)
+        {
+            m_cameraPosition = m_renderer.GetCamera().GetCameraTransform().GetTranslation();
+        }
+    }
+
+    if (!m_debugCameraActive)
+        return;
+
+    CLfloat cameraSpeed = 10.f;
+    const CLfloat rotationSpeed = 1.5f;
+    
+    ClFloat4 cameraMovement(0.0f);
+
+    {
+        cameraSpeed *= m_inputManager.GetPadButtonDown(0, Cloud::Input::PadButton::A) ? 3.0f : 1.0f;
+
+        auto leftStick    = m_inputManager.GetPadLeftStick(0);
+        auto rightStick   = m_inputManager.GetPadRightStick(0);
+        auto leftTrigger  = m_inputManager.GetPadLeftTrigger(0);
+        auto rightTrigger = m_inputManager.GetPadRightTrigger(0);
+
+        cameraMovement = ClFloat4(leftStick.x, -leftTrigger + rightTrigger, leftStick.y, 0.0f);
+        m_cameraRotation += ClFloat4(-rightStick.y, rightStick.x, 0.0f, 0.0f) * rotationSpeed * timeStep;
+    }
+
+    if (m_inputManager.GetKeyDown(Cloud::Input::Key::Left) ||
+        m_inputManager.GetKeyDown(Cloud::Input::Key::A))
+    {
+        cameraMovement = ClFloat4(-1.0f, 0.0f, 0.0f, 0.0f);
+    }
+
+    if (m_inputManager.GetKeyDown(Cloud::Input::Key::Right) ||
+        m_inputManager.GetKeyDown(Cloud::Input::Key::D))
+    {
+        cameraMovement = ClFloat4(1.0f, 0.0f, 0.0f, 0.0f);
+    }
+
+    if (m_inputManager.GetKeyDown(Cloud::Input::Key::Up) ||
+        m_inputManager.GetKeyDown(Cloud::Input::Key::W))
+    {
+        cameraMovement = ClFloat4(0.0f, 0.0f, 1.0f, 0.0f);
+    }
+
+    if (m_inputManager.GetKeyDown(Cloud::Input::Key::Down) ||
+        m_inputManager.GetKeyDown(Cloud::Input::Key::S))
+    {
+        cameraMovement = ClFloat4(0.0f, 0.0f, -1.0f, 0.0f);
+    }
+
+    if (m_inputManager.GetKeyDown(Cloud::Input::Key::Space))
+    {
+        cameraMovement = ClFloat4(0.0f, 1.0f, 0.0f, 0.0f);
+    }
+
+    if (m_inputManager.GetKeyDown(Cloud::Input::Key::LeftCtrl))
+    {
+        cameraMovement = ClFloat4(0.0f, -1.0f, 0.0f, 0.0f);
+    }
+
+    ClMatrix4 rotationMatrix = ClMatrix4::Rotation(m_cameraRotation);
+    
+    m_cameraPosition += rotationMatrix * cameraMovement * cameraSpeed * timeStep;
+
+    ClMatrix4 cameraMatrix = ClMatrix4::Identity();
+    cameraMatrix *= ClMatrix4::Rotation(m_cameraRotation);
+    cameraMatrix.SetCol3(m_cameraPosition);
+
+    auto& camera = m_renderer.GetCamera();
+    camera.SetCameraTransform(cameraMatrix);
+}
+
+void RPG::Application::DrawInputDebug()
+{
+    auto& settings = Cloud::Renderer::Settings::Instance().GetRoot();
+    const CLfloat width = (CLfloat)settings["Resolution"]["Width"].asInt();
+    const CLfloat height = (CLfloat)settings["Resolution"]["Height"].asInt();
+    const CLfloat ratio = width / height;
+
+    auto& debugRenderer = m_renderer.GetDebugRendererForGame();
+
+    {
+        auto leftStick = m_inputManager.GetPadLeftStick(0);
+        auto rightStick = m_inputManager.GetPadRightStick(0);
+
+        const ClFloat2 centerLeft(-0.5f, -0.5f);
+        const ClFloat2 centerRight(0.5f, -0.5f);
+        const ClFloat2 scale(0.2f, 0.2f * ratio);
+        debugRenderer.AddLine2D(centerLeft,  centerLeft  + leftStick  * scale, FLOAT4_RED(1.0f));
+        debugRenderer.AddLine2D(centerRight, centerRight + rightStick * scale, FLOAT4_RED(1.0f));
+    }
+
+    {
+        auto leftTrigger = m_inputManager.GetPadLeftTrigger(0);
+        auto rightTrigger = m_inputManager.GetPadRightTrigger(0);
+
+        const ClFloat2 centerLeft(-0.85f, 0.0f);
+        const ClFloat2 centerRight(0.85f, 0.0f);
+        const ClFloat2 scale(0.1f, 0.8f);
+        debugRenderer.AddBar(centerLeft,  scale, FLOAT4_RED(0.7f), leftTrigger);
+        debugRenderer.AddBar(centerRight, scale, FLOAT4_RED(0.7f), rightTrigger);
+    }
 }

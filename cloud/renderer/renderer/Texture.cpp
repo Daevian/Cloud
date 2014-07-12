@@ -35,22 +35,11 @@ void Cloud::Renderer::Texture::Unload()
     }
 }
 
-void Cloud::Renderer::Texture::GPUSetShaderResource()
-{
-    RenderCore::Instance().GetDeviceContext()->PSSetShaderResources(0, 1, &m_textureRV);
-}
-
-void Cloud::Renderer::Texture::GPUSetSamplerState()
-{
-    RenderCore::Instance().GetDeviceContext()->PSSetSamplers( 0, 1, &m_samplerState);
-}
-
 CLbool Cloud::Renderer::Texture::LoadResource()
 {
     CL_ASSERT(m_textureRV == 0, (m_texturePath + " already loaded!").c_str());
 
-    HRESULT result;
-    result = D3DX11CreateShaderResourceViewFromFile(RenderCore::Instance().GetDevice(),
+    /*HRESULT result = D3DX11CreateShaderResourceViewFromFile(RenderCore::Instance().GetDevice(),
                                                     m_texturePath.c_str(),
                                                     0,
                                                     0,
@@ -65,7 +54,7 @@ CLbool Cloud::Renderer::Texture::LoadResource()
         CL_TRACE_CHANNEL("ERROR", assertMessage.str().c_str());
         CL_ASSERT_MSG(assertMessage.str().c_str());
         return false;
-    }
+    }*/
 
     return true;
 }

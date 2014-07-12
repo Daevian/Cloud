@@ -24,6 +24,27 @@ inline Cloud::Math::Float4::Float4(const Float4& float4)
     v = float4.v;
 }
 
+inline Cloud::Math::Float4::Float4(const Float3& float3, CLfloat valW)
+{
+    x = float3.x;
+    y = float3.y;
+    z = float3.z;
+    w = valW;
+}
+
+inline Cloud::Math::Float4::Float4(const Float2& float2, CLfloat valZ, CLfloat valW)
+{
+    x = float2.x;
+    y = float2.y;
+    z = valZ;
+    w = valW;
+}
+
+inline Cloud::Math::Float4::Float4(const Vector4& vector4)
+{
+    v = vector4;
+}
+
 inline void Cloud::Math::Float4::Set(CLfloat xValue, CLfloat yValue, CLfloat zValue, CLfloat wValue)
 {
     x = xValue;
@@ -176,6 +197,11 @@ Cloud::Math::Float4& Cloud::Math::Float4::Normalize()
 const DirectX::XMVECTOR& Cloud::Math::Float4::GetDxVector() const
 {
     return m_dxVector;
+}
+
+ClFloat3 Cloud::Math::Float4::GetXYZ() const
+{
+    return ClFloat3(x, y, z);;
 }
 
 #endif // CLOUD_MATH_FLOAT4_INLINE

@@ -11,7 +11,7 @@ inline void* ClMemSet(void* destination, CLint value, CLsize_t size)
     return memset(destination, value, size);
 }
 
-inline void* ClMemSet(void* destination, const void* source, CLsize_t size)
+inline void* ClMemCopy(void* destination, const void* source, CLsize_t size)
 {
     return memcpy(destination, source, size);
 }

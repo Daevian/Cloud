@@ -32,7 +32,7 @@ CLbool Cloud::Renderer::Sprite::Init(Texture* texture)
     m_vertexBuffer.SetVertexCount(1);
     m_vertexBuffer.SetVertexSize(sizeof(SpriteVertex));
     m_vertexBuffer.SetVertexData((CLchar*)&m_vertex);
-    m_vertexBuffer.SetTopology(D3D10_PRIMITIVE_TOPOLOGY_POINTLIST);
+    m_vertexBuffer.SetTopology(GfxPrimitiveTopology::Pointlist);
 
     if (!m_vertexBuffer.Initialise()) return false;
 
@@ -54,5 +54,5 @@ void Cloud::Renderer::Sprite::Render()
     renderingDevice.SetEffect(m_effect);
     renderingDevice.SetVertexBuffer(&m_vertexBuffer);
 
-    renderingDevice.Render();
+    renderingDevice.Draw();
 }

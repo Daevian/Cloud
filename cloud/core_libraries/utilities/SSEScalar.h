@@ -1,9 +1,7 @@
 #ifndef CLOUD_MATH_SCALAR_HEADER
 #define CLOUD_MATH_SCALAR_HEADER
 
-#include "DefinesTypes.h"
-#include "DefinesMacros.h"
-#include <xmmintrin.h>
+#include "VectorMath.h"
 
 namespace Cloud
 {
@@ -16,16 +14,16 @@ namespace Cloud
             {
             public:
                 inline Scalar() { }
-                inline Scalar(__m128 vector);
+                inline Scalar(Vector4 vector);
                 explicit inline Scalar(CLfloat scalar);
 
                 inline operator CLfloat() const;
 
 
-                CL_ALIGN(16) __m128 m_scalar;
+                CL_ALIGN(16) Vector4 m_scalar;
             };
 
-            inline Scalar::Scalar(__m128 vector)
+            inline Scalar::Scalar(Vector4 vector)
                 :m_scalar(vector)
             {
             }
