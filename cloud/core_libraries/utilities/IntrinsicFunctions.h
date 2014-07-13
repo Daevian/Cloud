@@ -3,6 +3,7 @@
 
 #include "Windows.h"
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include "DefinesTypes.h"
 
@@ -19,6 +20,11 @@ inline void* ClMemCopy(void* destination, const void* source, CLsize_t size)
 inline void* ClMemZero(void* destination, CLsize_t size)
 {
     return ClMemSet(destination, 0, size);
+}
+
+inline CLsize_t ClStrlen(const CLchar* str)
+{
+    return strlen(str);
 }
 
 inline CLtime_t ClTime(CLtime_t* timeValue = 0)

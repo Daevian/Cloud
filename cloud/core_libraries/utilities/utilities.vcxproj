@@ -137,6 +137,8 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ClFile.h" />
+    <ClInclude Include="ClMemory.h" />
     <ClInclude Include="CloudDelegate.h" />
     <ClInclude Include="CloudEvent.h" />
     <ClInclude Include="DynamicArray.h" />
@@ -168,6 +170,7 @@
     <None Include="VectorMath.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ClFile.cpp" />
     <ClCompile Include="temp.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>

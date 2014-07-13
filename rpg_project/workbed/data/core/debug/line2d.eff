@@ -1,0 +1,17 @@
+{
+	"VertexShader" : 
+	{
+		"File" : "data/core/debug/line2d.fx",
+		"EntryPoint" : "VShader"
+	},
+	"PixelShader" : 
+	{
+		"File" : "data/core/debug/line2d.fx",
+		"EntryPoint" : "PShader"
+	},
+	"Input" :
+	[
+		[ "POSITION", "R32G32B32A32_FLOAT"],
+		[ "COLOR",    "R32G32B32A32_FLOAT"]
+	]
+}

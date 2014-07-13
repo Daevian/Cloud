@@ -1,0 +1,25 @@
+{
+	"VertexShader" : 
+	{
+		"File" : "data/core/debug/box.fx",
+		"EntryPoint" : "VShader"
+	},
+	"PixelShader" : 
+	{
+		"File" : "data/core/debug/box.fx",
+		"EntryPoint" : "PShader"
+	},
+	"Input" :
+	[
+		[ "POSITION", "R32G32B32A32_FLOAT"],
+		[ "NORMAL",   "R32G32B32_FLOAT"]
+	],
+	"InstanceInput" :
+	[
+		[ "TRANSFORM", "R32G32B32A32_FLOAT", 0, 1],
+		[ "TRANSFORM", "R32G32B32A32_FLOAT", 1, 1],
+		[ "TRANSFORM", "R32G32B32A32_FLOAT", 2, 1],
+		[ "TRANSFORM", "R32G32B32A32_FLOAT", 3, 1],
+        [ "COLOR",     "R32G32B32A32_FLOAT", 0, 1]
+	]
+}

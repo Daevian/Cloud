@@ -181,6 +181,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CSTest.cpp" />
+    <ClCompile Include="DdsHelper.cpp" />
     <ClCompile Include="DebugRenderer.cpp" />
     <ClCompile Include="GfxBuffer.cpp" />
     <ClCompile Include="GfxConstantBuffer.cpp" />
@@ -213,6 +214,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="DdsHelper.h" />
     <ClInclude Include="CSTest.h" />
     <ClInclude Include="DebugRenderer.h" />
     <ClInclude Include="GfxBuffer.h" />

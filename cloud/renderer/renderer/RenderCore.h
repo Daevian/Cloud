@@ -11,6 +11,9 @@ namespace Cloud
 {
     namespace Renderer
     {
+        class GfxTexture;
+        struct GfxTextureDesc;
+
         struct PerSceneConstBuffer
         {
             Math::Matrix4 view;
@@ -52,6 +55,9 @@ namespace Cloud
             void GpuUpdatePerSceneConstBuffer();
             void GpuUpdatePerModelConstBuffer();
 
+            GfxTexture* Create(const GfxTextureDesc& desc);
+            void Destroy(GfxTexture* texture);
+
         private:
             RenderCore();
             ~RenderCore();
@@ -91,6 +97,8 @@ namespace Cloud
             RenderingDevice m_renderingDevice;
             Settings m_settings;
         };
+
+        typedef RenderCore GfxCore;
     }
 }
 

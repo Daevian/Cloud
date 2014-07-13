@@ -8,7 +8,7 @@
 #include "targetver.h"
 
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
-
+#include <windows.h>
 // TODO: reference additional headers your program requires here
 
 #include <string>
@@ -19,11 +19,13 @@
 #include <dxgi.h>
 //#include <d3dx11.h>
 #include <d3dcompiler.h>
-
+#include <mmsyscom.h>
 
 #include <math.h>
 
 #include "utilities/Windows.h"
+#include "utilities/ClMemory.h"
+#include "utilities/ClFile.h"
 
 #include "utilities/DefinesAsserts.h"
 #include "utilities/DefinesMacros.h"

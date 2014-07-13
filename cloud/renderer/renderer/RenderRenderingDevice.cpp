@@ -6,6 +6,7 @@
 #include "IndexBuffer.h"
 #include "GfxInstanceBuffer.h"
 #include "GfxConstantBuffer.h"
+#include "GfxTexture.h"
 #include "ShaderEffect.h"
 #include "Texture.h"
 
@@ -170,18 +171,9 @@ void Cloud::Renderer::RenderingDevice::SetConstantBuffer(GfxConstantBuffer* cons
     }
 }
 
-void Cloud::Renderer::RenderingDevice::SetTexture(Texture* texture)
+void Cloud::Renderer::RenderingDevice::SetTexture(GfxTexture* texture)
 {
-    if (texture)
-    {
-        SetShaderResource(texture->GetSRV(), 0);
-        SetSamplerState(texture->GetSamplerState(), 0);
-    }
-    else
-    {
-        SetShaderResource(0, 0);
-        SetSamplerState(0, 0);
-    }
+    SetShaderResource(texture->GetSrv(), 0);
 }
 
 void Cloud::Renderer::RenderingDevice::SetShaderResource(ID3D11ShaderResourceView* srv, CLuint slot)

@@ -6,4 +6,6 @@
 typedef std::string ClString;
 typedef std::wstring ClWString;
 
+typedef ClString ClDebugName;
+
 #endif // CLOUD_UTILITIES_STRING_HEADER

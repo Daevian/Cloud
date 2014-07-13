@@ -93,7 +93,7 @@ void Cloud::Renderer::Renderer::Render()
     renderCore.GpuUpdatePerSceneConstBuffer();
 
     //m_csTest.Render();
-    //m_spriteManager.Render();
+    m_spriteManager.Render();
     //m_particleManager.Render();
     
     m_debugRenderer.Render();

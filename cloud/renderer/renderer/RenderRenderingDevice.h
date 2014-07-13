@@ -13,6 +13,7 @@ namespace Renderer
     class IndexBuffer;
     class GfxInstanceBuffer;
     class GfxConstantBuffer;
+    class GfxTexture;
     class Texture;
     class InputLayout;
 
@@ -36,7 +37,7 @@ namespace Renderer
         void SetConstantBuffer(GfxConstantBuffer* constantBuffer, CLuint slot);
         void SetPrimitiveTopology(GfxPrimitiveTopology topology);
 
-        void SetTexture(Texture* texture);
+        void SetTexture(GfxTexture* texture);
         void SetShaderResource(ID3D11ShaderResourceView* srv, CLuint slot);
         void SetSamplerState(ID3D11SamplerState* samplerState, CLuint slot);
 

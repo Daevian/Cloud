@@ -2,16 +2,17 @@
 #include "RenderCore.h"
 
 #include "Settings.h"
+#include "GfxTexture.h"
 
 Cloud::Renderer::RenderCore* Cloud::Renderer::RenderCore::s_instance = 0;
 
 Cloud::Renderer::RenderCore::RenderCore()
-: m_device(0)
-, m_context(0)
-, m_swapChain(0)
-, m_renderTargetView(0)
-, m_depthStencilView(0)
-, m_depthStencilBuffer(0)
+: m_device(nullptr)
+, m_context(nullptr)
+, m_swapChain(nullptr)
+, m_renderTargetView(nullptr)
+, m_depthStencilView(nullptr)
+, m_depthStencilBuffer(nullptr)
 , m_featureLevel(D3D_FEATURE_LEVEL_11_0)
 {
     ClMemZero(&m_settings, sizeof(m_settings));
@@ -292,4 +293,18 @@ CLuint Cloud::Renderer::RenderCore::GetMSAAQuality(CLuint samples, DXGI_FORMAT f
     }
 
     return quality - 1;
+}
+
+Cloud::Renderer::GfxTexture* Cloud::Renderer::RenderCore::Create(const GfxTextureDesc& desc)
+{
+    Cloud::Renderer::GfxTexture* texture = new Cloud::Renderer::GfxTexture();
+    CL_ASSERT_NULL(texture);
+    texture->Init(desc);
+    return texture;
+}
+
+void Cloud::Renderer::RenderCore::Destroy(GfxTexture* texture)
+{
+    CL_ASSERT_NULL(texture);
+    texture->Destroy();
 }
