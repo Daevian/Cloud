@@ -297,14 +297,10 @@ CLuint Cloud::Renderer::RenderCore::GetMSAAQuality(CLuint samples, DXGI_FORMAT f
 
 Cloud::Renderer::GfxTexture* Cloud::Renderer::RenderCore::Create(const GfxTextureDesc& desc)
 {
-    Cloud::Renderer::GfxTexture* texture = new Cloud::Renderer::GfxTexture();
-    CL_ASSERT_NULL(texture);
-    texture->Init(desc);
-    return texture;
+    return m_gfxTextureFactory.Create(desc);
 }
 
 void Cloud::Renderer::RenderCore::Destroy(GfxTexture* texture)
 {
-    CL_ASSERT_NULL(texture);
-    texture->Destroy();
+    m_gfxTextureFactory.Destroy(texture);
 }

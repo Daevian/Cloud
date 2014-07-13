@@ -31,7 +31,6 @@ namespace Cloud
             CLbool IsDds(const std::unique_ptr<uint8_t[]>& ddsData);
 
             GfxTexture* m_texture;
-            //ID3D11ShaderResourceView* m_textureRV;
             ID3D11SamplerState* m_samplerState;
             std::string m_texturePath;
 

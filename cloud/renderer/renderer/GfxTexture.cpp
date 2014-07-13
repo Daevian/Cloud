@@ -10,37 +10,26 @@ Cloud::Renderer::GfxTexture::GfxTexture()
     ClMemZero(&m_desc, sizeof(m_desc));
 }
 
-Cloud::Renderer::GfxTexture::~GfxTexture()
+Cloud::Renderer::GfxTexture* Cloud::Renderer::GfxTextureFactory::Create(const GfxTextureDesc& desc)
 {
-    if (m_texture)
-    {
-        m_texture->Release();
-    }
+    GfxTexture* texture = new Cloud::Renderer::GfxTexture();
+    CL_ASSERT_NULL(texture);
 
-    if (m_srv)
-    {
-        m_srv->Release();
-    }
-}
-
-void Cloud::Renderer::GfxTexture::Init(const GfxTextureDesc& desc)
-{
-    m_desc = desc;
+    texture->m_desc = desc;
 
     switch (desc.dim)
     {
     case D3D11_RESOURCE_DIMENSION_TEXTURE2D:
-        Init2d();
+        Init2d(desc, *texture);
         break;
     default:
         CL_ASSERT_MSG("dim not supported yet");
         break;
     }
 
-    if (m_texture)
-    {
-        InitSrv();
-    }
+    InitSrv(desc, *texture);
+
+    return texture;
 }
 
 inline void SetDebugObjectName(ID3D11DeviceChild* resource, const CLchar* name)
@@ -53,32 +42,32 @@ inline void SetDebugObjectName(ID3D11DeviceChild* resource, const CLchar* name)
 #endif
 }
 
-void Cloud::Renderer::GfxTexture::Init2d()
+void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxTexture& texture)
 {
-    CL_ASSERT(m_desc.dim == D3D11_RESOURCE_DIMENSION_TEXTURE2D, "dim has to be 2d for 2d textures");
-    CL_ASSERT(!m_texture, "The texture has already been created!");
+    CL_ASSERT(desc.dim == D3D11_RESOURCE_DIMENSION_TEXTURE2D, "dim has to be 2d for 2d textures");
+    CL_ASSERT(!texture.m_texture, "The texture has already been created!");
 
     D3D11_TEXTURE2D_DESC dxDesc;
-    dxDesc.Width = m_desc.width;
-    dxDesc.Height = m_desc.height;
-    dxDesc.MipLevels = m_desc.mipCount;
-    dxDesc.ArraySize = m_desc.arraySize;
-    dxDesc.Format = m_desc.format;
+    dxDesc.Width = desc.width;
+    dxDesc.Height = desc.height;
+    dxDesc.MipLevels = desc.mipCount;
+    dxDesc.ArraySize = desc.arraySize;
+    dxDesc.Format = desc.format;
     dxDesc.SampleDesc.Count = 1;
     dxDesc.SampleDesc.Quality = 0;
-    dxDesc.Usage = m_desc.usage;
-    dxDesc.BindFlags = m_desc.bindFlags;
-    dxDesc.CPUAccessFlags = m_desc.cpuAccessFlags;
-    if (m_desc.isCubeMap)
+    dxDesc.Usage = desc.usage;
+    dxDesc.BindFlags = desc.bindFlags;
+    dxDesc.CPUAccessFlags = desc.cpuAccessFlags;
+    if (desc.isCubeMap)
     {
-        dxDesc.MiscFlags = m_desc.miscFlags | D3D11_RESOURCE_MISC_TEXTURECUBE;
+        dxDesc.MiscFlags = desc.miscFlags | D3D11_RESOURCE_MISC_TEXTURECUBE;
         CL_ASSERT(dxDesc.ArraySize <= D3D11_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION, "Texture has too many array pages!");
         CL_ASSERT(dxDesc.Width <= D3D11_REQ_TEXTURECUBE_DIMENSION, "Texture is too big!");
         CL_ASSERT(dxDesc.Height <= D3D11_REQ_TEXTURECUBE_DIMENSION, "Texture is too big!");
     }
     else
     {
-        dxDesc.MiscFlags = m_desc.miscFlags & ~D3D11_RESOURCE_MISC_TEXTURECUBE;
+        dxDesc.MiscFlags = desc.miscFlags & ~D3D11_RESOURCE_MISC_TEXTURECUBE;
         CL_ASSERT(dxDesc.ArraySize <= D3D11_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION, "Texture has too many array pages!");
         CL_ASSERT(dxDesc.Width <= D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION, "Texture is too big!");
         CL_ASSERT(dxDesc.Height <= D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION, "Texture is too big!");
@@ -86,10 +75,10 @@ void Cloud::Renderer::GfxTexture::Init2d()
 
     CL_ASSERT(dxDesc.MipLevels <= D3D11_REQ_MIP_LEVELS, "Too many mip levels for DX11.x");
 
-    std::unique_ptr<D3D11_SUBRESOURCE_DATA[]> initData(new D3D11_SUBRESOURCE_DATA[m_desc.mipCount * m_desc.arraySize]);
+    std::unique_ptr<D3D11_SUBRESOURCE_DATA[]> initData(new D3D11_SUBRESOURCE_DATA[desc.mipCount * desc.arraySize]);
     CL_ASSERT_NULL(initData);
 
-    if (m_desc.initialData.data)
+    if (desc.initialData.data)
     {
         CLuint skipMip = 0;
         CLuint tWidth = 0;
@@ -97,14 +86,14 @@ void Cloud::Renderer::GfxTexture::Init2d()
         CLuint tDepth = 0;
 
         FillInitialData(
-            m_desc.width,
-            m_desc.height,
-            m_desc.depth,
-            m_desc.mipCount,
-            m_desc.arraySize,
-            m_desc.format,
-            (CLuint8*)m_desc.initialData.data,
-            m_desc.initialData.size,
+            desc.width,
+            desc.height,
+            desc.depth,
+            desc.mipCount,
+            desc.arraySize,
+            desc.format,
+            (CLuint8*)desc.initialData.data,
+            desc.initialData.size,
             tWidth,
             tHeight,
             tDepth,
@@ -113,77 +102,82 @@ void Cloud::Renderer::GfxTexture::Init2d()
     }
     
     auto* device = GfxCore::Instance().GetDevice();
-    auto hr = device->CreateTexture2D(&dxDesc, initData.get(), &m_texture);
+    auto hr = device->CreateTexture2D(&dxDesc, initData.get(), &texture.m_texture);
     if (FAILED(hr))
     {
         CL_ASSERT_MSG("Failed to create the 2D Texture!");
     }
 
-    SetDebugObjectName(m_texture, (m_desc.name + ".tex").c_str());
+    SetDebugObjectName(texture.m_texture, (desc.name + ".tex").c_str());
 }
 
-void Cloud::Renderer::GfxTexture::InitSrv()
+void Cloud::Renderer::GfxTextureFactory::InitSrv(const GfxTextureDesc& desc, GfxTexture& texture)
 {
-    CL_ASSERT_NULL(m_texture);
-    CL_ASSERT(!m_srv, "The srv has already been created!");
+    CL_ASSERT_NULL(texture.m_texture);
+    CL_ASSERT(!texture.m_srv, "The srv has already been created!");
 
 
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
     ClMemZero(&srvDesc, sizeof(srvDesc));
-    srvDesc.Format = m_desc.format;
+    srvDesc.Format = texture.m_desc.format;
 
-    if (m_desc.isCubeMap)
+    if (desc.isCubeMap)
     {
-        if (m_desc.arraySize > 6)
+        if (desc.arraySize > 6)
         {
             srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBEARRAY;
-            srvDesc.TextureCubeArray.MipLevels = m_desc.mipCount;
-            srvDesc.TextureCubeArray.NumCubes = m_desc.arraySize / 6;
+            srvDesc.TextureCubeArray.MipLevels = desc.mipCount;
+            srvDesc.TextureCubeArray.NumCubes = desc.arraySize / 6;
         }
         else
         {
             srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-            srvDesc.TextureCube.MipLevels = m_desc.mipCount;
+            srvDesc.TextureCube.MipLevels = desc.mipCount;
         }
     }
-    else if (m_desc.arraySize > 1)
+    else if (desc.arraySize > 1)
     {
         srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-        srvDesc.Texture2DArray.MipLevels = m_desc.mipCount;
-        srvDesc.Texture2DArray.ArraySize = m_desc.arraySize;
+        srvDesc.Texture2DArray.MipLevels = desc.mipCount;
+        srvDesc.Texture2DArray.ArraySize = desc.arraySize;
     }
     else
     {
         srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-        srvDesc.Texture2D.MipLevels = m_desc.mipCount;
+        srvDesc.Texture2D.MipLevels = desc.mipCount;
     }
 
     auto* device = GfxCore::Instance().GetDevice();
-    auto hr = device->CreateShaderResourceView(m_texture, &srvDesc, &m_srv);
+    auto hr = device->CreateShaderResourceView(texture.m_texture, &srvDesc, &texture.m_srv);
     if (FAILED(hr))
     {
         CL_ASSERT_MSG("Failed to create the SRV!");
     }
 
-    SetDebugObjectName(m_srv, (m_desc.name + ".srv").c_str());
+    SetDebugObjectName(texture.m_srv, (desc.name + ".srv").c_str());
 }
 
-void Cloud::Renderer::GfxTexture::Destroy()
+void Cloud::Renderer::GfxTextureFactory::Destroy(GfxTexture* texture)
 {
-    if (m_srv)
+    if (texture)
     {
-        m_srv->Release();
+        if (texture->m_srv)
+        {
+            texture->m_srv->Release();
+            texture->m_srv = nullptr;
+        }
+
+        if (texture->m_texture)
+        {
+            texture->m_texture->Release();
+            texture->m_texture = nullptr;
+        }
     }
 
-    if (m_texture)
-    {
-        m_texture->Release();
-    }
-
-    ClMemZero(&m_desc, sizeof(m_desc));
+    delete texture;
 }
 
-void Cloud::Renderer::GfxTexture::FillInitialData(CLuint width, CLuint height, CLuint depth, CLuint mipCount, CLuint arraySize, DXGI_FORMAT format, const CLuint8* imageData, CLsize_t imageDataSize, CLuint& tWidth, CLuint& tHeight, CLuint& tDepth, CLuint& skipMip, D3D11_SUBRESOURCE_DATA* initData)
+void Cloud::Renderer::GfxTextureFactory::FillInitialData(CLuint width, CLuint height, CLuint depth, CLuint mipCount, CLuint arraySize, DXGI_FORMAT format, const CLuint8* imageData, CLsize_t imageDataSize, CLuint& tWidth, CLuint& tHeight, CLuint& tDepth, CLuint& skipMip, D3D11_SUBRESOURCE_DATA* initData)
 {
     CL_ASSERT_NULL(imageData);
     CL_ASSERT_NULL(initData);

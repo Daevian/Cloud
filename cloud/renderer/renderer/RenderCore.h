@@ -6,6 +6,7 @@
 #include "TextureContainer.h"
 #include "ShaderEffectContainer.h"
 #include "GfxConstantBuffer.h"
+#include "GfxTexture.h"
 
 namespace Cloud
 {
@@ -77,6 +78,7 @@ namespace Cloud
 
             TextureContainer m_textureContainer;
             ShaderEffectContainer m_effectContainer;
+            GfxTextureFactory m_gfxTextureFactory;
             
             ID3D11Device* m_device;
             ID3D11DeviceContext* m_context;

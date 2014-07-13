@@ -31,20 +31,29 @@ namespace Cloud
 
         class GfxTexture
         {
-            friend class RenderCore;
+            friend class GfxTextureFactory;
         public:
             const GfxTextureDesc& GetDesc() const           { return m_desc; }
             ID3D11ShaderResourceView* GetSrv() const        { return m_srv; }
 
         private:
             GfxTexture();
-            ~GfxTexture();
+            ~GfxTexture() {};
 
-            void Init(const GfxTextureDesc& desc);
-            void Init2d();
-            void InitSrv();
-            void Destroy();
+            ID3D11Texture2D*            m_texture;
+            ID3D11ShaderResourceView*   m_srv;
+            GfxTextureDesc              m_desc;
+        };
 
+        class GfxTextureFactory
+        {
+        public:
+            GfxTexture* Create(const GfxTextureDesc& desc);
+            void Destroy(GfxTexture* texture);
+
+        private:
+            void Init2d(const GfxTextureDesc& desc, GfxTexture& texture);
+            void InitSrv(const GfxTextureDesc& desc, GfxTexture& texture);
 
             void FillInitialData(   CLuint width,
                                     CLuint height,
@@ -59,10 +68,6 @@ namespace Cloud
                                     CLuint& tDepth,
                                     CLuint& skipMip,
                                     D3D11_SUBRESOURCE_DATA* initData);
-
-            ID3D11Texture2D*            m_texture;
-            ID3D11ShaderResourceView*   m_srv;
-            GfxTextureDesc              m_desc;
         };
     }
 }
