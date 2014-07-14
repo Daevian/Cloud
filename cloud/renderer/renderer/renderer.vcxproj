@@ -180,6 +180,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CsSort.cpp" />
     <ClCompile Include="CSTest.cpp" />
     <ClCompile Include="DdsHelper.cpp" />
     <ClCompile Include="DebugRenderer.cpp" />
@@ -187,6 +188,7 @@
     <ClCompile Include="GfxConstantBuffer.cpp" />
     <ClCompile Include="GfxFormat.cpp" />
     <ClCompile Include="GfxInstanceBuffer.cpp" />
+    <ClCompile Include="GfxShader.cpp" />
     <ClCompile Include="GfxShaderResource.cpp" />
     <ClCompile Include="GfxShaderResourceView.cpp" />
     <ClCompile Include="GfxTexture.cpp" />
@@ -214,6 +216,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CsSort.h" />
     <ClInclude Include="DdsHelper.h" />
     <ClInclude Include="CSTest.h" />
     <ClInclude Include="DebugRenderer.h" />
@@ -222,6 +225,7 @@
     <ClInclude Include="GfxConstantBuffer.h" />
     <ClInclude Include="GfxFormat.h" />
     <ClInclude Include="GfxInstanceBuffer.h" />
+    <ClInclude Include="GfxShader.h" />
     <ClInclude Include="GfxShaderResource.h" />
     <ClInclude Include="GfxShaderResourceView.h" />
     <ClInclude Include="GfxTexture.h" />

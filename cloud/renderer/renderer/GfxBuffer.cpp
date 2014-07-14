@@ -3,50 +3,110 @@
 
 #include "RenderCore.h"
 
-Cloud::Renderer::GfxBuffer::GfxBuffer()
+Cloud::Renderer::GfxStructuredBuffer::GfxStructuredBuffer()
+    : m_buffer(nullptr)
+    , m_srv(nullptr)
+    , m_uav(nullptr)
 {
 }
 
-
-
-CLbool Cloud::Renderer::GfxBuffer::Init(void* initialData)
+Cloud::Renderer::GfxStructuredBuffer* Cloud::Renderer::GfxBufferFactory::Create(const GfxStructuredBufferDesc& desc)
 {
-    D3D11_SUBRESOURCE_DATA* initialSRData = 0;
-    if (initialData)
-    {
-        D3D11_SUBRESOURCE_DATA data;
-        ClMemZero(&data, sizeof(data));
-        data.pSysMem = initialData;
+    GfxStructuredBuffer* buffer = new GfxStructuredBuffer();
+    CL_ASSERT_NULL(buffer);
 
-        initialSRData = &data;
+    buffer->m_desc = desc;
+
+    buffer->m_buffer = nullptr;
+
+    D3D11_BUFFER_DESC bufDesc;
+    ClMemZero(&bufDesc, sizeof(bufDesc));
+    bufDesc.BindFlags = desc.bindFlags;
+    bufDesc.ByteWidth = desc.elementSize * desc.elementCount;
+    bufDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+    bufDesc.StructureByteStride = desc.elementSize;
+
+    D3D11_SUBRESOURCE_DATA initData;
+    initData.pSysMem = desc.initialData;
+    auto hr = GfxCore::Instance().GetDevice()->CreateBuffer( &bufDesc, desc.initialData ? &initData : nullptr, &buffer->m_buffer);
+    if (FAILED(hr))
+    {
+        CL_ASSERT_MSG("Failed to create the Structured Buffer!");
+        Destroy(buffer);
+        return nullptr;
     }
 
-    D3D11_BUFFER_DESC desc;
-    ClMemZero(&desc, sizeof(desc));
+    RenderCore::SetDebugObjectName(buffer->m_buffer, (desc.name + ".sbuf").c_str());
+
+    if (desc.bindFlags & D3D11_BIND_SHADER_RESOURCE)
+    {
+        InitSrv(desc, *buffer);
+    }
+
+    if (desc.bindFlags & D3D11_BIND_UNORDERED_ACCESS)
+    {
+        InitUav(desc, *buffer);
+    }
+
+    return buffer;
+}
+
+void Cloud::Renderer::GfxBufferFactory::Destroy(GfxStructuredBuffer* buffer)
+{
+    if (buffer->m_buffer)
+    {
+        buffer->m_buffer->Release();
+    }
+
+    if (buffer->m_srv)
+    {
+        buffer->m_srv->Release();
+    }
+
+    if (buffer->m_uav)
+    {
+        buffer->m_uav->Release();
+    }
     
-    desc.StructureByteStride = m_elementSize;
-    desc.ByteWidth = m_elementSize * m_elementCount;
-    //desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-    desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
-    desc.Usage = D3D11_USAGE_DEFAULT;
-
-    auto d3dDevice = RenderCore::Instance().GetDevice();
-    auto result = d3dDevice->CreateBuffer(&desc, initialSRData, &m_buffer);
-
-    if (FAILED(result))
-    {
-        CL_ASSERT_MSG("Couldn't create Gfx buffer!");
-        return false;
-    }
-
-    return true;
+    delete buffer;
 }
 
-void Cloud::Renderer::GfxBuffer::Uninit()
+void Cloud::Renderer::GfxBufferFactory::InitSrv(const GfxStructuredBufferDesc& desc, GfxStructuredBuffer& buffer)
 {
-    if (m_buffer)
+    CL_ASSERT_NULL(buffer.m_buffer);
+
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+    ClMemZero(&srvDesc, sizeof(srvDesc));
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+    srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+    srvDesc.BufferEx.FirstElement = 0;
+    srvDesc.BufferEx.NumElements = desc.elementCount;
+
+    auto hr = GfxCore::Instance().GetDevice()->CreateShaderResourceView(buffer.m_buffer, &srvDesc, &buffer.m_srv);
+    if (FAILED(hr))
     {
-        m_buffer->Release();
-        m_buffer = 0;
+        CL_ASSERT_MSG("Failed to create the Structured Buffer SRV!");
     }
+
+    RenderCore::SetDebugObjectName(buffer.m_srv, (desc.name + ".srv").c_str());
+}
+
+void Cloud::Renderer::GfxBufferFactory::InitUav(const GfxStructuredBufferDesc& desc, GfxStructuredBuffer& buffer)
+{
+    CL_ASSERT_NULL(buffer.m_buffer);
+
+    D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
+    ClMemZero(&uavDesc, sizeof(uavDesc));
+    uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+    uavDesc.Format = DXGI_FORMAT_UNKNOWN;
+    uavDesc.Buffer.FirstElement = 0;
+    uavDesc.Buffer.NumElements = desc.elementCount;
+
+    auto hr = GfxCore::Instance().GetDevice()->CreateUnorderedAccessView(buffer.m_buffer, &uavDesc, &buffer.m_uav);
+    if (FAILED(hr))
+    {
+        CL_ASSERT_MSG("Failed to create the Structured Buffer UAV!");
+    }
+
+    RenderCore::SetDebugObjectName(buffer.m_uav, (desc.name + ".uav").c_str());
 }

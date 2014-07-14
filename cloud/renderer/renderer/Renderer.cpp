@@ -12,6 +12,7 @@ CLbool Cloud::Renderer::Renderer::Initialise()
 {
     m_debugRenderer.Initialise();
 
+    m_csSorter.Init();
     //m_csTest.Initialise();
     //m_particleManager.Initialise();
 
@@ -37,6 +38,7 @@ CLbool Cloud::Renderer::Renderer::Initialise()
 
 void Cloud::Renderer::Renderer::Shutdown()
 {
+    m_csSorter.Uninit();
    // m_csTest.Uninitialise();
    // m_particleManager.Uninitialise();
     m_spriteManager.Unload();
@@ -75,13 +77,12 @@ void Cloud::Renderer::Renderer::Update(CLdouble totalTime, CLdouble timeStep)
     }
 
     m_camera.UpdateView();
+    m_csSorter.Update();
 
    // m_csTest.Update();
     //m_particleManager.Update(static_cast<CLfloat>(timeStep));
     //m_particleManager.Fill();
 }
-
-
 
 void Cloud::Renderer::Renderer::Render()
 {
@@ -92,8 +93,10 @@ void Cloud::Renderer::Renderer::Render()
     perSceneConstBuffer.projection = m_camera.GetProjection();
     renderCore.GpuUpdatePerSceneConstBuffer();
 
+    m_csSorter.Dispatch();
+
     //m_csTest.Render();
-    m_spriteManager.Render();
+    //m_spriteManager.Render();
     //m_particleManager.Render();
     
     m_debugRenderer.Render();

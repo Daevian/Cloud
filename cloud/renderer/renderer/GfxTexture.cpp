@@ -32,16 +32,6 @@ Cloud::Renderer::GfxTexture* Cloud::Renderer::GfxTextureFactory::Create(const Gf
     return texture;
 }
 
-inline void SetDebugObjectName(ID3D11DeviceChild* resource, const CLchar* name)
-{
-#if defined(_DEBUG) || defined(PROFILE)
-    resource->SetPrivateData(WKPDID_D3DDebugObjectName, (CLuint)ClStrlen(name), name);
-#else
-    CL_UNUSED(resource);
-    CL_UNUSED(name);
-#endif
-}
-
 void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxTexture& texture)
 {
     CL_ASSERT(desc.dim == D3D11_RESOURCE_DIMENSION_TEXTURE2D, "dim has to be 2d for 2d textures");
@@ -108,7 +98,7 @@ void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxT
         CL_ASSERT_MSG("Failed to create the 2D Texture!");
     }
 
-    SetDebugObjectName(texture.m_texture, (desc.name + ".tex").c_str());
+    RenderCore::SetDebugObjectName(texture.m_texture, (desc.name + ".tex").c_str());
 }
 
 void Cloud::Renderer::GfxTextureFactory::InitSrv(const GfxTextureDesc& desc, GfxTexture& texture)
@@ -154,7 +144,7 @@ void Cloud::Renderer::GfxTextureFactory::InitSrv(const GfxTextureDesc& desc, Gfx
         CL_ASSERT_MSG("Failed to create the SRV!");
     }
 
-    SetDebugObjectName(texture.m_srv, (desc.name + ".srv").c_str());
+    RenderCore::SetDebugObjectName(texture.m_srv, (desc.name + ".srv").c_str());
 }
 
 void Cloud::Renderer::GfxTextureFactory::Destroy(GfxTexture* texture)

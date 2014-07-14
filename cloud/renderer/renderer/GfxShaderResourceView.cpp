@@ -3,7 +3,7 @@
 
 #include "RenderCore.h"
 #include "GfxBuffer.h"
-
+/*
 Cloud::Renderer::GfxShaderResourceView::GfxShaderResourceView()
     : m_srv(0)
 {
@@ -40,4 +40,4 @@ void Cloud::Renderer::GfxShaderResourceView::Uninit()
         m_srv->Release();
         m_srv = 0;
     }
-}
+}*/

@@ -1,6 +1,6 @@
 #ifndef CLOUD_RENDERER_GFX_SHADER_RESOURCE_VIEW_HEADER
 #define CLOUD_RENDERER_GFX_SHADER_RESOURCE_VIEW_HEADER
-
+/*
 namespace Cloud
 {
 namespace Renderer
@@ -22,5 +22,5 @@ namespace Renderer
     };
 }
 }
-
+*/
 #endif // CLOUD_RENDERER_GFX_SHADER_RESOURCE_VIEW_HEADER

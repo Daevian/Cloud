@@ -3,31 +3,48 @@
 
 namespace Cloud
 {
-namespace Renderer
-{
-    class GfxBuffer
+    namespace Renderer
     {
-    public:
-        GfxBuffer();
+        struct GfxStructuredBufferDesc
+        {
+            ClDebugName name;
+            CLuint      elementSize;
+            CLuint      elementCount;
+            D3D11_USAGE usage;
+            CLuint      bindFlags;
+            CLuint      cpuAccessFlags;
+            CLuint      miscFlags;
+            void*       initialData;
+        };
 
-        ID3D11Buffer* GetBuffer() const   { return m_buffer; }
+        class GfxStructuredBuffer
+        {
+            friend class GfxBufferFactory;
+        public:
 
-        CLuint GetElementSize() const   { return m_elementSize; }
-        CLuint GetElementCount() const  { return m_elementCount; }
+        private:
+            GfxStructuredBuffer();
+            ~GfxStructuredBuffer() {};
 
-        void SetElementSize(CLuint elementSize)     { m_elementSize = elementSize; }
-        void SetElementCount(CLuint elementCount)   { m_elementCount = elementCount; }
+            ID3D11Buffer*               m_buffer;
+            ID3D11ShaderResourceView*   m_srv;
+            ID3D11UnorderedAccessView*  m_uav;
+            GfxStructuredBufferDesc     m_desc;
+        };
 
-        CLbool  Init(void* initialData = 0);
-        void    Uninit();
+        class GfxBufferFactory
+        {
+        public:
+            GfxStructuredBuffer* Create(const GfxStructuredBufferDesc& desc);
 
-    private:
-        ID3D11Buffer* m_buffer;
+            void Destroy(GfxStructuredBuffer* buffer);
 
-        CLuint m_elementSize;
-        CLuint m_elementCount;
-    };
-}
+        private:
+            void InitSrv(const GfxStructuredBufferDesc& desc, GfxStructuredBuffer& buffer);
+            void InitUav(const GfxStructuredBufferDesc& desc, GfxStructuredBuffer& buffer);
+
+        };
+    }
 }
 
 #endif // CLOUD_RENDERER_GFX_BUFFER_HEADER

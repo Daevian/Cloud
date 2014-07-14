@@ -6,6 +6,7 @@
 #include "ParticleManager.h"
 #include "Camera.h"
 #include "DebugRenderer.h"
+#include "CsSort.h"
 
 namespace Cloud
 {
@@ -34,6 +35,7 @@ namespace Renderer
         DebugRenderer m_debugRenderer;
         SpriteManager m_spriteManager;
         ParticleManager m_particleManager;
+        CsSorter m_csSorter;
         Camera m_camera;
 
         static const CLuint c_boxes = 800;

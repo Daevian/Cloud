@@ -105,36 +105,6 @@ CLbool Cloud::Renderer::RenderCore::InitSwapChain()
     IDXGIAdapter* selectedAdapter = 0;
     D3D_DRIVER_TYPE driverType = D3D_DRIVER_TYPE_HARDWARE;
 
-//#ifndef _MASTER
-//    IDXGIFactory *pDXGIFactory;
-//    HRESULT hRes;
-//    hRes = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&pDXGIFactory);
-//
-//    UINT nAdapter = 0;
-//    IDXGIAdapter* adapter = 0;
-//    while (pDXGIFactory->EnumAdapters(nAdapter, &adapter) != DXGI_ERROR_NOT_FOUND)
-//    {
-//        if (adapter)
-//        {
-//            DXGI_ADAPTER_DESC adaptDesc;
-//            if (SUCCEEDED(adapter->GetDesc(&adaptDesc)))
-//            {
-//                const bool isPerfHUD = wcscmp(adaptDesc.Description, L"NVIDIA PerfHUD") == 0;
-//                if (nAdapter == 0 || isPerfHUD)
-//                {
-//                    selectedAdapter = adapter;
-//                }
-//
-//                if (isPerfHUD)
-//                {
-//                    driverType = D3D_DRIVER_TYPE_REFERENCE;
-//                }
-//            }
-//        }
-//        ++nAdapter;
-//    }
-//#endif
-
     D3D_FEATURE_LEVEL supportedFeatureLevels[] =
     {
         D3D_FEATURE_LEVEL_11_0,
@@ -295,12 +265,44 @@ CLuint Cloud::Renderer::RenderCore::GetMSAAQuality(CLuint samples, DXGI_FORMAT f
     return quality - 1;
 }
 
+Cloud::Renderer::GfxStructuredBuffer* Cloud::Renderer::RenderCore::Create(const GfxStructuredBufferDesc& desc)
+{
+    return m_gfxBufferFactory.Create(desc);
+}
+
 Cloud::Renderer::GfxTexture* Cloud::Renderer::RenderCore::Create(const GfxTextureDesc& desc)
 {
     return m_gfxTextureFactory.Create(desc);
 }
 
+Cloud::Renderer::GfxComputeShader* Cloud::Renderer::RenderCore::Create(const GfxComputerShaderDesc& desc)
+{
+    return m_gfxShaderFactory.Create(desc);
+}
+
+void Cloud::Renderer::RenderCore::Destroy(GfxStructuredBuffer* buffer)
+{
+    m_gfxBufferFactory.Destroy(buffer);
+}
+
 void Cloud::Renderer::RenderCore::Destroy(GfxTexture* texture)
 {
     m_gfxTextureFactory.Destroy(texture);
+}
+
+void Cloud::Renderer::RenderCore::Destroy(GfxComputeShader* shader)
+{
+    m_gfxShaderFactory.Destroy(shader);
+}
+
+void Cloud::Renderer::RenderCore::SetDebugObjectName(ID3D11DeviceChild* resource, const CLchar* name)
+{
+    {
+#if defined(_DEBUG) || defined(PROFILE)
+        resource->SetPrivateData(WKPDID_D3DDebugObjectName, (CLuint)ClStrlen(name), name);
+#else
+        CL_UNUSED(resource);
+        CL_UNUSED(name);
+#endif
+    }
 }

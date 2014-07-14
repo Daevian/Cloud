@@ -6,15 +6,14 @@
 #include "TextureContainer.h"
 #include "ShaderEffectContainer.h"
 #include "GfxConstantBuffer.h"
+#include "GfxBuffer.h"
 #include "GfxTexture.h"
+#include "GfxShader.h"
 
 namespace Cloud
 {
     namespace Renderer
     {
-        class GfxTexture;
-        struct GfxTextureDesc;
-
         struct PerSceneConstBuffer
         {
             Math::Matrix4 view;
@@ -56,8 +55,15 @@ namespace Cloud
             void GpuUpdatePerSceneConstBuffer();
             void GpuUpdatePerModelConstBuffer();
 
-            GfxTexture* Create(const GfxTextureDesc& desc);
+            GfxStructuredBuffer*    Create(const GfxStructuredBufferDesc& desc);
+            GfxTexture*             Create(const GfxTextureDesc& desc);
+            GfxComputeShader*       Create(const GfxComputerShaderDesc& desc);
+
+            void Destroy(GfxStructuredBuffer* buffer);
             void Destroy(GfxTexture* texture);
+            void Destroy(GfxComputeShader* shader);
+
+            static void SetDebugObjectName(ID3D11DeviceChild* resource, const CLchar* name);
 
         private:
             RenderCore();
@@ -78,7 +84,9 @@ namespace Cloud
 
             TextureContainer m_textureContainer;
             ShaderEffectContainer m_effectContainer;
+            GfxBufferFactory m_gfxBufferFactory;
             GfxTextureFactory m_gfxTextureFactory;
+            GfxShaderFactory m_gfxShaderFactory;
             
             ID3D11Device* m_device;
             ID3D11DeviceContext* m_context;
