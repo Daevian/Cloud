@@ -55,11 +55,11 @@ namespace Cloud
             void GpuUpdatePerSceneConstBuffer();
             void GpuUpdatePerModelConstBuffer();
 
-            GfxStructuredBuffer*    Create(const GfxStructuredBufferDesc& desc);
+            GfxBuffer*    Create(const GfxBufferDesc& desc);
             GfxTexture*             Create(const GfxTextureDesc& desc);
             GfxComputeShader*       Create(const GfxComputerShaderDesc& desc);
 
-            void Destroy(GfxStructuredBuffer* buffer);
+            void Destroy(GfxBuffer* buffer);
             void Destroy(GfxTexture* texture);
             void Destroy(GfxComputeShader* shader);
 

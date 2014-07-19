@@ -217,9 +217,11 @@ CLbool Cloud::Renderer::ShaderEffect::ParseInputLayout(const Json::Value& inputL
 
 CLbool Cloud::Renderer::ShaderEffect::CompileShader(const ClString& shaderPath, const ClString& entryPoint, const ClString& shaderModel, ID3DBlob*& shaderBlobOutput)
 {
-    CLdword shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+    CLdword shaderFlags = 0;//D3DCOMPILE_ENABLE_STRICTNESS;
 #if defined( DEBUG ) || defined( _DEBUG )
     shaderFlags |= D3DCOMPILE_DEBUG;
+    shaderFlags |= D3DCOMPILE_PREFER_FLOW_CONTROL;
+    shaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
     CL_UNUSED(shaderBlobOutput);

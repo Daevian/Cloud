@@ -130,9 +130,11 @@ CLbool Cloud::Renderer::CSTest::Initialise()
         ID3D10Blob* blob = 0;
         ID3D10Blob* errorBlob = 0;
 
-        CLdword shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+        CLdword shaderFlags = 0;//D3DCOMPILE_ENABLE_STRICTNESS;
 #if defined( DEBUG ) || defined( _DEBUG )
         shaderFlags |= D3DCOMPILE_DEBUG;
+        shaderFlags |= D3DCOMPILE_PREFER_FLOW_CONTROL;
+        shaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
         HRESULT result = D3DCompileFromFile(
@@ -259,7 +261,7 @@ void Cloud::Renderer::CSTest::Render()
 {
     RenderingDevice& renderingDevice = RenderCore::Instance().GetRenderingDevice();
 
-    renderingDevice.SetShaderResource(m_textureSRV, 0);
+   // renderingDevice.SetTexture(m_textureSRV, 0);
     renderingDevice.SetSamplerState(m_samplerState, 0);
     //renderingDevice.SetTexture(m_texture);
     renderingDevice.SetEffect(m_effect);

@@ -16,13 +16,6 @@ Cloud::Renderer::RenderingDevice::RenderingDevice()
 {
 }
 
-CLbool Cloud::Renderer::RenderingDevice::Init()
-{
-    //TODO: Delete if not used!
-    CL_TRACE_CHANNEL("INIT", "[RenderingDevice] Initialised!");
-    return true;
-}
-
 void Cloud::Renderer::RenderingDevice::SetEffect(ShaderEffect* effect)
 {
     if (effect)
@@ -88,6 +81,19 @@ void Cloud::Renderer::RenderingDevice::SetPixelShader(ID3D11PixelShader* pixelSh
     else
     {
         RenderCore::Instance().GetContext()->PSSetShader(0, 0, 0 );
+    }
+}
+
+void Cloud::Renderer::RenderingDevice::SetComputeShader(GfxComputeShader* shader)
+{
+    if (shader)
+    {
+        CL_ASSERT_NULL(shader->GetShader());
+        RenderCore::Instance().GetContext()->CSSetShader(shader->GetShader(), nullptr, 0);
+    }
+    else
+    {
+        RenderCore::Instance().GetContext()->CSSetShader(0, nullptr, 0);
     }
 }
 
@@ -163,27 +169,97 @@ void Cloud::Renderer::RenderingDevice::SetConstantBuffer(GfxConstantBuffer* cons
     if (constantBuffer)
     {
         ID3D11Buffer* buffer = constantBuffer->getBuffer();
+        CL_ASSERT_NULL(buffer);
         RenderCore::Instance().GetContext()->VSSetConstantBuffers( slot, 1, &buffer);
     }
     else
     {
-        RenderCore::Instance().GetContext()->VSSetConstantBuffers( slot, 1, 0);
+        ID3D11Buffer* nullBuffer = nullptr;
+        RenderCore::Instance().GetContext()->VSSetConstantBuffers( slot, 1, &nullBuffer);
     }
 }
 
-void Cloud::Renderer::RenderingDevice::SetTexture(GfxTexture* texture)
+void Cloud::Renderer::RenderingDevice::SetTexturePS(GfxTexture* texture)
 {
-    SetShaderResource(texture->GetSrv(), 0);
+    if (texture)
+    {
+        auto srv = texture->GetSrv();
+        CL_ASSERT_NULL(srv);
+        RenderCore::Instance().GetContext()->PSSetShaderResources(0, 1, &srv);
+    }
+    else
+    {
+        ID3D11ShaderResourceView* nullView = nullptr;
+        RenderCore::Instance().GetContext()->PSSetShaderResources(0, 1, &nullView);
+    }
 }
 
-void Cloud::Renderer::RenderingDevice::SetShaderResource(ID3D11ShaderResourceView* srv, CLuint slot)
+void Cloud::Renderer::RenderingDevice::SetBufferCS(GfxBuffer* buffer, CLuint slot)
 {
-    RenderCore::Instance().GetContext()->PSSetShaderResources(slot, 1, &srv);
+    if (buffer)
+    {
+        auto srv = buffer->GetSrv();
+        CL_ASSERT_NULL(srv);
+        RenderCore::Instance().GetContext()->CSSetShaderResources(slot, 1, &srv);
+    }
+    else
+    {
+        ID3D11ShaderResourceView* nullView = nullptr;
+        RenderCore::Instance().GetContext()->CSSetShaderResources(slot, 1, &nullView);
+    }
+}
+
+void Cloud::Renderer::RenderingDevice::SetUnorderedAccessView(GfxBuffer* buffer, CLuint slot)
+{
+    if (buffer)
+    {
+        auto uav = buffer->GetUav();
+        CL_ASSERT_NULL(uav);
+        RenderCore::Instance().GetContext()->CSSetUnorderedAccessViews(slot, 1, &uav, nullptr);
+    }
+    else
+    {
+        ID3D11UnorderedAccessView* nullView = nullptr;
+        RenderCore::Instance().GetContext()->CSSetUnorderedAccessViews(slot, 1, &nullView, nullptr);
+    }
 }
 
 void Cloud::Renderer::RenderingDevice::SetSamplerState(ID3D11SamplerState* samplerState, CLuint slot)
 {
     RenderCore::Instance().GetContext()->PSSetSamplers(slot, 1, &samplerState);
+}
+
+void Cloud::Renderer::RenderingDevice::Copy(GfxBuffer* source, GfxBuffer* dest)
+{
+    CL_ASSERT_NULL(source);
+    CL_ASSERT_NULL(dest);
+
+    RenderCore::Instance().GetContext()->CopyResource(dest->GetBuffer(), source->GetBuffer());
+}
+
+CLbool Cloud::Renderer::RenderingDevice::Map(const GfxBufferMapDesc& desc, GfxMappedResource& mappedResource)
+{
+    CL_ASSERT_NULL(desc.buffer);
+
+    D3D11_MAPPED_SUBRESOURCE mappedRes;
+    auto hr = RenderCore::Instance().GetContext()->Map(desc.buffer->GetBuffer(), desc.subresource, desc.mapType, desc.mapFlags, &mappedRes);
+    if (FAILED(hr))
+    {
+        CL_ASSERT_MSG("Failed to map the buffer!");
+        return false;
+    }
+
+    mappedResource.data         = mappedRes.pData;
+    mappedResource.rowPitch     = mappedRes.RowPitch;
+    mappedResource.depthPitch   = mappedRes.DepthPitch;
+    return true;
+}
+
+void Cloud::Renderer::RenderingDevice::Unmap(const GfxBufferMapDesc& desc)
+{
+    CL_ASSERT_NULL(desc.buffer);
+
+    RenderCore::Instance().GetContext()->Unmap(desc.buffer->GetBuffer(), desc.subresource);
 }
 
 void Cloud::Renderer::RenderingDevice::Draw(CLint vertexCount)
@@ -208,4 +284,9 @@ void Cloud::Renderer::RenderingDevice::DrawIndexedInstanced(CLuint instanceCount
 {
     indexCount = indexCount < 0 ? m_indexCount : indexCount;
     RenderCore::Instance().GetContext()->DrawIndexedInstanced(indexCount, instanceCount, 0, 0, 0);
+}
+
+void Cloud::Renderer::RenderingDevice::Dispatch(const CLuint threadGroupCountX, const CLuint threadGroupCountY, const CLuint threadGroupCountZ)
+{
+    RenderCore::Instance().GetContext()->Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
 }

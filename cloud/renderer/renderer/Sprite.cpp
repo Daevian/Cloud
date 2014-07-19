@@ -50,7 +50,7 @@ void Cloud::Renderer::Sprite::Render()
 
     m_vertexBuffer.GPUUpdateVertexBuffer();
 
-    renderingDevice.SetTexture(m_texture ? m_texture->GetTexture() : nullptr);
+    renderingDevice.SetTexturePS(m_texture ? m_texture->GetTexture() : nullptr);
     renderingDevice.SetSamplerState(m_texture ? m_texture->GetSamplerState() : nullptr, 0);
     renderingDevice.SetEffect(m_effect);
     renderingDevice.SetVertexBuffer(&m_vertexBuffer);

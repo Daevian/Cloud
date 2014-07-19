@@ -5,7 +5,7 @@ namespace Cloud
 {
     namespace Renderer
     {
-        struct GfxStructuredBufferDesc
+        struct GfxBufferDesc
         {
             ClDebugName name;
             CLuint      elementSize;
@@ -17,31 +17,36 @@ namespace Cloud
             void*       initialData;
         };
 
-        class GfxStructuredBuffer
+        // should be more than just a structured buffer
+        class GfxBuffer
         {
             friend class GfxBufferFactory;
         public:
 
+            ID3D11Buffer*               GetBuffer() const       { return m_buffer; }
+            ID3D11ShaderResourceView*   GetSrv() const          { return m_srv; }
+            ID3D11UnorderedAccessView*  GetUav() const          { return m_uav; }
+
         private:
-            GfxStructuredBuffer();
-            ~GfxStructuredBuffer() {};
+            GfxBuffer();
+            ~GfxBuffer() {};
 
             ID3D11Buffer*               m_buffer;
             ID3D11ShaderResourceView*   m_srv;
             ID3D11UnorderedAccessView*  m_uav;
-            GfxStructuredBufferDesc     m_desc;
+            GfxBufferDesc     m_desc;
         };
 
         class GfxBufferFactory
         {
         public:
-            GfxStructuredBuffer* Create(const GfxStructuredBufferDesc& desc);
+            GfxBuffer* Create(const GfxBufferDesc& desc);
 
-            void Destroy(GfxStructuredBuffer* buffer);
+            void Destroy(GfxBuffer* buffer);
 
         private:
-            void InitSrv(const GfxStructuredBufferDesc& desc, GfxStructuredBuffer& buffer);
-            void InitUav(const GfxStructuredBufferDesc& desc, GfxStructuredBuffer& buffer);
+            void InitSrv(const GfxBufferDesc& desc, GfxBuffer& buffer);
+            void InitUav(const GfxBufferDesc& desc, GfxBuffer& buffer);
 
         };
     }

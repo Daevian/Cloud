@@ -340,7 +340,7 @@ void Cloud::Renderer::ParticleManager::Render()
 
     // gpu particle render
 
-    renderingDevice.SetTexture(m_texture ? m_texture->GetTexture() : nullptr);
+    renderingDevice.SetTexturePS(m_texture ? m_texture->GetTexture() : nullptr);
     renderingDevice.SetSamplerState(m_texture ? m_texture->GetSamplerState() : nullptr, 0);
     renderingDevice.SetEffect(m_effect);
     renderingDevice.SetVertexBuffer(&m_vertexBuffer);

@@ -56,8 +56,6 @@ CLbool Cloud::Renderer::RenderCore::Initialise(const Settings& settings)
     if (!InitConstantBuffers()) { return false; }
     InitViewPort();
 
-    if (!m_renderingDevice.Init()) { return false; }
-
     m_context->OMSetRenderTargets( 1, &m_renderTargetView, m_depthStencilView );
 
     CL_TRACE_CHANNEL("INIT", "[RenderCore] Initialised!");
@@ -265,7 +263,7 @@ CLuint Cloud::Renderer::RenderCore::GetMSAAQuality(CLuint samples, DXGI_FORMAT f
     return quality - 1;
 }
 
-Cloud::Renderer::GfxStructuredBuffer* Cloud::Renderer::RenderCore::Create(const GfxStructuredBufferDesc& desc)
+Cloud::Renderer::GfxBuffer* Cloud::Renderer::RenderCore::Create(const GfxBufferDesc& desc)
 {
     return m_gfxBufferFactory.Create(desc);
 }
@@ -280,7 +278,7 @@ Cloud::Renderer::GfxComputeShader* Cloud::Renderer::RenderCore::Create(const Gfx
     return m_gfxShaderFactory.Create(desc);
 }
 
-void Cloud::Renderer::RenderCore::Destroy(GfxStructuredBuffer* buffer)
+void Cloud::Renderer::RenderCore::Destroy(GfxBuffer* buffer)
 {
     m_gfxBufferFactory.Destroy(buffer);
 }

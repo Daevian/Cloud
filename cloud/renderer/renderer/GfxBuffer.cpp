@@ -3,16 +3,16 @@
 
 #include "RenderCore.h"
 
-Cloud::Renderer::GfxStructuredBuffer::GfxStructuredBuffer()
+Cloud::Renderer::GfxBuffer::GfxBuffer()
     : m_buffer(nullptr)
     , m_srv(nullptr)
     , m_uav(nullptr)
 {
 }
 
-Cloud::Renderer::GfxStructuredBuffer* Cloud::Renderer::GfxBufferFactory::Create(const GfxStructuredBufferDesc& desc)
+Cloud::Renderer::GfxBuffer* Cloud::Renderer::GfxBufferFactory::Create(const GfxBufferDesc& desc)
 {
-    GfxStructuredBuffer* buffer = new GfxStructuredBuffer();
+    GfxBuffer* buffer = new GfxBuffer();
     CL_ASSERT_NULL(buffer);
 
     buffer->m_desc = desc;
@@ -21,9 +21,11 @@ Cloud::Renderer::GfxStructuredBuffer* Cloud::Renderer::GfxBufferFactory::Create(
 
     D3D11_BUFFER_DESC bufDesc;
     ClMemZero(&bufDesc, sizeof(bufDesc));
-    bufDesc.BindFlags = desc.bindFlags;
     bufDesc.ByteWidth = desc.elementSize * desc.elementCount;
-    bufDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+    bufDesc.BindFlags = desc.bindFlags;
+    bufDesc.CPUAccessFlags = desc.cpuAccessFlags;
+    bufDesc.MiscFlags = desc.miscFlags;
+    bufDesc.Usage = desc.usage;
     bufDesc.StructureByteStride = desc.elementSize;
 
     D3D11_SUBRESOURCE_DATA initData;
@@ -36,7 +38,7 @@ Cloud::Renderer::GfxStructuredBuffer* Cloud::Renderer::GfxBufferFactory::Create(
         return nullptr;
     }
 
-    RenderCore::SetDebugObjectName(buffer->m_buffer, (desc.name + ".sbuf").c_str());
+    RenderCore::SetDebugObjectName(buffer->m_buffer, (desc.name + ".buf").c_str());
 
     if (desc.bindFlags & D3D11_BIND_SHADER_RESOURCE)
     {
@@ -51,7 +53,7 @@ Cloud::Renderer::GfxStructuredBuffer* Cloud::Renderer::GfxBufferFactory::Create(
     return buffer;
 }
 
-void Cloud::Renderer::GfxBufferFactory::Destroy(GfxStructuredBuffer* buffer)
+void Cloud::Renderer::GfxBufferFactory::Destroy(GfxBuffer* buffer)
 {
     if (buffer->m_buffer)
     {
@@ -71,7 +73,7 @@ void Cloud::Renderer::GfxBufferFactory::Destroy(GfxStructuredBuffer* buffer)
     delete buffer;
 }
 
-void Cloud::Renderer::GfxBufferFactory::InitSrv(const GfxStructuredBufferDesc& desc, GfxStructuredBuffer& buffer)
+void Cloud::Renderer::GfxBufferFactory::InitSrv(const GfxBufferDesc& desc, GfxBuffer& buffer)
 {
     CL_ASSERT_NULL(buffer.m_buffer);
 
@@ -91,7 +93,7 @@ void Cloud::Renderer::GfxBufferFactory::InitSrv(const GfxStructuredBufferDesc& d
     RenderCore::SetDebugObjectName(buffer.m_srv, (desc.name + ".srv").c_str());
 }
 
-void Cloud::Renderer::GfxBufferFactory::InitUav(const GfxStructuredBufferDesc& desc, GfxStructuredBuffer& buffer)
+void Cloud::Renderer::GfxBufferFactory::InitUav(const GfxBufferDesc& desc, GfxBuffer& buffer)
 {
     CL_ASSERT_NULL(buffer.m_buffer);
 

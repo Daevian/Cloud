@@ -6,12 +6,11 @@ namespace Cloud
     namespace Renderer
     {
         class GfxComputeShader;
-        class GfxStructuredBuffer;
+        class GfxBuffer;
 
         struct ElementType
         {
-            int i;
-            float f;
+            float f0;
         };
 
         class CsSorter
@@ -27,11 +26,11 @@ namespace Cloud
 
         private:
             GfxComputeShader* m_shader;
-            GfxStructuredBuffer* m_structBuffer0;
-            GfxStructuredBuffer* m_structBuffer1;
-            GfxStructuredBuffer* m_outputBuffer;
+            GfxBuffer* m_structBuffer0;
+            GfxBuffer* m_outputBuffer;
+            GfxBuffer* m_debugBuffer;
 
-            static const CLuint c_elementCount = 128;
+            static const CLuint c_elementCount = 65536;
             Utils::StaticArray<ElementType, c_elementCount> m_buffer0;
             Utils::StaticArray<ElementType, c_elementCount> m_buffer1;
 
