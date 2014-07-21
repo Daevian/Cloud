@@ -209,6 +209,21 @@ void Cloud::Renderer::RenderingDevice::SetBufferCS(GfxBuffer* buffer, CLuint slo
     }
 }
 
+void Cloud::Renderer::RenderingDevice::SetConstantBufferCS(GfxBuffer* buffer, CLuint slot)
+{
+    if (buffer)
+    {
+        auto buf = buffer->GetBuffer();
+        CL_ASSERT_NULL(buf);
+        RenderCore::Instance().GetContext()->CSSetConstantBuffers(slot, 1, &buf);
+    }
+    else
+    {
+        ID3D11Buffer* nullBuffer = nullptr;
+        RenderCore::Instance().GetContext()->CSSetConstantBuffers(slot, 1, &nullBuffer);
+    }
+}
+
 void Cloud::Renderer::RenderingDevice::SetUnorderedAccessView(GfxBuffer* buffer, CLuint slot)
 {
     if (buffer)
@@ -260,6 +275,14 @@ void Cloud::Renderer::RenderingDevice::Unmap(const GfxBufferMapDesc& desc)
     CL_ASSERT_NULL(desc.buffer);
 
     RenderCore::Instance().GetContext()->Unmap(desc.buffer->GetBuffer(), desc.subresource);
+}
+
+void Cloud::Renderer::RenderingDevice::UpdateSubresource(GfxBuffer* buffer, void* data)
+{
+    CL_ASSERT_NULL(buffer);
+    CL_ASSERT_NULL(buffer->GetBuffer());
+    CL_ASSERT(buffer->GetDesc().usage != D3D11_USAGE_DYNAMIC, "UpdateSubresource doesn't work with Dynamic resources!");
+    RenderCore::Instance().GetContext()->UpdateSubresource(buffer->GetBuffer(), 0, nullptr, data, 0, 0);
 }
 
 void Cloud::Renderer::RenderingDevice::Draw(CLint vertexCount)

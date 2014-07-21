@@ -12,6 +12,12 @@ Cloud::Renderer::GfxBuffer::GfxBuffer()
 
 Cloud::Renderer::GfxBuffer* Cloud::Renderer::GfxBufferFactory::Create(const GfxBufferDesc& desc)
 {
+    if (!VerifySetup(desc))
+    {
+        CL_ASSERT_MSG("Failed to create the GfxBuffer!");
+        return nullptr;
+    }
+
     GfxBuffer* buffer = new GfxBuffer();
     CL_ASSERT_NULL(buffer);
 
@@ -26,14 +32,16 @@ Cloud::Renderer::GfxBuffer* Cloud::Renderer::GfxBufferFactory::Create(const GfxB
     bufDesc.CPUAccessFlags = desc.cpuAccessFlags;
     bufDesc.MiscFlags = desc.miscFlags;
     bufDesc.Usage = desc.usage;
-    bufDesc.StructureByteStride = desc.elementSize;
+    bufDesc.StructureByteStride = (desc.miscFlags & D3D11_RESOURCE_MISC_BUFFER_STRUCTURED) ? desc.elementSize : 0;
+
+    bufDesc.ByteWidth = (desc.bindFlags & D3D10_BIND_CONSTANT_BUFFER) ? Math::RoundNearest<16>(bufDesc.ByteWidth) : bufDesc.ByteWidth;
 
     D3D11_SUBRESOURCE_DATA initData;
     initData.pSysMem = desc.initialData;
     auto hr = GfxCore::Instance().GetDevice()->CreateBuffer( &bufDesc, desc.initialData ? &initData : nullptr, &buffer->m_buffer);
     if (FAILED(hr))
     {
-        CL_ASSERT_MSG("Failed to create the Structured Buffer!");
+        CL_ASSERT_MSG("Failed to create the GfxBuffer!");
         Destroy(buffer);
         return nullptr;
     }
@@ -87,7 +95,7 @@ void Cloud::Renderer::GfxBufferFactory::InitSrv(const GfxBufferDesc& desc, GfxBu
     auto hr = GfxCore::Instance().GetDevice()->CreateShaderResourceView(buffer.m_buffer, &srvDesc, &buffer.m_srv);
     if (FAILED(hr))
     {
-        CL_ASSERT_MSG("Failed to create the Structured Buffer SRV!");
+        CL_ASSERT_MSG("Failed to create the GfxBuffer SRV!");
     }
 
     RenderCore::SetDebugObjectName(buffer.m_srv, (desc.name + ".srv").c_str());
@@ -107,8 +115,25 @@ void Cloud::Renderer::GfxBufferFactory::InitUav(const GfxBufferDesc& desc, GfxBu
     auto hr = GfxCore::Instance().GetDevice()->CreateUnorderedAccessView(buffer.m_buffer, &uavDesc, &buffer.m_uav);
     if (FAILED(hr))
     {
-        CL_ASSERT_MSG("Failed to create the Structured Buffer UAV!");
+        CL_ASSERT_MSG("Failed to create the GfxBuffer UAV!");
     }
 
     RenderCore::SetDebugObjectName(buffer.m_uav, (desc.name + ".uav").c_str());
+}
+
+CLbool Cloud::Renderer::GfxBufferFactory::VerifySetup(const GfxBufferDesc& desc)
+{
+    CL_UNUSED(desc);
+#ifdef _DEBUG
+    if (desc.usage == D3D11_USAGE_DYNAMIC)
+    {
+        if (desc.cpuAccessFlags != D3D11_CPU_ACCESS_WRITE)
+        {
+            CL_ASSERT_MSG("Dynamic resources have to have CPU write access.");
+            return false;
+        }
+    }
+#endif
+
+    return true;
 }

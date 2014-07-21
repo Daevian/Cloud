@@ -58,6 +58,18 @@ namespace Math
     {
         return abs(a);
     };
+
+    inline CLbool IsPowerOfTwo(CLuint value)
+    {
+        return (value != 0) && ((value & (value - 1)) == 0);
+    }
+
+    template <CLuint BOUNDRARY>
+    inline CLuint RoundNearest(CLuint value)
+    {
+        CL_ASSERT(IsPowerOfTwo(BOUNDRARY), "Boundrary has to be power of two!");
+        return (value + BOUNDRARY - 1) & ~(BOUNDRARY - 1);
+    }
 }
 }
 

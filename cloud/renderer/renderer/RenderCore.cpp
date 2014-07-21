@@ -13,7 +13,7 @@ Cloud::Renderer::RenderCore::RenderCore()
 , m_renderTargetView(nullptr)
 , m_depthStencilView(nullptr)
 , m_depthStencilBuffer(nullptr)
-, m_featureLevel(D3D_FEATURE_LEVEL_11_0)
+, m_featureLevel(D3D_FEATURE_LEVEL_11_1)
 {
     ClMemZero(&m_settings, sizeof(m_settings));
 }
@@ -100,11 +100,9 @@ CLbool Cloud::Renderer::RenderCore::InitSwapChain()
     swapDesc.SampleDesc.Quality = 0;
     swapDesc.Windowed = true;
 
-    IDXGIAdapter* selectedAdapter = 0;
-    D3D_DRIVER_TYPE driverType = D3D_DRIVER_TYPE_HARDWARE;
-
     D3D_FEATURE_LEVEL supportedFeatureLevels[] =
     {
+        D3D_FEATURE_LEVEL_11_1,
         D3D_FEATURE_LEVEL_11_0,
         D3D_FEATURE_LEVEL_10_1,
         D3D_FEATURE_LEVEL_10_0,
@@ -112,13 +110,13 @@ CLbool Cloud::Renderer::RenderCore::InitSwapChain()
 
     CLuint supportedFeatureLevelCount = sizeof(supportedFeatureLevels) / sizeof(D3D_FEATURE_LEVEL);
 
-    HRESULT result = D3D11CreateDeviceAndSwapChain( selectedAdapter,
-                                                    driverType,
+    HRESULT result = D3D11CreateDeviceAndSwapChain( nullptr,
+                                                    D3D_DRIVER_TYPE_HARDWARE,
                                                     0,
                                                     createDeviceFlags,
                                                     supportedFeatureLevels,
                                                     supportedFeatureLevelCount,
-                                                    D3D11_SDK_VERSION, 
+                                                    D3D11_SDK_VERSION,
                                                     &swapDesc,
                                                     &m_swapChain,
                                                     &m_device,

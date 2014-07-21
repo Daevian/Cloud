@@ -11,7 +11,7 @@ CLbool Cloud::Renderer::GfxShaderFactory::CompileShader(const ClString& shaderPa
 {
     shaderBlobOutput.blob = nullptr;
 
-    CLdword shaderFlags = 0;//D3DCOMPILE_ENABLE_STRICTNESS;
+    CLdword shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 #if defined( DEBUG ) || defined( _DEBUG )
     shaderFlags |= D3DCOMPILE_DEBUG;
     shaderFlags |= D3DCOMPILE_PREFER_FLOW_CONTROL;

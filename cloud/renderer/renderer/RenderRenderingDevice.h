@@ -55,6 +55,7 @@ namespace Cloud
 
             void SetTexturePS(GfxTexture* texture);
             void SetBufferCS(GfxBuffer* buffer, CLuint slot);
+            void SetConstantBufferCS(GfxBuffer* buffer, CLuint slot);
             void SetUnorderedAccessView(GfxBuffer* buffer, CLuint slot);
             void SetSamplerState(ID3D11SamplerState* samplerState, CLuint slot);
 
@@ -65,6 +66,7 @@ namespace Cloud
             void Copy(GfxBuffer* source, GfxBuffer* dest);
             CLbool Map(const GfxBufferMapDesc& desc, GfxMappedResource& mappedResource);
             void Unmap(const GfxBufferMapDesc& desc);
+            void UpdateSubresource(GfxBuffer* buffer, void* data);
 
             void Draw(CLint vertexCount = -1);
             void DrawInstanced(CLuint instanceCount, CLint vertexCount = -1);

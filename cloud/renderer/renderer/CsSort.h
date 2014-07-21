@@ -10,11 +10,23 @@ namespace Cloud
 
         struct ElementType
         {
-            float f0;
+            float f;
         };
 
         class CsSorter
         {
+            struct BitonicSortConstBuffer
+            {
+                CLuint level;
+                CLuint levelMask;
+            };
+
+            struct TransposeConstBuffer
+            {
+                CLuint width;
+                CLuint height;
+            };
+
         public:
             CsSorter();
 
@@ -25,15 +37,21 @@ namespace Cloud
             void Dispatch();
 
         private:
-            GfxComputeShader* m_shader;
+            void UpdateBitonicSortConstBuffer(CLuint level, CLuint levelMask);
+            void UpdateTransposeConstBuffer(CLuint width, CLuint height);
+
+            GfxComputeShader* m_bitonicSortShader;
+            GfxComputeShader* m_transposeShader;
+            GfxBuffer* m_bitonicSortConstBuffer;
+            GfxBuffer* m_transposeConstBuffer;
             GfxBuffer* m_structBuffer0;
+            GfxBuffer* m_structBuffer1;
             GfxBuffer* m_outputBuffer;
             GfxBuffer* m_debugBuffer;
 
+            static const CLuint c_bitonicBlockSize = 512;
             static const CLuint c_elementCount = 65536;
             Utils::StaticArray<ElementType, c_elementCount> m_buffer0;
-            Utils::StaticArray<ElementType, c_elementCount> m_buffer1;
-
         };
     }
 }

@@ -23,6 +23,7 @@ namespace Cloud
             friend class GfxBufferFactory;
         public:
 
+            const GfxBufferDesc&        GetDesc() const         { return m_desc; }
             ID3D11Buffer*               GetBuffer() const       { return m_buffer; }
             ID3D11ShaderResourceView*   GetSrv() const          { return m_srv; }
             ID3D11UnorderedAccessView*  GetUav() const          { return m_uav; }
@@ -47,6 +48,8 @@ namespace Cloud
         private:
             void InitSrv(const GfxBufferDesc& desc, GfxBuffer& buffer);
             void InitUav(const GfxBufferDesc& desc, GfxBuffer& buffer);
+
+            CLbool VerifySetup(const GfxBufferDesc& desc);
 
         };
     }

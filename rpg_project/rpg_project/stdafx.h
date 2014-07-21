@@ -24,11 +24,13 @@
 #include <sstream>
 #include <fstream>
 
-#include <d3d11.h>
-#include <dxgi.h>
+#include <d3d11_1.h>
+//#include <dxgi.h>
 //#include <d3dx11.h>
 
 #include <math.h>
+#include <algorithm>
+#include <functional>
 
 #include "utilities/DefinesAsserts.h"
 #include "utilities/DefinesMacros.h"
