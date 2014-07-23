@@ -12,9 +12,18 @@ CLbool Cloud::Renderer::Renderer::Initialise()
 {
     m_debugRenderer.Initialise();
 
-    m_csSorter.Init();
+    //m_csSorter.Init();
     //m_csTest.Initialise();
     //m_particleManager.Initialise();
+
+    {
+        //GfxCore::Instance().m_renderTargetView;
+        GfxTextureDesc desc;
+        ClMemZero(&desc, sizeof(desc));
+        desc.name = "3dSceneSurface";
+        //desc.
+       // m_3dSceneSurface
+    }
 
     const CLfloat width  = (CLfloat)Cloud::Renderer::Settings::Instance().GetRoot()["Resolution"]["Width"].asDouble();
     const CLfloat height = (CLfloat)Cloud::Renderer::Settings::Instance().GetRoot()["Resolution"]["Height"].asDouble();
@@ -38,7 +47,7 @@ CLbool Cloud::Renderer::Renderer::Initialise()
 
 void Cloud::Renderer::Renderer::Shutdown()
 {
-    m_csSorter.Uninit();
+    //m_csSorter.Uninit();
    // m_csTest.Uninitialise();
    // m_particleManager.Uninitialise();
     m_spriteManager.Unload();
@@ -77,7 +86,7 @@ void Cloud::Renderer::Renderer::Update(CLdouble totalTime, CLdouble timeStep)
     }
 
     m_camera.UpdateView();
-    m_csSorter.Update();
+    //m_csSorter.Update();
 
    // m_csTest.Update();
     //m_particleManager.Update(static_cast<CLfloat>(timeStep));
@@ -88,17 +97,31 @@ void Cloud::Renderer::Renderer::Render()
 {
     auto& renderCore = RenderCore::Instance();
 
+    auto backbuffer = renderCore.GetBackbuffer();
+    auto depthStencil = renderCore.GetDepthStencil();
+
+    renderCore.GetRenderingDevice().ClearColour(*backbuffer);
+    renderCore.GetRenderingDevice().ClearDepth(*depthStencil);
+
+    renderCore.GetRenderingDevice().SetRenderTarget(backbuffer, depthStencil);
+    
+    // Sort items
+    //m_csSorter.Dispatch();
+
+    // Render all items
+
     auto& perSceneConstBuffer = renderCore.GetPerSceneConstData();
     perSceneConstBuffer.view = m_camera.GetView();
     perSceneConstBuffer.projection = m_camera.GetProjection();
     renderCore.GpuUpdatePerSceneConstBuffer();
 
-    m_csSorter.Dispatch();
-
-    //m_csTest.Render();
     //m_spriteManager.Render();
     //m_particleManager.Render();
-    
+
+    // Render post
+
+
+    // Render debug items
     m_debugRenderer.Render();
 
     RenderCore::Instance().Present();

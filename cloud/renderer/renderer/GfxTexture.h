@@ -26,6 +26,7 @@ namespace Cloud
             CLuint                      cpuAccessFlags;
             CLuint                      miscFlags;
             InitialData                 initialData;
+            DXGI_SAMPLE_DESC            sampleDesc;
             CLbool                      isCubeMap;
         };
 
@@ -33,8 +34,10 @@ namespace Cloud
         {
             friend class GfxTextureFactory;
         public:
-            const GfxTextureDesc& GetDesc() const           { return m_desc; }
-            ID3D11ShaderResourceView* GetSrv() const        { return m_srv; }
+            const GfxTextureDesc&       GetDesc() const         { return m_desc; }
+            ID3D11ShaderResourceView*   GetSrv() const          { return m_srv; }
+            ID3D11RenderTargetView*     GetRtv() const          { return m_rtv; }
+            ID3D11DepthStencilView*     GetDsv() const          { return m_dsv; }
 
         private:
             GfxTexture();
@@ -42,6 +45,8 @@ namespace Cloud
 
             ID3D11Texture2D*            m_texture;
             ID3D11ShaderResourceView*   m_srv;
+            ID3D11RenderTargetView*     m_rtv;
+            ID3D11DepthStencilView*     m_dsv;
             GfxTextureDesc              m_desc;
         };
 
@@ -51,9 +56,13 @@ namespace Cloud
             GfxTexture* Create(const GfxTextureDesc& desc);
             void Destroy(GfxTexture* texture);
 
+            GfxTexture* CreateFromBackbuffer();
+
         private:
             void Init2d(const GfxTextureDesc& desc, GfxTexture& texture);
             void InitSrv(const GfxTextureDesc& desc, GfxTexture& texture);
+            void InitRtv(const GfxTextureDesc& desc, GfxTexture& texture);
+            void InitDsv(const GfxTextureDesc& desc, GfxTexture& texture);
 
             void FillInitialData(   CLuint width,
                                     CLuint height,

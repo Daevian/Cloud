@@ -42,20 +42,23 @@ namespace Cloud
 
             void Present();
 
-            ID3D11Device* GetDevice() { return m_device; }
-            ID3D11DeviceContext* GetContext() { return m_context; }
-            RenderingDevice& GetRenderingDevice() { return m_renderingDevice; }
+            ID3D11Device*           GetDevice()                     { return m_device; }
+            ID3D11DeviceContext*    GetContext()                    { return m_context; }
+            RenderingDevice&        GetRenderingDevice()            { return m_renderingDevice; }
+            GfxTexture*             GetBackbuffer()                 { return m_backbuffer; }
+            GfxTexture*             GetDepthStencil()               { return m_depthStencil; }
 
-            TextureContainer& GetTextureContainer() { return m_textureContainer; }
-            ShaderEffectContainer& GetEffectContainer() { return m_effectContainer; }
+            TextureContainer&       GetTextureContainer()           { return m_textureContainer; }
+            ShaderEffectContainer&  GetEffectContainer()            { return m_effectContainer; }
 
-            PerSceneConstBuffer& GetPerSceneConstData() { return m_perSceneConstData; }
-            PerModelConstBuffer& GetPerModelConstData() { return m_perModelConstData; }
+            PerSceneConstBuffer&    GetPerSceneConstData()          { return m_perSceneConstData; }
+            PerModelConstBuffer&    GetPerModelConstData()          { return m_perModelConstData; }
+            IDXGISwapChain*         GetSwapChain()                  { return m_swapChain; }
 
             void GpuUpdatePerSceneConstBuffer();
             void GpuUpdatePerModelConstBuffer();
 
-            GfxBuffer*    Create(const GfxBufferDesc& desc);
+            GfxBuffer*              Create(const GfxBufferDesc& desc);
             GfxTexture*             Create(const GfxTextureDesc& desc);
             GfxComputeShader*       Create(const GfxComputerShaderDesc& desc);
 
@@ -91,9 +94,8 @@ namespace Cloud
             ID3D11Device* m_device;
             ID3D11DeviceContext* m_context;
             IDXGISwapChain* m_swapChain;
-            ID3D11RenderTargetView* m_renderTargetView;
-            ID3D11DepthStencilView* m_depthStencilView;
-            ID3D11Texture2D* m_depthStencilBuffer;
+            GfxTexture* m_backbuffer;
+            GfxTexture* m_depthStencil;
 
             D3D_FEATURE_LEVEL m_featureLevel;
             

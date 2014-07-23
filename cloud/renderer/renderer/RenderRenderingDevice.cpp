@@ -239,6 +239,24 @@ void Cloud::Renderer::RenderingDevice::SetUnorderedAccessView(GfxBuffer* buffer,
     }
 }
 
+void Cloud::Renderer::RenderingDevice::SetRenderTarget(GfxTexture* renderTarget, GfxTexture* depthStencil)
+{
+    if (renderTarget)
+    {
+        CL_ASSERT_NULL(renderTarget->GetRtv());
+    }
+
+    if (depthStencil)
+    {
+        CL_ASSERT_NULL(depthStencil->GetDsv());
+    }
+
+    ID3D11RenderTargetView* rtv = renderTarget ? renderTarget->GetRtv() : nullptr;
+    ID3D11DepthStencilView* dsv = depthStencil ? depthStencil->GetDsv() : nullptr;
+
+    RenderCore::Instance().GetContext()->OMSetRenderTargets(1, &rtv, dsv);
+}
+
 void Cloud::Renderer::RenderingDevice::SetSamplerState(ID3D11SamplerState* samplerState, CLuint slot)
 {
     RenderCore::Instance().GetContext()->PSSetSamplers(slot, 1, &samplerState);
@@ -312,4 +330,17 @@ void Cloud::Renderer::RenderingDevice::DrawIndexedInstanced(CLuint instanceCount
 void Cloud::Renderer::RenderingDevice::Dispatch(const CLuint threadGroupCountX, const CLuint threadGroupCountY, const CLuint threadGroupCountZ)
 {
     RenderCore::Instance().GetContext()->Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
+}
+
+void Cloud::Renderer::RenderingDevice::ClearColour(GfxTexture& texture)
+{
+    CL_ASSERT(texture.GetRtv(), "Can't clear colour on a non-rtv texture");
+    CLfloat clearColour[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+    RenderCore::Instance().GetContext()->ClearRenderTargetView(texture.GetRtv(), clearColour);
+}
+
+void Cloud::Renderer::RenderingDevice::ClearDepth(GfxTexture& texture)
+{
+    CL_ASSERT(texture.GetDsv(), "Can't clear colour on a non-dsv texture");
+    RenderCore::Instance().GetContext()->ClearDepthStencilView(texture.GetDsv(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }

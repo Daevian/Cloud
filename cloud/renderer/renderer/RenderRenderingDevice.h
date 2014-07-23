@@ -57,6 +57,7 @@ namespace Cloud
             void SetBufferCS(GfxBuffer* buffer, CLuint slot);
             void SetConstantBufferCS(GfxBuffer* buffer, CLuint slot);
             void SetUnorderedAccessView(GfxBuffer* buffer, CLuint slot);
+            void SetRenderTarget(GfxTexture* renderTarget, GfxTexture* depthStencil = nullptr);
             void SetSamplerState(ID3D11SamplerState* samplerState, CLuint slot);
 
             void SetShaderResourceVS(ID3D11ShaderResourceView* srv, CLuint slot);
@@ -74,6 +75,8 @@ namespace Cloud
             void DrawIndexedInstanced(CLuint instanceCount, CLint indexCount = -1);
             void Dispatch(const CLuint threadGroupCountX, const CLuint threadGroupCountY, const CLuint threadGroupCountZ);
 
+            void ClearColour(GfxTexture& texture);
+            void ClearDepth(GfxTexture& texture);
         private:
             CLuint          m_vertexCount;
             CLuint          m_indexCount;

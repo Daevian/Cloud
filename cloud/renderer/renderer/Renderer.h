@@ -12,6 +12,8 @@ namespace Cloud
 {
 namespace Renderer
 {
+    class GfxTexture;
+
     class Renderer
     {
     public:
@@ -37,6 +39,7 @@ namespace Renderer
         ParticleManager m_particleManager;
         CsSorter m_csSorter;
         Camera m_camera;
+        GfxTexture* m_3dSceneSurface;
 
         static const CLuint c_boxes = 800;
         ClFloat3 m_randomRotations[c_boxes];

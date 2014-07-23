@@ -10,9 +10,8 @@ Cloud::Renderer::RenderCore::RenderCore()
 : m_device(nullptr)
 , m_context(nullptr)
 , m_swapChain(nullptr)
-, m_renderTargetView(nullptr)
-, m_depthStencilView(nullptr)
-, m_depthStencilBuffer(nullptr)
+, m_backbuffer(nullptr)
+, m_depthStencil(nullptr)
 , m_featureLevel(D3D_FEATURE_LEVEL_11_1)
 {
     ClMemZero(&m_settings, sizeof(m_settings));
@@ -56,8 +55,6 @@ CLbool Cloud::Renderer::RenderCore::Initialise(const Settings& settings)
     if (!InitConstantBuffers()) { return false; }
     InitViewPort();
 
-    m_context->OMSetRenderTargets( 1, &m_renderTargetView, m_depthStencilView );
-
     CL_TRACE_CHANNEL("INIT", "[RenderCore] Initialised!");
     return true;
 }
@@ -68,8 +65,8 @@ void Cloud::Renderer::RenderCore::Shutdown()
 
     m_perSceneConstBuffer.Uninitialise();
     m_perModelConstBuffer.Uninitialise();
-    if (m_depthStencilView) m_depthStencilView->Release();
-    if (m_renderTargetView) m_renderTargetView->Release();
+    if (m_depthStencil) Destroy(m_depthStencil);
+    if (m_backbuffer) Destroy(m_backbuffer);
     if (m_swapChain) m_swapChain->Release();
     if (m_context) m_context->Release();
     if (m_device) m_device->Release();
@@ -136,26 +133,11 @@ CLbool Cloud::Renderer::RenderCore::InitSwapChain()
 
 CLbool Cloud::Renderer::RenderCore::InitBackBuffer()
 {
-    HRESULT result;
-
-    ID3D11Texture2D* backBuffer = 0;
-    result = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBuffer);
-    if (FAILED(result))
+    m_backbuffer = m_gfxTextureFactory.CreateFromBackbuffer();
+    if (!m_backbuffer)
     {
-        if (backBuffer) backBuffer->Release();
-
-        CL_ASSERT_MSG("Failed to get back buffer!");
-        CL_TRACE_CHANNEL("INIT", "[RenderCore] Failed to get back buffer!");
-        return false;
-    }
-
-    result = m_device->CreateRenderTargetView(backBuffer, 0, &m_renderTargetView);
-    backBuffer->Release();
-    
-    if (FAILED(result))
-    {
-        CL_ASSERT_MSG("Failed to create back buffer RTV!");
-        CL_TRACE_CHANNEL("INIT", "[RenderCore] Failed to create back buffer RTV!");
+        CL_ASSERT_MSG("Failed to create back buffer!");
+        CL_TRACE_CHANNEL("INIT", "[RenderCore] Failed to create back buffer!");
         return false;
     }
 
@@ -166,37 +148,27 @@ CLbool Cloud::Renderer::RenderCore::InitDepthBuffer()
 {
     auto& settings = Cloud::Renderer::Settings::Instance().GetRoot();
 
-    D3D11_TEXTURE2D_DESC depthStencilDesc;
-    depthStencilDesc.Width     = settings["Resolution"]["Width"].asInt();
-    depthStencilDesc.Height    = settings["Resolution"]["Height"].asInt();
-    depthStencilDesc.MipLevels = 1;
-    depthStencilDesc.ArraySize = 1;
-    depthStencilDesc.Format    = (DXGI_FORMAT)GfxFormat::D24_UNORM_S8_UINT;
-    depthStencilDesc.SampleDesc.Count   = settings["Graphics"]["MSAA"].asInt();
-    depthStencilDesc.SampleDesc.Quality = 0;
-    depthStencilDesc.Usage          = D3D11_USAGE_DEFAULT;
-    depthStencilDesc.BindFlags      = D3D11_BIND_DEPTH_STENCIL;
-    depthStencilDesc.CPUAccessFlags = 0;
-    depthStencilDesc.MiscFlags      = 0;
+    GfxTextureDesc desc;
+    ClMemZero(&desc, sizeof(desc));
+    desc.name                   = "depthstencil";
+    desc.dim                    = D3D11_RESOURCE_DIMENSION_TEXTURE2D;
+    desc.width                  = settings["Resolution"]["Width"].asInt();
+    desc.height                 = settings["Resolution"]["Height"].asInt();
+    desc.mipCount               = 1;
+    desc.arraySize              = 1;
+    desc.format                 = (DXGI_FORMAT)GfxFormat::D24_UNORM_S8_UINT;
+    desc.sampleDesc.Count       = settings["Graphics"]["MSAA"].asInt();
+    desc.sampleDesc.Quality     = 0;
+    desc.usage                  = D3D11_USAGE_DEFAULT;
+    desc.bindFlags              = D3D11_BIND_DEPTH_STENCIL;
+    desc.cpuAccessFlags         = 0;
+    desc.miscFlags              = 0;
 
-    HRESULT result;
-    result = m_device->CreateTexture2D(&depthStencilDesc, 0, &m_depthStencilBuffer);
-    if (FAILED(result))
+    m_depthStencil = Create(desc);
+    if (!m_depthStencil)
     {
-        if (m_depthStencilBuffer) m_depthStencilBuffer->Release();
-
-        CL_ASSERT_MSG("Failed to create depth buffer!");
-        CL_TRACE_CHANNEL("INIT", "[RenderCore] Failed to create depth buffer!");
-        return false;
-    }
-
-    result = m_device->CreateDepthStencilView(m_depthStencilBuffer, 0, &m_depthStencilView);
-    m_depthStencilBuffer->Release();
-
-    if (FAILED(result))
-    {
-        CL_ASSERT_MSG("Failed to create depth stencil view!");
-        CL_TRACE_CHANNEL("INIT", "[RenderCore] Failed to depth stencil view!");
+        CL_ASSERT_MSG("Failed to create depth stencil!");
+        CL_TRACE_CHANNEL("INIT", "[RenderCore] Failed to depth stencil!");
         return false;
     }
 
@@ -243,10 +215,6 @@ void Cloud::Renderer::RenderCore::Present()
 {
     const CLbool enableVSync = Cloud::Renderer::Settings::Instance().GetRoot()["Graphics"]["VSync"].asBool();
     m_swapChain->Present(enableVSync ? 1 : 0, 0);
-
-    float clearColour[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-    m_context->ClearRenderTargetView(m_renderTargetView, clearColour);
-    m_context->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 CLuint Cloud::Renderer::RenderCore::GetMSAAQuality(CLuint samples, DXGI_FORMAT format)

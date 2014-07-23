@@ -6,6 +6,8 @@
 Cloud::Renderer::GfxTexture::GfxTexture()
     : m_texture(nullptr)
     , m_srv(nullptr)
+    , m_rtv(nullptr)
+    , m_dsv(nullptr)
 {
     ClMemZero(&m_desc, sizeof(m_desc));
 }
@@ -27,7 +29,20 @@ Cloud::Renderer::GfxTexture* Cloud::Renderer::GfxTextureFactory::Create(const Gf
         break;
     }
 
-    InitSrv(desc, *texture);
+    if (desc.bindFlags & D3D11_BIND_SHADER_RESOURCE)
+    {
+        InitSrv(desc, *texture);
+    }
+
+    if (desc.bindFlags & D3D11_BIND_RENDER_TARGET)
+    {
+        InitRtv(desc, *texture);
+    }
+
+    if (desc.bindFlags & D3D11_BIND_DEPTH_STENCIL)
+    {
+        InitDsv(desc, *texture);
+    }
 
     return texture;
 }
@@ -43,21 +58,22 @@ void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxT
     dxDesc.MipLevels = desc.mipCount;
     dxDesc.ArraySize = desc.arraySize;
     dxDesc.Format = desc.format;
-    dxDesc.SampleDesc.Count = 1;
-    dxDesc.SampleDesc.Quality = 0;
+    dxDesc.SampleDesc.Count = desc.sampleDesc.Count;
+    dxDesc.SampleDesc.Quality = desc.sampleDesc.Quality;
     dxDesc.Usage = desc.usage;
     dxDesc.BindFlags = desc.bindFlags;
     dxDesc.CPUAccessFlags = desc.cpuAccessFlags;
+    dxDesc.MiscFlags = desc.miscFlags;
     if (desc.isCubeMap)
     {
-        dxDesc.MiscFlags = desc.miscFlags | D3D11_RESOURCE_MISC_TEXTURECUBE;
+        dxDesc.MiscFlags |= desc.miscFlags | D3D11_RESOURCE_MISC_TEXTURECUBE;
         CL_ASSERT(dxDesc.ArraySize <= D3D11_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION, "Texture has too many array pages!");
         CL_ASSERT(dxDesc.Width <= D3D11_REQ_TEXTURECUBE_DIMENSION, "Texture is too big!");
         CL_ASSERT(dxDesc.Height <= D3D11_REQ_TEXTURECUBE_DIMENSION, "Texture is too big!");
     }
     else
     {
-        dxDesc.MiscFlags = desc.miscFlags & ~D3D11_RESOURCE_MISC_TEXTURECUBE;
+        dxDesc.MiscFlags |= desc.miscFlags & ~D3D11_RESOURCE_MISC_TEXTURECUBE;
         CL_ASSERT(dxDesc.ArraySize <= D3D11_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION, "Texture has too many array pages!");
         CL_ASSERT(dxDesc.Width <= D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION, "Texture is too big!");
         CL_ASSERT(dxDesc.Height <= D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION, "Texture is too big!");
@@ -92,7 +108,7 @@ void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxT
     }
     
     auto* device = GfxCore::Instance().GetDevice();
-    auto hr = device->CreateTexture2D(&dxDesc, initData.get(), &texture.m_texture);
+    auto hr = device->CreateTexture2D(&dxDesc, desc.initialData.data ? initData.get() : nullptr, &texture.m_texture);
     if (FAILED(hr))
     {
         CL_ASSERT_MSG("Failed to create the 2D Texture!");
@@ -147,6 +163,31 @@ void Cloud::Renderer::GfxTextureFactory::InitSrv(const GfxTextureDesc& desc, Gfx
     RenderCore::SetDebugObjectName(texture.m_srv, (desc.name + ".srv").c_str());
 }
 
+void Cloud::Renderer::GfxTextureFactory::InitRtv(const GfxTextureDesc& desc, GfxTexture& texture)
+{
+    //D3D11_RENDER_TARGET_VIEW_DESC desc;
+    //desc.
+
+    auto result = GfxCore::Instance().GetDevice()->CreateRenderTargetView(texture.m_texture, nullptr, &texture.m_rtv);
+    if (FAILED(result))
+    {
+        CL_ASSERT_MSG("Failed to create the RTV!");
+    }
+
+    RenderCore::SetDebugObjectName(texture.m_rtv, (desc.name + ".rtv").c_str());
+}
+
+void Cloud::Renderer::GfxTextureFactory::InitDsv(const GfxTextureDesc& desc, GfxTexture& texture)
+{
+    auto result = GfxCore::Instance().GetDevice()->CreateDepthStencilView(texture.m_texture, nullptr, &texture.m_dsv);
+    if (FAILED(result))
+    {
+        CL_ASSERT_MSG("Failed to create the DSV!");
+    }
+
+    RenderCore::SetDebugObjectName(texture.m_dsv, (desc.name + ".dsv").c_str());
+}
+
 void Cloud::Renderer::GfxTextureFactory::Destroy(GfxTexture* texture)
 {
     if (texture)
@@ -155,6 +196,18 @@ void Cloud::Renderer::GfxTextureFactory::Destroy(GfxTexture* texture)
         {
             texture->m_srv->Release();
             texture->m_srv = nullptr;
+        }
+
+        if (texture->m_rtv)
+        {
+            texture->m_rtv->Release();
+            texture->m_rtv = nullptr;
+        }
+
+        if (texture->m_dsv)
+        {
+            texture->m_dsv->Release();
+            texture->m_dsv = nullptr;
         }
 
         if (texture->m_texture)
@@ -248,4 +301,52 @@ void Cloud::Renderer::GfxTextureFactory::FillInitialData(CLuint width, CLuint he
     }
 
     CL_ASSERT(index > 0, "All surface copies failed!");
+}
+
+Cloud::Renderer::GfxTexture* Cloud::Renderer::GfxTextureFactory::CreateFromBackbuffer()
+{
+    GfxTexture* texture = new Cloud::Renderer::GfxTexture();
+    CL_ASSERT_NULL(texture);
+
+    {
+        ID3D11Texture2D* backbuffer = 0;
+        auto result = GfxCore::Instance().GetSwapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backbuffer);
+        if (FAILED(result))
+        {
+            CL_ASSERT_MSG("Failed to get back buffer!");
+        }
+
+        texture->m_texture = backbuffer;
+
+        D3D11_TEXTURE2D_DESC desc;
+        backbuffer->GetDesc(&desc);
+        texture->m_desc.name                = "backbuffer";
+        texture->m_desc.dim                 = D3D11_RESOURCE_DIMENSION_TEXTURE2D;
+        texture->m_desc.isCubeMap           = false;
+        texture->m_desc.width               = desc.Width;
+        texture->m_desc.height              = desc.Height;
+        texture->m_desc.mipCount            = desc.MipLevels;
+        texture->m_desc.arraySize           = desc.ArraySize;
+        texture->m_desc.format              = desc.Format;
+        texture->m_desc.bindFlags           = desc.BindFlags;
+        texture->m_desc.cpuAccessFlags      = desc.CPUAccessFlags;
+        texture->m_desc.miscFlags           = desc.MiscFlags;
+        texture->m_desc.sampleDesc.Count    = desc.SampleDesc.Count;
+        texture->m_desc.sampleDesc.Quality  = desc.SampleDesc.Quality;
+
+        RenderCore::SetDebugObjectName(texture->m_texture, (texture->m_desc.name + ".tex").c_str());
+    }
+
+    // TODO: NEEDS MS SRV!
+    //if (texture->m_desc.bindFlags & D3D11_BIND_SHADER_RESOURCE)
+    //{
+    //    InitSrv(texture->m_desc, *texture);
+    //}
+
+    if (texture->m_desc.bindFlags & D3D11_BIND_RENDER_TARGET)
+    {
+        InitRtv(texture->m_desc, *texture);
+    }
+
+    return texture;
 }

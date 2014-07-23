@@ -60,6 +60,8 @@ CLbool Cloud::Renderer::Texture::LoadResource()
     desc.bindFlags = D3D11_BIND_SHADER_RESOURCE;
     desc.cpuAccessFlags = 0;
     desc.miscFlags = 0;
+    desc.sampleDesc.Count = 1;
+    desc.sampleDesc.Quality = 0;
     
     desc.mipCount = header->mipMapCount;
     if (desc.mipCount == 0)
