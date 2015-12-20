@@ -48,10 +48,10 @@ namespace Math
     };
 
     template <class TYPE>
-    inline const TYPE& Clamp(const TYPE& max, const TYPE& min, const TYPE& val)
+    inline const TYPE Clamp(const TYPE& max, const TYPE& min, const TYPE& val)
     {
         return ClMin(ClMax(val, max), min);
-    }; 
+    };
 
     template <class TYPE>
     inline TYPE Abs(const TYPE& a)
