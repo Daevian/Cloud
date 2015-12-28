@@ -6,7 +6,7 @@
     },
     "Graphics" :
     {
-        "MSAA" : 2,
+        "MSAA" : 1,
         "VSync" : 0
     }
 }
