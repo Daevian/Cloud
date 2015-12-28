@@ -38,6 +38,15 @@ void RPG::Game::Update(CLfloat timeStep)
 
 void RPG::Game::Render()
 {
+	// draw ground plane
+	{
+		auto& renderer = Application::Instance().GetRenderer().GetDebugRendererForGame();
+		ClMatrix4 boxMatrix = ClMatrix4::Identity();
+		boxMatrix *= ClMatrix4::Scale(ClFloat4(1000.0f, 0.01f, 1000.0f, 0.0f));
+		boxMatrix *= ClMatrix4::Translation(0.0f, -10.0f, 0.0f);
+		renderer.AddBox(boxMatrix, ClFloat4(0.5f, 0.5f, 0.0f, 1.0f));
+	}
+
     m_vehicle.Render();
 }
 
