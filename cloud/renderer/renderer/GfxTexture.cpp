@@ -125,7 +125,16 @@ void Cloud::Renderer::GfxTextureFactory::InitSrv(const GfxTextureDesc& desc, Gfx
 
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
     ClMemZero(&srvDesc, sizeof(srvDesc));
-    srvDesc.Format = texture.m_desc.format;
+
+	switch (texture.m_desc.format)
+	{
+	case DXGI_FORMAT_R32_TYPELESS:
+		srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+		break;
+	default:
+		srvDesc.Format = texture.m_desc.format;
+		break;
+	}
 
     if (desc.isCubeMap)
     {
@@ -179,7 +188,31 @@ void Cloud::Renderer::GfxTextureFactory::InitRtv(const GfxTextureDesc& desc, Gfx
 
 void Cloud::Renderer::GfxTextureFactory::InitDsv(const GfxTextureDesc& desc, GfxTexture& texture)
 {
-    auto result = GfxCore::Instance().GetDevice()->CreateDepthStencilView(texture.m_texture, nullptr, &texture.m_dsv);
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthDesc;
+	depthDesc.Flags = 0;
+
+	switch (desc.format)
+	{
+	case DXGI_FORMAT_R32_TYPELESS:
+		depthDesc.Format = DXGI_FORMAT_D32_FLOAT;
+		break;
+	default:
+		CL_ASSERT_MSG("format not supported!");
+		break;
+	}
+
+	switch (desc.dim)
+	{
+	case D3D11_RESOURCE_DIMENSION_TEXTURE2D:
+		depthDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		depthDesc.Texture2D.MipSlice = 0;
+		break;
+	default:
+		CL_ASSERT_MSG("dim not supported!");
+		break;
+	}
+
+    auto result = GfxCore::Instance().GetDevice()->CreateDepthStencilView(texture.m_texture, &depthDesc, &texture.m_dsv);
     if (FAILED(result))
     {
         CL_ASSERT_MSG("Failed to create the DSV!");

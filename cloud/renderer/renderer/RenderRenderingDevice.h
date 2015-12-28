@@ -60,10 +60,6 @@ namespace Cloud
             void SetRenderTarget(GfxTexture* renderTarget, GfxTexture* depthStencil = nullptr);
             void SetSamplerState(ID3D11SamplerState* samplerState, CLuint slot);
 
-            void SetShaderResourceVS(ID3D11ShaderResourceView* srv, CLuint slot);
-            void SetShaderResourcePS(ID3D11ShaderResourceView* srv, CLuint slot);
-            void SetShaderResourceCS(ID3D11ShaderResourceView* srv, CLuint slot);
-
             void Copy(GfxBuffer* source, GfxBuffer* dest);
             CLbool Map(const GfxBufferMapDesc& desc, GfxMappedResource& mappedResource);
             void Unmap(const GfxBufferMapDesc& desc);

@@ -156,11 +156,11 @@ CLbool Cloud::Renderer::RenderCore::InitDepthBuffer()
     desc.height                 = settings["Resolution"]["Height"].asInt();
     desc.mipCount               = 1;
     desc.arraySize              = 1;
-    desc.format                 = (DXGI_FORMAT)GfxFormat::D24_UNORM_S8_UINT;
+    desc.format                 = (DXGI_FORMAT)GfxFormat::R32_TYPELESS;
     desc.sampleDesc.Count       = settings["Graphics"]["MSAA"].asInt();
     desc.sampleDesc.Quality     = 0;
     desc.usage                  = D3D11_USAGE_DEFAULT;
-    desc.bindFlags              = D3D11_BIND_DEPTH_STENCIL;
+	desc.bindFlags				= D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
     desc.cpuAccessFlags         = 0;
     desc.miscFlags              = 0;
 
