@@ -1,8 +1,6 @@
 #ifndef CLOUD_RENDERER_SETTINGS_HEADER
 #define CLOUD_RENDERER_SETTINGS_HEADER
 
-#include "../../externals/jsoncpp-src-0.5.0/include/json/json.h"
-
 namespace Cloud
 {
     namespace Renderer

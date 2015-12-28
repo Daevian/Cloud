@@ -25,8 +25,6 @@
 #include <fstream>
 
 #include <d3d11_1.h>
-//#include <dxgi.h>
-//#include <d3dx11.h>
 
 #include <math.h>
 #include <algorithm>
@@ -51,3 +49,5 @@
 #include "utilities/Matrix4.h"
 
 #include "debugging/DebugLog.h"
+
+#include "jsoncpp-src-0.5.0/include/json/json.h"
