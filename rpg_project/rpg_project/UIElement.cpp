@@ -4,6 +4,7 @@
 #include "renderer/Sprite.h"
 
 RPG::UIElement::UIElement()
+    : m_sprite(nullptr)
 {
 }
 

@@ -15,6 +15,7 @@ namespace RPG
     {
     public:
         UIElement();
+        ~UIElement() {};
 
         CLbool Initialise(Cloud::Renderer::Sprite* sprite);
 

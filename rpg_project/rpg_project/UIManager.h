@@ -20,6 +20,7 @@ namespace RPG
     {
     public:
         UIManager();
+        ~UIManager();
 
         CLbool Initialise(Cloud::Renderer::Renderer& renderer);
         void Shutdown();
@@ -29,7 +30,7 @@ namespace RPG
     private:
         UIFactory m_uiFactory;
 
-        Cloud::Utils::DynamicArray<UIElement*> m_uiElements;
+        std::vector<std::unique_ptr<UIElement>> m_uiElements;
         Cloud::Renderer::Renderer* m_renderer;
 
         Cloud::Renderer::Sprite* m_backgroundSprite;

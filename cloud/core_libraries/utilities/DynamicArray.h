@@ -23,6 +23,7 @@ namespace Cloud
             void Init(const CLint& startSize, const CLint& growSize);
 
             inline void Add(const Type& item);
+            inline void Add(Type&& item);
             inline void Insert(const CLint& index, const Type& item);
 
             inline void Remove(const Type& item);

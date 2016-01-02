@@ -10,8 +10,9 @@ Cloud::Utils::DynamicArray<Type>::DynamicArray()
 ,m_last(0)
 ,m_count(0)
 ,m_maxCount(0)
-,m_growSize(0)
+,m_growSize(1)
 {
+    Init(0, 1);
 }
 
 template <class Type>
@@ -94,6 +95,19 @@ inline void Cloud::Utils::DynamicArray<Type>::Add(const Type& item)
 
     ++m_count;
     m_items[m_count - 1] = item;
+    m_last = &m_items[m_count];
+}
+
+template <class Type>
+inline void Cloud::Utils::DynamicArray<Type>::Add(Type&& item)
+{
+    if (m_count >= m_maxCount)
+    {
+        Resize(m_count + m_growSize);
+    }
+
+    ++m_count;
+    m_items[m_count - 1] = std::move(item);
     m_last = &m_items[m_count];
 }
 
@@ -185,7 +199,7 @@ void Cloud::Utils::DynamicArray<Type>::Resize(CLint newSize)
 
     for(CLint i = 0; i < m_count; ++i)
     {
-        m_items[i] = oldList[i];
+        m_items[i] = std::move(oldList[i]);
     }
 
     SAFE_DELETE_ARRAY(oldList);

@@ -28,6 +28,7 @@
 
 #include <math.h>
 #include <algorithm>
+#include <memory>
 #include <functional>
 
 #include "utilities/DefinesAsserts.h"
