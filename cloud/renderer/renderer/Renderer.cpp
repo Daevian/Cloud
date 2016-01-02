@@ -4,8 +4,26 @@
 #include "RenderCore.h"
 #include "Settings.h"
 
+#include "lua-5.3.2/LuaWrapper.h"
+
 Cloud::Renderer::Renderer::Renderer()
+    : m_luaState(nullptr)
 {
+}
+
+static int LuaPrint(lua_State* state)
+{
+    int nargs = lua_gettop(state);
+    std::stringstream stream;
+
+    for (int i = 1; i <= nargs; ++i)
+    {
+        stream << lua_tostring(state, i);
+    }
+
+    CL_TRACE_CHANNEL("LUA", stream.str().c_str());
+
+    return 0;
 }
 
 CLbool Cloud::Renderer::Renderer::Initialise()
@@ -40,6 +58,31 @@ CLbool Cloud::Renderer::Renderer::Initialise()
     {
         m_randomRotations[i] = ClFloat3(ClRandFloat(), ClRandFloat(), ClRandFloat());
         m_randomScales[i] = ClRandFloat() * 0.5f + 0.5f;
+    }
+
+    int top;
+    m_luaState = luaL_newstate();
+    top = lua_gettop(m_luaState);
+    luaL_openlibs(m_luaState);
+    top = lua_gettop(m_luaState);
+    
+
+    const luaL_Reg printlib[] = {
+        { "print", LuaPrint },
+        { nullptr, nullptr }, /* end of array */
+    };
+
+    lua_getglobal(m_luaState, "_G");
+    luaL_setfuncs(m_luaState, printlib, 0);
+    lua_pop(m_luaState, 1);
+
+    int result = luaL_loadfile(m_luaState, "data/scripts/renderer/render.lua");
+    top = lua_gettop(m_luaState);
+   // int result = luaL_dofile(m_luaState, "data/scripts/renderer/render.lua");
+    //lua_load
+    if (result != LUA_OK && result == LUA_ERRFILE)
+    {
+        CL_ASSERT_MSG("couldn't load lua file");
     }
 
     return true;
@@ -95,6 +138,33 @@ void Cloud::Renderer::Renderer::Update(CLdouble totalTime, CLdouble timeStep)
 
 void Cloud::Renderer::Renderer::Render()
 {
+    int result = 0;
+    //int test;
+    
+    //result = luaL_dofile(m_luaState, "data/scripts/renderer/render.lua");
+
+    /*
+    //result = lua_getglobal(m_luaState, "Main");
+    lua_pushvalue(m_luaState, -1);
+    test = lua_gettop(m_luaState);
+    result = lua_pcall(m_luaState, 0, 0, 0);
+    //result = luaL_loadfile(m_luaState, "data/scripts/renderer/render.lua");
+    test = lua_gettop(m_luaState);
+    lua_pushvalue(m_luaState, -1);
+    test = lua_gettop(m_luaState);
+    result = lua_pcall(m_luaState, 0, 0, 0);
+   //int stackSize = lua_gettop(m_luaState);
+   //lua_pop(m_luaState, stackSize);
+   */
+    if (result != LUA_OK && result == LUA_ERRRUN)
+    {
+        if (lua_isstring(m_luaState, -1))
+        {
+            const char* err = lua_tostring(m_luaState, -1);
+            CL_TRACE(err);
+        }
+    }
+
     auto& renderCore = RenderCore::Instance();
 
     auto backbuffer = renderCore.GetBackbuffer();

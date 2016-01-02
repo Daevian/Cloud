@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="LuaWrapper.cpp" />
     <ClCompile Include="src\lapi.c" />
     <ClCompile Include="src\lauxlib.c" />
     <ClCompile Include="src\lbaselib.c" />
@@ -56,6 +57,7 @@
     <ClCompile Include="src\lzio.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LuaWrapper.h" />
     <ClInclude Include="src\lapi.h" />
     <ClInclude Include="src\lauxlib.h" />
     <ClInclude Include="src\lcode.h" />

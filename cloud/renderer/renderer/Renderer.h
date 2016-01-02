@@ -8,6 +8,8 @@
 #include "DebugRenderer.h"
 #include "CsSort.h"
 
+struct lua_State;
+
 namespace Cloud
 {
 namespace Renderer
@@ -44,6 +46,8 @@ namespace Renderer
         static const CLuint c_boxes = 800;
         ClFloat3 m_randomRotations[c_boxes];
         CLfloat m_randomScales[c_boxes];
+
+        lua_State* m_luaState;
     };
 }
 }
