@@ -13,7 +13,7 @@
 #define NULL 0
 
 
-
+#define CL_DISABLE_WARNING_UNUSED_VAR __pragma(warning( disable : 4101 ))
 
 
 #define FLOAT4_BLACK(alpha)     ClFloat4(0.0f, 0.0f, 0.0f, alpha)
