@@ -5,8 +5,7 @@
 
 
 Cloud::Renderer::Texture::Texture(const std::string& texturePath)
-: m_texture(nullptr)
-, m_samplerState(nullptr)
+: m_samplerState(nullptr)
 , m_texturePath(texturePath)
 {
 }
@@ -23,7 +22,7 @@ void Cloud::Renderer::Texture::Unload()
 {
     CL_ASSERT(m_samplerState != 0, "Can't unload uninitialised texture!");
 
-    GfxCore::Instance().Destroy(m_texture);
+    m_texture = nullptr;
 
     if (m_samplerState)
     {

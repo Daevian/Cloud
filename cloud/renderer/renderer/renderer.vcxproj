@@ -190,6 +190,7 @@
     <ClCompile Include="GfxConstantBuffer.cpp" />
     <ClCompile Include="GfxFormat.cpp" />
     <ClCompile Include="GfxInstanceBuffer.cpp" />
+    <ClCompile Include="GfxResource.cpp" />
     <ClCompile Include="GfxShader.cpp" />
     <ClCompile Include="GfxShaderResource.cpp" />
     <ClCompile Include="GfxShaderResourceView.cpp" />
@@ -228,6 +229,7 @@
     <ClInclude Include="GfxConstantBuffer.h" />
     <ClInclude Include="GfxFormat.h" />
     <ClInclude Include="GfxInstanceBuffer.h" />
+    <ClInclude Include="GfxResource.h" />
     <ClInclude Include="GfxShader.h" />
     <ClInclude Include="GfxShaderResource.h" />
     <ClInclude Include="GfxShaderResourceView.h" />

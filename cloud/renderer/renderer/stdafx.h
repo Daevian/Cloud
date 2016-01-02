@@ -19,9 +19,12 @@
 #include <d3dcompiler.h>
 #include <mmsyscom.h>
 
+#include <vector>
+#include <array>
 #include <math.h>
 #include <algorithm>
 #include <functional>
+#include <memory>
 
 #include "utilities/Windows.h"
 #include "utilities/ClMemory.h"

@@ -44,8 +44,8 @@ namespace Renderer
         GfxTexture* m_3dSceneSurface;
 
         static const CLuint c_boxes = 800;
-        ClFloat3 m_randomRotations[c_boxes];
-        CLfloat m_randomScales[c_boxes];
+        std::array<ClFloat3, c_boxes> m_randomRotations;
+        std::array<CLfloat, c_boxes> m_randomScales;
 
         lua_State* m_luaState;
     };

@@ -4,13 +4,35 @@
 #include "RenderCore.h"
 
 Cloud::Renderer::GfxBuffer::GfxBuffer()
-    : m_buffer(nullptr)
+    : GfxResource()
+    , m_buffer(nullptr)
     , m_srv(nullptr)
     , m_uav(nullptr)
 {
 }
 
-Cloud::Renderer::GfxBuffer* Cloud::Renderer::GfxBufferFactory::Create(const GfxBufferDesc& desc)
+Cloud::Renderer::GfxBuffer::~GfxBuffer()
+{
+    if (m_buffer)
+    {
+        m_buffer->Release();
+        m_buffer = nullptr;
+    }
+
+    if (m_srv)
+    {
+        m_srv->Release();
+        m_buffer = nullptr;
+    }
+
+    if (m_uav)
+    {
+        m_uav->Release();
+        m_buffer = nullptr;
+    }
+}
+
+Cloud::Renderer::GfxBuffer::UniquePtr Cloud::Renderer::GfxBufferFactory::Create(const GfxBufferDesc& desc)
 {
     if (!VerifySetup(desc))
     {
@@ -18,8 +40,7 @@ Cloud::Renderer::GfxBuffer* Cloud::Renderer::GfxBufferFactory::Create(const GfxB
         return nullptr;
     }
 
-    GfxBuffer* buffer = new GfxBuffer();
-    CL_ASSERT_NULL(buffer);
+    auto buffer = GfxBuffer::MakeUnique();
 
     buffer->m_desc = desc;
 
@@ -42,7 +63,7 @@ Cloud::Renderer::GfxBuffer* Cloud::Renderer::GfxBufferFactory::Create(const GfxB
     if (FAILED(hr))
     {
         CL_ASSERT_MSG("Failed to create the GfxBuffer!");
-        Destroy(buffer);
+        buffer = nullptr;
         return nullptr;
     }
 
@@ -59,26 +80,6 @@ Cloud::Renderer::GfxBuffer* Cloud::Renderer::GfxBufferFactory::Create(const GfxB
     }
 
     return buffer;
-}
-
-void Cloud::Renderer::GfxBufferFactory::Destroy(GfxBuffer* buffer)
-{
-    if (buffer->m_buffer)
-    {
-        buffer->m_buffer->Release();
-    }
-
-    if (buffer->m_srv)
-    {
-        buffer->m_srv->Release();
-    }
-
-    if (buffer->m_uav)
-    {
-        buffer->m_uav->Release();
-    }
-    
-    delete buffer;
 }
 
 void Cloud::Renderer::GfxBufferFactory::InitSrv(const GfxBufferDesc& desc, GfxBuffer& buffer)

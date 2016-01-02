@@ -4,7 +4,8 @@
 #include "RenderCore.h"
 
 Cloud::Renderer::GfxTexture::GfxTexture()
-    : m_texture(nullptr)
+    : GfxResource()
+    , m_texture(nullptr)
     , m_srv(nullptr)
     , m_rtv(nullptr)
     , m_dsv(nullptr)
@@ -12,10 +13,36 @@ Cloud::Renderer::GfxTexture::GfxTexture()
     ClMemZero(&m_desc, sizeof(m_desc));
 }
 
-Cloud::Renderer::GfxTexture* Cloud::Renderer::GfxTextureFactory::Create(const GfxTextureDesc& desc)
+Cloud::Renderer::GfxTexture::~GfxTexture()
 {
-    GfxTexture* texture = new Cloud::Renderer::GfxTexture();
-    CL_ASSERT_NULL(texture);
+    if (m_srv)
+    {
+        m_srv->Release();
+        m_srv = nullptr;
+    }
+
+    if (m_rtv)
+    {
+        m_rtv->Release();
+        m_rtv = nullptr;
+    }
+
+    if (m_dsv)
+    {
+        m_dsv->Release();
+        m_dsv = nullptr;
+    }
+
+    if (m_texture)
+    {
+        m_texture->Release();
+        m_texture = nullptr;
+    }
+}
+
+Cloud::Renderer::GfxTexture::UniquePtr Cloud::Renderer::GfxTextureFactory::Create(const GfxTextureDesc& desc)
+{
+    auto texture = GfxTexture::MakeUnique();
 
     texture->m_desc = desc;
 
@@ -44,7 +71,7 @@ Cloud::Renderer::GfxTexture* Cloud::Renderer::GfxTextureFactory::Create(const Gf
         InitDsv(desc, *texture);
     }
 
-    return texture;
+    return std::move(texture);
 }
 
 void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxTexture& texture)
@@ -221,38 +248,6 @@ void Cloud::Renderer::GfxTextureFactory::InitDsv(const GfxTextureDesc& desc, Gfx
     RenderCore::SetDebugObjectName(texture.m_dsv, (desc.name + ".dsv").c_str());
 }
 
-void Cloud::Renderer::GfxTextureFactory::Destroy(GfxTexture* texture)
-{
-    if (texture)
-    {
-        if (texture->m_srv)
-        {
-            texture->m_srv->Release();
-            texture->m_srv = nullptr;
-        }
-
-        if (texture->m_rtv)
-        {
-            texture->m_rtv->Release();
-            texture->m_rtv = nullptr;
-        }
-
-        if (texture->m_dsv)
-        {
-            texture->m_dsv->Release();
-            texture->m_dsv = nullptr;
-        }
-
-        if (texture->m_texture)
-        {
-            texture->m_texture->Release();
-            texture->m_texture = nullptr;
-        }
-    }
-
-    delete texture;
-}
-
 void Cloud::Renderer::GfxTextureFactory::FillInitialData(CLuint width, CLuint height, CLuint depth, CLuint mipCount, CLuint arraySize, DXGI_FORMAT format, const CLuint8* imageData, CLsize_t imageDataSize, CLuint& tWidth, CLuint& tHeight, CLuint& tDepth, CLuint& skipMip, D3D11_SUBRESOURCE_DATA* initData)
 {
     CL_ASSERT_NULL(imageData);
@@ -336,10 +331,9 @@ void Cloud::Renderer::GfxTextureFactory::FillInitialData(CLuint width, CLuint he
     CL_ASSERT(index > 0, "All surface copies failed!");
 }
 
-Cloud::Renderer::GfxTexture* Cloud::Renderer::GfxTextureFactory::CreateFromBackbuffer()
+Cloud::Renderer::GfxTexture::UniquePtr Cloud::Renderer::GfxTextureFactory::CreateFromBackbuffer()
 {
-    GfxTexture* texture = new Cloud::Renderer::GfxTexture();
-    CL_ASSERT_NULL(texture);
+    auto texture = GfxTexture::MakeUnique();
 
     {
         ID3D11Texture2D* backbuffer = 0;

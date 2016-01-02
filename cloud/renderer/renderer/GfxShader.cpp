@@ -3,8 +3,17 @@
 #include "RenderCore.h"
 
 Cloud::Renderer::GfxComputeShader::GfxComputeShader()
-    : m_shader(nullptr)
+    : GfxResource()
+    , m_shader(nullptr)
 {
+}
+
+Cloud::Renderer::GfxComputeShader::~GfxComputeShader()
+{
+    if (m_shader)
+    {
+        m_shader->Release();
+    }
 }
 
 CLbool Cloud::Renderer::GfxShaderFactory::CompileShader(const ClString& shaderPath, const ClString& entryPoint, const ClString& shaderModel, GfxShaderBlob& shaderBlobOutput)
@@ -53,9 +62,9 @@ CLbool Cloud::Renderer::GfxShaderFactory::CompileShader(const ClString& shaderPa
     return true;
 }
 
-Cloud::Renderer::GfxComputeShader* Cloud::Renderer::GfxShaderFactory::Create(const GfxComputerShaderDesc& desc)
+Cloud::Renderer::GfxComputeShader::UniquePtr Cloud::Renderer::GfxShaderFactory::Create(const GfxComputerShaderDesc& desc)
 {
-    GfxComputeShader* shader = new GfxComputeShader();
+    auto shader = GfxComputeShader::MakeUnique();
 
     CL_ASSERT_NULL(desc.shaderBlob.blob);
 
@@ -65,7 +74,7 @@ Cloud::Renderer::GfxComputeShader* Cloud::Renderer::GfxShaderFactory::Create(con
     if (FAILED(result))
     {
         CL_ASSERT_MSG("Failed to create compute shader!");
-        SAFE_DELETE(shader);
+        shader = nullptr;
     }
 
     RenderCore::SetDebugObjectName(shader->m_shader, (desc.name + ".cs").c_str());
@@ -75,10 +84,5 @@ Cloud::Renderer::GfxComputeShader* Cloud::Renderer::GfxShaderFactory::Create(con
 
 void Cloud::Renderer::GfxShaderFactory::Destroy(GfxComputeShader* shader)
 {
-    if (shader)
-    {
-        shader->m_shader->Release();
-    }
-
     delete shader;
 }

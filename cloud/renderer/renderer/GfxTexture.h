@@ -1,6 +1,8 @@
 #ifndef CLOUD_RENDERER_GFX_TEXTURE_HEADER
 #define CLOUD_RENDERER_GFX_TEXTURE_HEADER
 
+#include "GfxResource.h"
+
 namespace Cloud
 {
     namespace Renderer
@@ -30,10 +32,12 @@ namespace Cloud
             CLbool                      isCubeMap;
         };
 
-        class GfxTexture
+        class GfxTexture : public GfxResource
         {
             friend class GfxTextureFactory;
         public:
+            typedef std::unique_ptr<GfxTexture, Deleter> UniquePtr;
+
             const GfxTextureDesc&       GetDesc() const         { return m_desc; }
             ID3D11ShaderResourceView*   GetSrv() const          { return m_srv; }
             ID3D11RenderTargetView*     GetRtv() const          { return m_rtv; }
@@ -41,7 +45,9 @@ namespace Cloud
 
         private:
             GfxTexture();
-            ~GfxTexture() {};
+            virtual ~GfxTexture() override;
+
+            static UniquePtr MakeUnique() { return GfxTexture::UniquePtr(new GfxTexture(), GfxResource::Deleter()); }
 
             ID3D11Texture2D*            m_texture;
             ID3D11ShaderResourceView*   m_srv;
@@ -53,10 +59,8 @@ namespace Cloud
         class GfxTextureFactory
         {
         public:
-            GfxTexture* Create(const GfxTextureDesc& desc);
-            void Destroy(GfxTexture* texture);
-
-            GfxTexture* CreateFromBackbuffer();
+            Cloud::Renderer::GfxTexture::UniquePtr Create(const GfxTextureDesc& desc);
+            Cloud::Renderer::GfxTexture::UniquePtr CreateFromBackbuffer();
 
         private:
             void Init2d(const GfxTextureDesc& desc, GfxTexture& texture);

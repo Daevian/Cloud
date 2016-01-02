@@ -43,6 +43,7 @@ CLbool Cloud::Renderer::Renderer::Initialise()
        // m_3dSceneSurface
     }
 
+
     const CLfloat width  = (CLfloat)Cloud::Renderer::Settings::Instance().GetRoot()["Resolution"]["Width"].asDouble();
     const CLfloat height = (CLfloat)Cloud::Renderer::Settings::Instance().GetRoot()["Resolution"]["Height"].asDouble();
 
@@ -54,10 +55,14 @@ CLbool Cloud::Renderer::Renderer::Initialise()
     ClMatrix4 cameraRotation = ClMatrix4::Rotation(0.2f, 0.0f, 0.0f);
     m_camera.SetRotation(cameraRotation);
 
-    for (int i = 0; i < c_boxes; ++i)
+    for (auto& rot : m_randomRotations)
     {
-        m_randomRotations[i] = ClFloat3(ClRandFloat(), ClRandFloat(), ClRandFloat());
-        m_randomScales[i] = ClRandFloat() * 0.5f + 0.5f;
+        rot = ClFloat3(ClRandFloat(), ClRandFloat(), ClRandFloat());
+    }
+
+    for (auto& scale : m_randomScales)
+    {
+        scale = ClRandFloat() * 0.5f + 0.5f;
     }
 
     int top;

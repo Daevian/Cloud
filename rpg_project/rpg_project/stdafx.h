@@ -26,10 +26,12 @@
 
 #include <d3d11_1.h>
 
+#include <vector>
+#include <array>
 #include <math.h>
 #include <algorithm>
-#include <memory>
 #include <functional>
+#include <memory>
 
 #include "utilities/DefinesAsserts.h"
 #include "utilities/DefinesMacros.h"

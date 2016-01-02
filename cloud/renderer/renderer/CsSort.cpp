@@ -4,14 +4,6 @@
 #include "GfxShader.h"
 
 Cloud::Renderer::CsSorter::CsSorter()
-    : m_bitonicSortShader(nullptr)
-    , m_transposeShader(nullptr)
-    , m_bitonicSortConstBuffer(nullptr)
-    , m_transposeConstBuffer(nullptr)
-    , m_structBuffer0(nullptr)
-    , m_structBuffer1(nullptr)
-    , m_outputBuffer(nullptr)
-    , m_debugBuffer(nullptr)
 {
     for (CLuint i = 0; i < c_elementCount; ++i)
     {
@@ -53,6 +45,7 @@ void Cloud::Renderer::CsSorter::Init()
         desc.elementSize = sizeof(BitonicSortConstBuffer);
         m_bitonicSortConstBuffer = GfxCore::Instance().Create(desc);
         CL_ASSERT_NULL(m_bitonicSortConstBuffer);
+        m_bitonicSortConstBuffer = nullptr;
 
         desc.name = "cs_sort_transpose_cb";
         desc.elementSize = sizeof(TransposeConstBuffer);
@@ -90,13 +83,14 @@ void Cloud::Renderer::CsSorter::Init()
 
 void Cloud::Renderer::CsSorter::Uninit()
 {
-    GfxCore::Instance().Destroy(m_bitonicSortShader);
-    GfxCore::Instance().Destroy(m_transposeShader);
-    GfxCore::Instance().Destroy(m_bitonicSortConstBuffer);
-    GfxCore::Instance().Destroy(m_transposeConstBuffer);
-    GfxCore::Instance().Destroy(m_structBuffer0);
-    GfxCore::Instance().Destroy(m_outputBuffer);
-    GfxCore::Instance().Destroy(m_debugBuffer);
+    m_bitonicSortShader = nullptr;
+    m_transposeShader = nullptr;
+    m_bitonicSortConstBuffer = nullptr;
+    m_transposeConstBuffer = nullptr;
+    m_structBuffer0 = nullptr;
+    m_structBuffer1 = nullptr;
+    m_outputBuffer = nullptr;
+    m_debugBuffer = nullptr;
 }
 
 void Cloud::Renderer::CsSorter::Update()
@@ -106,7 +100,7 @@ void Cloud::Renderer::CsSorter::Update()
         m_buffer0[i].f = static_cast<CLfloat>(rand() % c_elementCount);
     }
 
-    GfxCore::Instance().GetRenderingDevice().UpdateSubresource(m_outputBuffer, m_buffer0.GetBuffer());
+    GfxCore::Instance().GetRenderingDevice().UpdateSubresource(m_outputBuffer.get(), m_buffer0.GetBuffer());
 }
 
 void Cloud::Renderer::CsSorter::Dispatch()
@@ -119,9 +113,9 @@ void Cloud::Renderer::CsSorter::Dispatch()
 
     // DISPATCH
     
-    device.SetComputeShader(m_bitonicSortShader);
-    device.SetConstantBufferCS(m_bitonicSortConstBuffer, 0);
-    device.SetUnorderedAccessView(m_outputBuffer, 0);
+    device.SetComputeShader(m_bitonicSortShader.get());
+    device.SetConstantBufferCS(m_bitonicSortConstBuffer.get(), 0);
+    device.SetUnorderedAccessView(m_outputBuffer.get(), 0);
 
     // normal bitonic sort up to block size
     for (CLuint level = 2; level <= c_bitonicBlockSize; level *= 2)
@@ -131,22 +125,22 @@ void Cloud::Renderer::CsSorter::Dispatch()
         device.Dispatch(c_elementCount / c_bitonicBlockSize, 1, 1);
     }
 
-    device.SetConstantBufferCS(m_transposeConstBuffer, 1);
+    device.SetConstantBufferCS(m_transposeConstBuffer.get(), 1);
 
     // to reach over the block boundraries, a transpose is needed to compare values that normally aren't inside the group
     for( UINT level = (c_bitonicBlockSize * 2) ; level <= c_elementCount; level = level * 2 )
     {
         // transpose
         UpdateTransposeConstBuffer(c_matrixWidth, c_matrixHeight);
-        device.SetComputeShader(m_transposeShader);
-        device.SetUnorderedAccessView(m_structBuffer0, 0);
-        device.SetBufferCS(m_outputBuffer, 0);
+        device.SetComputeShader(m_transposeShader.get());
+        device.SetUnorderedAccessView(m_structBuffer0.get(), 0);
+        device.SetBufferCS(m_outputBuffer.get(), 0);
         device.Dispatch(c_matrixWidth / c_transposeBlockSize, c_matrixHeight / c_transposeBlockSize, 1);
 
         // sort transposed set
         // the level and level mask are reset for the transposed passes
         UpdateBitonicSortConstBuffer(level / c_bitonicBlockSize, (level & ~c_elementCount)/ c_bitonicBlockSize);
-        device.SetComputeShader(m_bitonicSortShader);
+        device.SetComputeShader(m_bitonicSortShader.get());
         device.Dispatch(c_elementCount / c_bitonicBlockSize, 1, 1);
         
         device.SetUnorderedAccessView(nullptr, 0);
@@ -154,16 +148,16 @@ void Cloud::Renderer::CsSorter::Dispatch()
 
         // transpose back
         UpdateTransposeConstBuffer(c_matrixHeight, c_matrixWidth);
-        device.SetComputeShader(m_transposeShader);
-        device.SetUnorderedAccessView(m_outputBuffer, 0);
-        device.SetBufferCS(m_structBuffer0, 0);
-        device.SetConstantBufferCS(m_transposeConstBuffer, 1);
+        device.SetComputeShader(m_transposeShader.get());
+        device.SetUnorderedAccessView(m_outputBuffer.get(), 0);
+        device.SetBufferCS(m_structBuffer0.get(), 0);
+        device.SetConstantBufferCS(m_transposeConstBuffer.get(), 1);
         device.Dispatch(c_matrixHeight / c_transposeBlockSize, c_matrixWidth / c_transposeBlockSize, 1);
 
         // continue sorting the full group
         // the level and level mask carry on working on the entire group
         UpdateBitonicSortConstBuffer(c_bitonicBlockSize, level);
-        device.SetComputeShader(m_bitonicSortShader);
+        device.SetComputeShader(m_bitonicSortShader.get());
         device.Dispatch(c_elementCount / c_bitonicBlockSize, 1, 1);
 
         device.SetUnorderedAccessView(nullptr, 0);
@@ -171,12 +165,12 @@ void Cloud::Renderer::CsSorter::Dispatch()
     }
 
     // COPY VALUES BACK
-    device.Copy(m_outputBuffer, m_debugBuffer);
+    device.Copy(m_outputBuffer.get(), m_debugBuffer.get());
 
     {
         GfxBufferMapDesc desc;
         ClMemZero(&desc, sizeof(desc));
-        desc.buffer = m_debugBuffer;
+        desc.buffer = m_debugBuffer.get();
         desc.mapType = D3D11_MAP_READ;
 
         GfxMappedResource mappedResource;
@@ -194,11 +188,11 @@ void Cloud::Renderer::CsSorter::Dispatch()
 void Cloud::Renderer::CsSorter::UpdateBitonicSortConstBuffer(CLuint level, CLuint levelMask)
 {
     BitonicSortConstBuffer constBuffer = {level, levelMask};
-    GfxCore::Instance().GetRenderingDevice().UpdateSubresource(m_bitonicSortConstBuffer, &constBuffer);
+    GfxCore::Instance().GetRenderingDevice().UpdateSubresource(m_bitonicSortConstBuffer.get(), &constBuffer);
 }
 
 void Cloud::Renderer::CsSorter::UpdateTransposeConstBuffer(CLuint width, CLuint height)
 {
     TransposeConstBuffer constBuffer = {width, height};
-    GfxCore::Instance().GetRenderingDevice().UpdateSubresource(m_transposeConstBuffer, &constBuffer);
+    GfxCore::Instance().GetRenderingDevice().UpdateSubresource(m_transposeConstBuffer.get(), &constBuffer);
 }

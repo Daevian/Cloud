@@ -10,8 +10,6 @@ Cloud::Renderer::RenderCore::RenderCore()
 : m_device(nullptr)
 , m_context(nullptr)
 , m_swapChain(nullptr)
-, m_backbuffer(nullptr)
-, m_depthStencil(nullptr)
 , m_featureLevel(D3D_FEATURE_LEVEL_11_1)
 {
     ClMemZero(&m_settings, sizeof(m_settings));
@@ -65,8 +63,8 @@ void Cloud::Renderer::RenderCore::Shutdown()
 
     m_perSceneConstBuffer.Uninitialise();
     m_perModelConstBuffer.Uninitialise();
-    if (m_depthStencil) Destroy(m_depthStencil);
-    if (m_backbuffer) Destroy(m_backbuffer);
+    m_depthStencil = nullptr;
+    m_backbuffer = nullptr;
     if (m_swapChain) m_swapChain->Release();
     if (m_context) m_context->Release();
     if (m_device) m_device->Release();
@@ -229,29 +227,19 @@ CLuint Cloud::Renderer::RenderCore::GetMSAAQuality(CLuint samples, DXGI_FORMAT f
     return quality - 1;
 }
 
-Cloud::Renderer::GfxBuffer* Cloud::Renderer::RenderCore::Create(const GfxBufferDesc& desc)
+Cloud::Renderer::GfxBuffer::UniquePtr Cloud::Renderer::RenderCore::Create(const GfxBufferDesc& desc)
 {
-    return m_gfxBufferFactory.Create(desc);
+    return std::move(m_gfxBufferFactory.Create(desc));
 }
 
-Cloud::Renderer::GfxTexture* Cloud::Renderer::RenderCore::Create(const GfxTextureDesc& desc)
+Cloud::Renderer::GfxTexture::UniquePtr Cloud::Renderer::RenderCore::Create(const GfxTextureDesc& desc)
 {
     return m_gfxTextureFactory.Create(desc);
 }
 
-Cloud::Renderer::GfxComputeShader* Cloud::Renderer::RenderCore::Create(const GfxComputerShaderDesc& desc)
+Cloud::Renderer::GfxComputeShader::UniquePtr Cloud::Renderer::RenderCore::Create(const GfxComputerShaderDesc& desc)
 {
     return m_gfxShaderFactory.Create(desc);
-}
-
-void Cloud::Renderer::RenderCore::Destroy(GfxBuffer* buffer)
-{
-    m_gfxBufferFactory.Destroy(buffer);
-}
-
-void Cloud::Renderer::RenderCore::Destroy(GfxTexture* texture)
-{
-    m_gfxTextureFactory.Destroy(texture);
 }
 
 void Cloud::Renderer::RenderCore::Destroy(GfxComputeShader* shader)

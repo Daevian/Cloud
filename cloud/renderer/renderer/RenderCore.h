@@ -45,8 +45,8 @@ namespace Cloud
             ID3D11Device*           GetDevice()                     { return m_device; }
             ID3D11DeviceContext*    GetContext()                    { return m_context; }
             RenderingDevice&        GetRenderingDevice()            { return m_renderingDevice; }
-            GfxTexture*             GetBackbuffer()                 { return m_backbuffer; }
-            GfxTexture*             GetDepthStencil()               { return m_depthStencil; }
+            GfxTexture*             GetBackbuffer()                 { return m_backbuffer.get(); }
+            GfxTexture*             GetDepthStencil()               { return m_depthStencil.get(); }
 
             TextureContainer&       GetTextureContainer()           { return m_textureContainer; }
             ShaderEffectContainer&  GetEffectContainer()            { return m_effectContainer; }
@@ -58,12 +58,10 @@ namespace Cloud
             void GpuUpdatePerSceneConstBuffer();
             void GpuUpdatePerModelConstBuffer();
 
-            GfxBuffer*              Create(const GfxBufferDesc& desc);
-            GfxTexture*             Create(const GfxTextureDesc& desc);
-            GfxComputeShader*       Create(const GfxComputerShaderDesc& desc);
+            GfxBuffer::UniquePtr        Create(const GfxBufferDesc& desc);
+            GfxTexture::UniquePtr       Create(const GfxTextureDesc& desc);
+            GfxComputeShader::UniquePtr Create(const GfxComputerShaderDesc& desc);
 
-            void Destroy(GfxBuffer* buffer);
-            void Destroy(GfxTexture* texture);
             void Destroy(GfxComputeShader* shader);
 
             static void SetDebugObjectName(ID3D11DeviceChild* resource, const CLchar* name);
@@ -94,8 +92,8 @@ namespace Cloud
             ID3D11Device* m_device;
             ID3D11DeviceContext* m_context;
             IDXGISwapChain* m_swapChain;
-            GfxTexture* m_backbuffer;
-            GfxTexture* m_depthStencil;
+            GfxTexture::UniquePtr m_backbuffer;
+            GfxTexture::UniquePtr m_depthStencil;
 
             D3D_FEATURE_LEVEL m_featureLevel;
             

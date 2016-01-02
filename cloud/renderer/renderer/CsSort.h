@@ -1,13 +1,13 @@
 #ifndef CLOUD_RENDERER_CS_SORT_HEADER
 #define CLOUD_RENDERER_CS_SORT_HEADER
 
+#include "GfxBuffer.h"
+#include "GfxShader.h"
+
 namespace Cloud
 {
     namespace Renderer
     {
-        class GfxComputeShader;
-        class GfxBuffer;
-
         struct ElementType
         {
             float f;
@@ -40,14 +40,14 @@ namespace Cloud
             void UpdateBitonicSortConstBuffer(CLuint level, CLuint levelMask);
             void UpdateTransposeConstBuffer(CLuint width, CLuint height);
 
-            GfxComputeShader* m_bitonicSortShader;
-            GfxComputeShader* m_transposeShader;
-            GfxBuffer* m_bitonicSortConstBuffer;
-            GfxBuffer* m_transposeConstBuffer;
-            GfxBuffer* m_structBuffer0;
-            GfxBuffer* m_structBuffer1;
-            GfxBuffer* m_outputBuffer;
-            GfxBuffer* m_debugBuffer;
+            GfxComputeShader::UniquePtr m_bitonicSortShader;
+            GfxComputeShader::UniquePtr m_transposeShader;
+            GfxBuffer::UniquePtr m_bitonicSortConstBuffer;
+            GfxBuffer::UniquePtr m_transposeConstBuffer;
+            GfxBuffer::UniquePtr m_structBuffer0;
+            GfxBuffer::UniquePtr m_structBuffer1;
+            GfxBuffer::UniquePtr m_outputBuffer;
+            GfxBuffer::UniquePtr m_debugBuffer;
 
             static const CLuint c_bitonicBlockSize = 512;
             static const CLuint c_elementCount = 65536;

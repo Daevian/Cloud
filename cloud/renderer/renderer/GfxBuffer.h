@@ -1,6 +1,8 @@
 #ifndef CLOUD_RENDERER_GFX_BUFFER_HEADER
 #define CLOUD_RENDERER_GFX_BUFFER_HEADER
 
+#include "GfxResource.h"
+
 namespace Cloud
 {
     namespace Renderer
@@ -18,10 +20,11 @@ namespace Cloud
         };
 
         // should be more than just a structured buffer
-        class GfxBuffer
+        class GfxBuffer : public GfxResource
         {
             friend class GfxBufferFactory;
         public:
+            typedef std::unique_ptr<GfxBuffer, Deleter> UniquePtr;
 
             const GfxBufferDesc&        GetDesc() const         { return m_desc; }
             ID3D11Buffer*               GetBuffer() const       { return m_buffer; }
@@ -30,7 +33,9 @@ namespace Cloud
 
         private:
             GfxBuffer();
-            ~GfxBuffer() {};
+            virtual ~GfxBuffer() override;
+
+            static UniquePtr MakeUnique()   { return GfxBuffer::UniquePtr(new GfxBuffer(), GfxResource::Deleter()); }
 
             ID3D11Buffer*               m_buffer;
             ID3D11ShaderResourceView*   m_srv;
@@ -41,9 +46,7 @@ namespace Cloud
         class GfxBufferFactory
         {
         public:
-            GfxBuffer* Create(const GfxBufferDesc& desc);
-
-            void Destroy(GfxBuffer* buffer);
+            GfxBuffer::UniquePtr Create(const GfxBufferDesc& desc);
 
         private:
             void InitSrv(const GfxBufferDesc& desc, GfxBuffer& buffer);
