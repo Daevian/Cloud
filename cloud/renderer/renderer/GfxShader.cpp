@@ -81,8 +81,3 @@ Cloud::Renderer::GfxComputeShader::UniquePtr Cloud::Renderer::GfxShaderFactory::
 
     return shader;
 }
-
-void Cloud::Renderer::GfxShaderFactory::Destroy(GfxComputeShader* shader)
-{
-    delete shader;
-}

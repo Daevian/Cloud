@@ -43,8 +43,6 @@ namespace Cloud
             static CLbool CompileShader(const ClString& shaderPath, const ClString& entryPoint, const ClString& shaderModel, GfxShaderBlob& shaderBlobOutput);
             
             GfxComputeShader::UniquePtr Create(const GfxComputerShaderDesc& desc);
-            
-            void Destroy(GfxComputeShader* shader);
 
         private:
 

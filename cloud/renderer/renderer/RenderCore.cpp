@@ -242,11 +242,6 @@ Cloud::Renderer::GfxComputeShader::UniquePtr Cloud::Renderer::RenderCore::Create
     return m_gfxShaderFactory.Create(desc);
 }
 
-void Cloud::Renderer::RenderCore::Destroy(GfxComputeShader* shader)
-{
-    m_gfxShaderFactory.Destroy(shader);
-}
-
 void Cloud::Renderer::RenderCore::SetDebugObjectName(ID3D11DeviceChild* resource, const CLchar* name)
 {
     {

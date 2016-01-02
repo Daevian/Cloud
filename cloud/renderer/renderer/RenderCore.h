@@ -62,8 +62,6 @@ namespace Cloud
             GfxTexture::UniquePtr       Create(const GfxTextureDesc& desc);
             GfxComputeShader::UniquePtr Create(const GfxComputerShaderDesc& desc);
 
-            void Destroy(GfxComputeShader* shader);
-
             static void SetDebugObjectName(ID3D11DeviceChild* resource, const CLchar* name);
 
         private:
