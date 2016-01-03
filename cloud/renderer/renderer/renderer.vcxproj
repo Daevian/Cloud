@@ -224,6 +224,7 @@
     <ClInclude Include="DdsHelper.h" />
     <ClInclude Include="CSTest.h" />
     <ClInclude Include="DebugRenderer.h" />
+    <ClInclude Include="DirectxHelpers.h" />
     <ClInclude Include="GfxBuffer.h" />
     <ClInclude Include="GfxCommon.h" />
     <ClInclude Include="GfxConstantBuffer.h" />

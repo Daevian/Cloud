@@ -4,7 +4,6 @@
 #include "RenderCore.h"
 
 Cloud::Renderer::InputLayout::InputLayout()
-:m_inputLayout(0)
 {
 }
 
@@ -30,17 +29,20 @@ CLbool Cloud::Renderer::InputLayout::Init(ID3DBlob* vertexShaderBlob, const Inpu
         inputElements.Add(inputElement);
     }
 
+    ID3D11InputLayout* dxInputLayout;
     HRESULT result = RenderCore::Instance().GetDevice()->CreateInputLayout( reinterpret_cast<D3D11_INPUT_ELEMENT_DESC*>(&inputElements[0]),
                                                                             inputElements.Count(),
                                                                             vertexShaderBlob->GetBufferPointer(),
                                                                             vertexShaderBlob->GetBufferSize(),
-                                                                            &m_inputLayout);
+                                                                            &dxInputLayout);
 
     if (FAILED(result))
     {
         CL_ASSERT_MSG("Couldn't create input layout!");
         return false;
     }
+
+    m_inputLayout = Dx::MakeUnique(dxInputLayout);
 
     return true;
 }
@@ -49,9 +51,5 @@ void Cloud::Renderer::InputLayout::Unload()
 {
     CL_ASSERT(m_inputLayout != 0, "Can't unload uninitialised input layout!");
 
-    if (m_inputLayout)
-    {
-        m_inputLayout->Release();
-        m_inputLayout = 0;
-    }
+    m_inputLayout = nullptr;
 }

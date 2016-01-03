@@ -21,7 +21,7 @@ namespace Cloud
 
         private:
             SpriteFactory m_spriteFactory;
-            Utils::DynamicArray<Sprite> m_sprites;
+            std::vector<Sprite> m_sprites;
 
         };
     }

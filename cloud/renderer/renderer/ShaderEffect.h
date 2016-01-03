@@ -13,15 +13,16 @@ namespace Cloud
         {
         public:
             ShaderEffect();
+            ~ShaderEffect();
 
             CLbool Load(const std::string& effectPath);
             void Unload();
 
             const InputLayout&      GetInputLayout() const      { return m_inputLayout; }
-            ID3D11VertexShader*     GetVertexShader() const     { return m_vertexShader; }
-            ID3D11GeometryShader*   GetGeometryShader() const   { return m_geometryShader; }
-            ID3D11PixelShader*      GetPixelShader() const      { return m_pixelShader; }
-            ID3D11BlendState*       GetBlendState() const       { return m_blendState; }
+            ID3D11VertexShader*     GetVertexShader() const     { return m_vertexShader.get(); }
+            ID3D11GeometryShader*   GetGeometryShader() const   { return m_geometryShader.get(); }
+            ID3D11PixelShader*      GetPixelShader() const      { return m_pixelShader.get(); }
+            ID3D11BlendState*       GetBlendState() const       { return m_blendState.get(); }
 
             const ClString&         GetPath() const             { return m_effectPath; }
 
@@ -35,10 +36,10 @@ namespace Cloud
             CLbool CreatePixelShader(ID3DBlob* pixelShaderBlob);
             CLbool CreateBlendState();
 
-            ID3D11VertexShader*     m_vertexShader;
-            ID3D11GeometryShader*   m_geometryShader;
-            ID3D11PixelShader*      m_pixelShader;
-            ID3D11BlendState*       m_blendState;
+            Dx::UniquePtr<ID3D11VertexShader>     m_vertexShader;
+            Dx::UniquePtr<ID3D11GeometryShader>   m_geometryShader;
+            Dx::UniquePtr<ID3D11PixelShader>      m_pixelShader;
+            Dx::UniquePtr<ID3D11BlendState>       m_blendState;
             InputLayout             m_inputLayout;
 
             ClString                m_vsFile;

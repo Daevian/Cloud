@@ -39,9 +39,9 @@ namespace Cloud
             typedef std::unique_ptr<GfxTexture, Deleter> UniquePtr;
 
             const GfxTextureDesc&       GetDesc() const         { return m_desc; }
-            ID3D11ShaderResourceView*   GetSrv() const          { return m_srv; }
-            ID3D11RenderTargetView*     GetRtv() const          { return m_rtv; }
-            ID3D11DepthStencilView*     GetDsv() const          { return m_dsv; }
+            ID3D11ShaderResourceView*   GetSrv() const          { return m_srv.get(); }
+            ID3D11RenderTargetView*     GetRtv() const          { return m_rtv.get(); }
+            ID3D11DepthStencilView*     GetDsv() const          { return m_dsv.get(); }
 
         private:
             GfxTexture();
@@ -49,10 +49,10 @@ namespace Cloud
 
             static UniquePtr MakeUnique() { return GfxTexture::UniquePtr(new GfxTexture(), GfxResource::Deleter()); }
 
-            ID3D11Texture2D*            m_texture;
-            ID3D11ShaderResourceView*   m_srv;
-            ID3D11RenderTargetView*     m_rtv;
-            ID3D11DepthStencilView*     m_dsv;
+            Dx::UniquePtr<ID3D11Texture2D>            m_texture;
+            Dx::UniquePtr<ID3D11ShaderResourceView>   m_srv;
+            Dx::UniquePtr<ID3D11RenderTargetView>     m_rtv;
+            Dx::UniquePtr<ID3D11DepthStencilView>     m_dsv;
             GfxTextureDesc              m_desc;
         };
 

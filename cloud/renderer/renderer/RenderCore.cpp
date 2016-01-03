@@ -4,13 +4,10 @@
 #include "Settings.h"
 #include "GfxTexture.h"
 
-Cloud::Renderer::RenderCore* Cloud::Renderer::RenderCore::s_instance = 0;
+std::unique_ptr<Cloud::Renderer::RenderCore, Cloud::Renderer::RenderCore::Deleter> Cloud::Renderer::RenderCore::s_instance = nullptr;
 
 Cloud::Renderer::RenderCore::RenderCore()
-: m_device(nullptr)
-, m_context(nullptr)
-, m_swapChain(nullptr)
-, m_featureLevel(D3D_FEATURE_LEVEL_11_1)
+    : m_featureLevel(D3D_FEATURE_LEVEL_11_1)
 {
     ClMemZero(&m_settings, sizeof(m_settings));
 }
@@ -25,7 +22,7 @@ CLbool Cloud::Renderer::RenderCore::Create(const Settings& settings)
 
     if (s_instance == 0)
     {
-        s_instance = new RenderCore();
+        s_instance = std::unique_ptr<RenderCore, Deleter>(new RenderCore());
         return s_instance->Initialise(settings);
     }
 
@@ -39,7 +36,7 @@ void Cloud::Renderer::RenderCore::Destroy()
     if (s_instance != 0)
     {
         s_instance->Shutdown();
-        SAFE_DELETE(s_instance);
+        s_instance = nullptr;
     }
 }
 
@@ -59,15 +56,15 @@ CLbool Cloud::Renderer::RenderCore::Initialise(const Settings& settings)
 
 void Cloud::Renderer::RenderCore::Shutdown()
 {
-    if( m_context ) m_context->ClearState();
+    if (m_context) m_context->ClearState();
 
     m_perSceneConstBuffer.Uninitialise();
     m_perModelConstBuffer.Uninitialise();
     m_depthStencil = nullptr;
     m_backbuffer = nullptr;
-    if (m_swapChain) m_swapChain->Release();
-    if (m_context) m_context->Release();
-    if (m_device) m_device->Release();
+    m_swapChain = nullptr;
+    m_context = nullptr;
+    m_device = nullptr;
 
     CL_TRACE_CHANNEL("INIT", "[RenderCore] Shut down!");
 }
@@ -104,27 +101,33 @@ CLbool Cloud::Renderer::RenderCore::InitSwapChain()
     };
 
     CLuint supportedFeatureLevelCount = sizeof(supportedFeatureLevels) / sizeof(D3D_FEATURE_LEVEL);
+    ID3D11Device* device;
+    IDXGISwapChain* swapChain;
+    ID3D11DeviceContext* context;
+    HRESULT result = D3D11CreateDeviceAndSwapChain(
+        nullptr,
+        D3D_DRIVER_TYPE_HARDWARE,
+        0,
+        createDeviceFlags,
+        supportedFeatureLevels,
+        supportedFeatureLevelCount,
+        D3D11_SDK_VERSION,
+        &swapDesc,
+        &swapChain,
+        &device,
+        &m_featureLevel,
+        &context);
 
-    HRESULT result = D3D11CreateDeviceAndSwapChain( nullptr,
-                                                    D3D_DRIVER_TYPE_HARDWARE,
-                                                    0,
-                                                    createDeviceFlags,
-                                                    supportedFeatureLevels,
-                                                    supportedFeatureLevelCount,
-                                                    D3D11_SDK_VERSION,
-                                                    &swapDesc,
-                                                    &m_swapChain,
-                                                    &m_device,
-                                                    &m_featureLevel,
-                                                    &m_context);
-
-    
-    if(FAILED(result))
+    if (FAILED(result))
     {
         CL_ASSERT_MSG("Failed to create swap chain!");
         CL_TRACE_CHANNEL("INIT", "[RenderCore] Failed to create swap chain!");
         return false;
     }
+
+    m_device = Dx::MakeUnique(device);
+    m_swapChain = Dx::MakeUnique(swapChain);
+    m_context = Dx::MakeUnique(context);
 
     return true;
 }
@@ -229,7 +232,7 @@ CLuint Cloud::Renderer::RenderCore::GetMSAAQuality(CLuint samples, DXGI_FORMAT f
 
 Cloud::Renderer::GfxBuffer::UniquePtr Cloud::Renderer::RenderCore::Create(const GfxBufferDesc& desc)
 {
-    return std::move(m_gfxBufferFactory.Create(desc));
+    return m_gfxBufferFactory.Create(desc);
 }
 
 Cloud::Renderer::GfxTexture::UniquePtr Cloud::Renderer::RenderCore::Create(const GfxTextureDesc& desc)

@@ -27,9 +27,9 @@ namespace Cloud
             typedef std::unique_ptr<GfxBuffer, Deleter> UniquePtr;
 
             const GfxBufferDesc&        GetDesc() const         { return m_desc; }
-            ID3D11Buffer*               GetBuffer() const       { return m_buffer; }
-            ID3D11ShaderResourceView*   GetSrv() const          { return m_srv; }
-            ID3D11UnorderedAccessView*  GetUav() const          { return m_uav; }
+            ID3D11Buffer*               GetBuffer() const       { return m_buffer.get(); }
+            ID3D11ShaderResourceView*   GetSrv() const          { return m_srv.get(); }
+            ID3D11UnorderedAccessView*  GetUav() const          { return m_uav.get(); }
 
         private:
             GfxBuffer();
@@ -37,10 +37,10 @@ namespace Cloud
 
             static UniquePtr MakeUnique()   { return GfxBuffer::UniquePtr(new GfxBuffer(), GfxResource::Deleter()); }
 
-            ID3D11Buffer*               m_buffer;
-            ID3D11ShaderResourceView*   m_srv;
-            ID3D11UnorderedAccessView*  m_uav;
-            GfxBufferDesc     m_desc;
+            Dx::UniquePtr<ID3D11Buffer>                 m_buffer;
+            Dx::UniquePtr<ID3D11ShaderResourceView>     m_srv;
+            Dx::UniquePtr<ID3D11UnorderedAccessView>    m_uav;
+            GfxBufferDesc                               m_desc;
         };
 
         class GfxBufferFactory

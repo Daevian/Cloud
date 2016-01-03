@@ -29,6 +29,7 @@ namespace Cloud
 
         public:
             CsSorter();
+            ~CsSorter();
 
             void Init();
             void Uninit();
@@ -51,7 +52,7 @@ namespace Cloud
 
             static const CLuint c_bitonicBlockSize = 512;
             static const CLuint c_elementCount = 65536;
-            Utils::StaticArray<ElementType, c_elementCount> m_buffer0;
+            std::array<ElementType, c_elementCount> m_buffer0;
         };
     }
 }

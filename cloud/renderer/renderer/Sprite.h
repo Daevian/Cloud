@@ -23,7 +23,8 @@ namespace Cloud
         {
         public:
             Sprite();
-            Sprite(const Sprite& sprite);
+            Sprite(const Sprite& sprite) = delete;
+            Sprite(Sprite&& sprite);
 
             CLbool Init(Texture* texture);
             void Unload();

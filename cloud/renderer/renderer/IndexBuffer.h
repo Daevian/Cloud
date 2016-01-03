@@ -9,14 +9,15 @@ namespace Cloud
         {
         public:
             IndexBuffer();
-            IndexBuffer(const IndexBuffer& vertexBuffer);
+            IndexBuffer(const IndexBuffer& vertexBuffer) = delete;
+            IndexBuffer(IndexBuffer&& vertexBuffer);
 
             CLbool Initialise();
             void Uninitialise();
 
             CLint GetIndexCount() const                     { return m_indexCount; }
             void* GetIndexData()  const                     { return m_indexData; }
-            ID3D11Buffer* GetBuffer() const                 { return m_indexBuffer; }
+            ID3D11Buffer* GetBuffer() const                 { return m_indexBuffer.get(); }
 
             void SetIndexCount(CLint indexCount)            { m_indexCount = indexCount; }
             void SetIndexData(void* indexData)              { m_indexData = indexData; }
@@ -27,7 +28,7 @@ namespace Cloud
             CLint m_indexCount;
             CLint m_indexSize;
             void* m_indexData;
-            ID3D11Buffer* m_indexBuffer;
+            Dx::UniquePtr<ID3D11Buffer> m_indexBuffer;
         };
     }
 }

@@ -5,39 +5,12 @@
 
 Cloud::Renderer::GfxTexture::GfxTexture()
     : GfxResource()
-    , m_texture(nullptr)
-    , m_srv(nullptr)
-    , m_rtv(nullptr)
-    , m_dsv(nullptr)
 {
     ClMemZero(&m_desc, sizeof(m_desc));
 }
 
 Cloud::Renderer::GfxTexture::~GfxTexture()
 {
-    if (m_srv)
-    {
-        m_srv->Release();
-        m_srv = nullptr;
-    }
-
-    if (m_rtv)
-    {
-        m_rtv->Release();
-        m_rtv = nullptr;
-    }
-
-    if (m_dsv)
-    {
-        m_dsv->Release();
-        m_dsv = nullptr;
-    }
-
-    if (m_texture)
-    {
-        m_texture->Release();
-        m_texture = nullptr;
-    }
 }
 
 Cloud::Renderer::GfxTexture::UniquePtr Cloud::Renderer::GfxTextureFactory::Create(const GfxTextureDesc& desc)
@@ -135,13 +108,17 @@ void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxT
     }
     
     auto* device = GfxCore::Instance().GetDevice();
-    auto hr = device->CreateTexture2D(&dxDesc, desc.initialData.data ? initData.get() : nullptr, &texture.m_texture);
+    ID3D11Texture2D* dxTex;
+    auto hr = device->CreateTexture2D(&dxDesc, desc.initialData.data ? initData.get() : nullptr, &dxTex);
     if (FAILED(hr))
     {
         CL_ASSERT_MSG("Failed to create the 2D Texture!");
+        return;
     }
 
-    RenderCore::SetDebugObjectName(texture.m_texture, (desc.name + ".tex").c_str());
+    texture.m_texture = Dx::MakeUnique(dxTex);
+
+    RenderCore::SetDebugObjectName(texture.m_texture.get(), (desc.name + ".tex").c_str());
 }
 
 void Cloud::Renderer::GfxTextureFactory::InitSrv(const GfxTextureDesc& desc, GfxTexture& texture)
@@ -190,13 +167,17 @@ void Cloud::Renderer::GfxTextureFactory::InitSrv(const GfxTextureDesc& desc, Gfx
     }
 
     auto* device = GfxCore::Instance().GetDevice();
-    auto hr = device->CreateShaderResourceView(texture.m_texture, &srvDesc, &texture.m_srv);
+    ID3D11ShaderResourceView* dxSrv;
+    auto hr = device->CreateShaderResourceView(texture.m_texture.get(), &srvDesc, &dxSrv);
     if (FAILED(hr))
     {
         CL_ASSERT_MSG("Failed to create the SRV!");
+        return;
     }
 
-    RenderCore::SetDebugObjectName(texture.m_srv, (desc.name + ".srv").c_str());
+    texture.m_srv = Dx::MakeUnique(dxSrv);
+
+    RenderCore::SetDebugObjectName(texture.m_srv.get(), (desc.name + ".srv").c_str());
 }
 
 void Cloud::Renderer::GfxTextureFactory::InitRtv(const GfxTextureDesc& desc, GfxTexture& texture)
@@ -204,13 +185,17 @@ void Cloud::Renderer::GfxTextureFactory::InitRtv(const GfxTextureDesc& desc, Gfx
     //D3D11_RENDER_TARGET_VIEW_DESC desc;
     //desc.
 
-    auto result = GfxCore::Instance().GetDevice()->CreateRenderTargetView(texture.m_texture, nullptr, &texture.m_rtv);
+    ID3D11RenderTargetView* dxRtv;
+    auto result = GfxCore::Instance().GetDevice()->CreateRenderTargetView(texture.m_texture.get(), nullptr, &dxRtv);
     if (FAILED(result))
     {
         CL_ASSERT_MSG("Failed to create the RTV!");
+        return;
     }
 
-    RenderCore::SetDebugObjectName(texture.m_rtv, (desc.name + ".rtv").c_str());
+    texture.m_rtv = Dx::MakeUnique(dxRtv);
+
+    RenderCore::SetDebugObjectName(texture.m_rtv.get(), (desc.name + ".rtv").c_str());
 }
 
 void Cloud::Renderer::GfxTextureFactory::InitDsv(const GfxTextureDesc& desc, GfxTexture& texture)
@@ -239,13 +224,17 @@ void Cloud::Renderer::GfxTextureFactory::InitDsv(const GfxTextureDesc& desc, Gfx
 		break;
 	}
 
-    auto result = GfxCore::Instance().GetDevice()->CreateDepthStencilView(texture.m_texture, &depthDesc, &texture.m_dsv);
+    ID3D11DepthStencilView* dxDsv;
+    auto result = GfxCore::Instance().GetDevice()->CreateDepthStencilView(texture.m_texture.get(), &depthDesc, &dxDsv);
     if (FAILED(result))
     {
         CL_ASSERT_MSG("Failed to create the DSV!");
+        return;
     }
 
-    RenderCore::SetDebugObjectName(texture.m_dsv, (desc.name + ".dsv").c_str());
+    texture.m_dsv = Dx::MakeUnique(dxDsv);
+
+    RenderCore::SetDebugObjectName(texture.m_dsv.get(), (desc.name + ".dsv").c_str());
 }
 
 void Cloud::Renderer::GfxTextureFactory::FillInitialData(CLuint width, CLuint height, CLuint depth, CLuint mipCount, CLuint arraySize, DXGI_FORMAT format, const CLuint8* imageData, CLsize_t imageDataSize, CLuint& tWidth, CLuint& tHeight, CLuint& tDepth, CLuint& skipMip, D3D11_SUBRESOURCE_DATA* initData)
@@ -343,7 +332,7 @@ Cloud::Renderer::GfxTexture::UniquePtr Cloud::Renderer::GfxTextureFactory::Creat
             CL_ASSERT_MSG("Failed to get back buffer!");
         }
 
-        texture->m_texture = backbuffer;
+        texture->m_texture = Dx::MakeUnique(backbuffer);
 
         D3D11_TEXTURE2D_DESC desc;
         backbuffer->GetDesc(&desc);
@@ -361,7 +350,7 @@ Cloud::Renderer::GfxTexture::UniquePtr Cloud::Renderer::GfxTextureFactory::Creat
         texture->m_desc.sampleDesc.Count    = desc.SampleDesc.Count;
         texture->m_desc.sampleDesc.Quality  = desc.SampleDesc.Quality;
 
-        RenderCore::SetDebugObjectName(texture->m_texture, (texture->m_desc.name + ".tex").c_str());
+        RenderCore::SetDebugObjectName(texture->m_texture.get(), (texture->m_desc.name + ".tex").c_str());
     }
 
     // TODO: NEEDS MS SRV!

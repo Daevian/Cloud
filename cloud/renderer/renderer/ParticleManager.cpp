@@ -6,16 +6,6 @@
 #include "Texture.h"
 
 Cloud::Renderer::ParticleManager::ParticleManager()
-    : m_buffer(0)
-    , m_bufferOut(0)
-    , m_bufferVertexBuffer(0)
-    , m_bufferSRV(0)
-    , m_bufferOutUAV(0)
-    , m_fillView(0)
-    , m_fillOutView(0)
-    , m_vertexBufferView(0)
-    , m_simShader(0)
-    , m_fillShader(0)
 {
 }
 
@@ -65,7 +55,10 @@ CLbool Cloud::Renderer::ParticleManager::Initialise()
         desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
         desc.Usage = D3D11_USAGE_DEFAULT;
 
-        result = d3dDevice->CreateBuffer(&desc, &initialSRData, &m_buffer);
+        ID3D11Buffer* dxBuf;
+        result = d3dDevice->CreateBuffer(&desc, &initialSRData, &dxBuf);
+
+        m_buffer = Dx::MakeUnique(dxBuf);
     }
 
     // GPU fill input buffer
@@ -79,7 +72,9 @@ CLbool Cloud::Renderer::ParticleManager::Initialise()
         desc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
         desc.Usage = D3D11_USAGE_DEFAULT;
 
-        result = d3dDevice->CreateBuffer(&desc, 0, &m_bufferOut);
+        ID3D11Buffer* dxBuf;
+        result = d3dDevice->CreateBuffer(&desc, 0, &dxBuf);
+        m_bufferOut = Dx::MakeUnique(dxBuf);
     }
 
     // GPU sim output buffer
@@ -93,7 +88,9 @@ CLbool Cloud::Renderer::ParticleManager::Initialise()
         desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
         desc.Usage = D3D11_USAGE_DEFAULT;
 
-        result = d3dDevice->CreateBuffer(&desc, 0, &m_bufferVertexBuffer);
+        ID3D11Buffer* dxBuf;
+        result = d3dDevice->CreateBuffer(&desc, 0, &dxBuf);
+        m_bufferVertexBuffer = Dx::MakeUnique(dxBuf);
     }
 
     // GPU sim input view
@@ -106,7 +103,9 @@ CLbool Cloud::Renderer::ParticleManager::Initialise()
         desc.Buffer.FirstElement = 0;
         desc.Buffer.NumElements = m_gpuParticles.Count();
 
-        result = d3dDevice->CreateShaderResourceView(m_buffer, &desc, &m_bufferSRV);
+        ID3D11ShaderResourceView* dxSrv;
+        result = d3dDevice->CreateShaderResourceView(m_buffer.get(), &desc, &dxSrv);
+        m_bufferSRV = Dx::MakeUnique(dxSrv);
     }
 
     // GPU sim output view
@@ -119,7 +118,9 @@ CLbool Cloud::Renderer::ParticleManager::Initialise()
         desc.Buffer.FirstElement = 0;
         desc.Buffer.NumElements = m_gpuParticlesOut.Count();
 
-        result = d3dDevice->CreateUnorderedAccessView(m_bufferOut, &desc, &m_bufferOutUAV);
+        ID3D11UnorderedAccessView* dxUav;
+        result = d3dDevice->CreateUnorderedAccessView(m_bufferOut.get(), &desc, &dxUav);
+        m_bufferOutUAV = Dx::MakeUnique(dxUav);
     }
 
     // GPU fill input
@@ -132,7 +133,9 @@ CLbool Cloud::Renderer::ParticleManager::Initialise()
         desc.Buffer.FirstElement = 0;
         desc.Buffer.NumElements = m_gpuParticlesOut.Count();
 
-        result = d3dDevice->CreateUnorderedAccessView(m_bufferOut, &desc, &m_fillView);
+        ID3D11UnorderedAccessView* dxUav;
+        result = d3dDevice->CreateUnorderedAccessView(m_bufferOut.get(), &desc, &dxUav);
+        m_fillView = Dx::MakeUnique(dxUav);
     }
 
     // GPU fill output
@@ -145,7 +148,9 @@ CLbool Cloud::Renderer::ParticleManager::Initialise()
         desc.Buffer.FirstElement = 0;
         desc.Buffer.NumElements = m_vertexBuffer.GetVertexCount();
 
-        result = d3dDevice->CreateUnorderedAccessView(m_bufferVertexBuffer, &desc, &m_fillOutView);
+        ID3D11UnorderedAccessView* dxUav;
+        result = d3dDevice->CreateUnorderedAccessView(m_bufferVertexBuffer.get(), &desc, &dxUav);
+        m_fillOutView = Dx::MakeUnique(dxUav);
     }
 
     // GPU vertex buffer view
@@ -158,7 +163,9 @@ CLbool Cloud::Renderer::ParticleManager::Initialise()
         desc.Buffer.FirstElement = 0;
         desc.Buffer.NumElements = m_gpuParticles.Count();
 
-        result = d3dDevice->CreateShaderResourceView(m_bufferVertexBuffer, &desc, &m_vertexBufferView);
+        ID3D11ShaderResourceView* dxSrv;
+        result = d3dDevice->CreateShaderResourceView(m_bufferVertexBuffer.get(), &desc, &dxSrv);
+        m_vertexBufferView = Dx::MakeUnique(dxSrv);
     }
 
     // Compile particle sim shader
@@ -197,7 +204,9 @@ CLbool Cloud::Renderer::ParticleManager::Initialise()
             return false;
         }
 
-        result = d3dDevice->CreateComputeShader(blob->GetBufferPointer(), blob->GetBufferSize(), 0, &m_simShader);
+        ID3D11ComputeShader* dxShader;
+        result = d3dDevice->CreateComputeShader(blob->GetBufferPointer(), blob->GetBufferSize(), 0, &dxShader);
+        m_simShader = Dx::MakeUnique(dxShader);
     }
 
      // Compile particle sim shader
@@ -236,7 +245,9 @@ CLbool Cloud::Renderer::ParticleManager::Initialise()
             return false;
         }
 
-        result = d3dDevice->CreateComputeShader(blob->GetBufferPointer(), blob->GetBufferSize(), 0, &m_fillShader);
+        ID3D11ComputeShader* dxShader;
+        result = d3dDevice->CreateComputeShader(blob->GetBufferPointer(), blob->GetBufferSize(), 0, &dxShader);
+        m_fillShader = Dx::MakeUnique(dxShader);
     }
 
 
@@ -262,12 +273,12 @@ void Cloud::Renderer::ParticleManager::Update(CLfloat timeStep)
     // GPU update
     auto context = RenderCore::Instance().GetContext();
 
-    context->CSSetShader(m_simShader, 0, 0);
+    context->CSSetShader(m_simShader.get(), 0, 0);
 
-    ID3D11ShaderResourceView* srViews[1] = { m_bufferSRV };
+    ID3D11ShaderResourceView* srViews[1] = { m_bufferSRV.get() };
     context->CSSetShaderResources(0, 1, srViews);
 
-    ID3D11UnorderedAccessView* uaViews[1] = { m_bufferOutUAV };
+    ID3D11UnorderedAccessView* uaViews[1] = { m_bufferOutUAV.get() };
     context->CSSetUnorderedAccessViews(0, 1, uaViews, 0);
 
     context->Dispatch(256, 1, 1);        
@@ -314,9 +325,9 @@ void Cloud::Renderer::ParticleManager::Fill()
     // GPU update
     auto context = RenderCore::Instance().GetContext();
 
-    context->CSSetShader(m_fillShader, 0, 0);
+    context->CSSetShader(m_fillShader.get(), 0, 0);
 
-    ID3D11UnorderedAccessView* uaViews[2] = { m_fillView, m_fillOutView };
+    ID3D11UnorderedAccessView* uaViews[2] = { m_fillView.get(), m_fillOutView.get() };
     context->CSSetUnorderedAccessViews(0, 2, uaViews, 0);
 
     context->Dispatch(256, 1, 1);
@@ -345,7 +356,8 @@ void Cloud::Renderer::ParticleManager::Render()
     renderingDevice.SetEffect(m_effect);
     renderingDevice.SetVertexBuffer(&m_vertexBuffer);
 
-    context->VSSetShaderResources(1, 1, &m_vertexBufferView);
+    auto* vbSrv = m_vertexBufferView.get();
+    context->VSSetShaderResources(1, 1, &vbSrv);
     renderingDevice.Draw();
     context->VSSetShaderResources(1, 1, 0);
 }

@@ -55,16 +55,16 @@ namespace Renderer
         Texture* m_texture;
 
 
-        ID3D11Buffer* m_buffer;
-        ID3D11Buffer* m_bufferOut;
-        ID3D11Buffer* m_bufferVertexBuffer;
-        ID3D11ShaderResourceView* m_bufferSRV;
-        ID3D11UnorderedAccessView* m_bufferOutUAV;
-        ID3D11UnorderedAccessView* m_fillView;
-        ID3D11UnorderedAccessView* m_fillOutView;
-        ID3D11ShaderResourceView* m_vertexBufferView;
-        ID3D11ComputeShader* m_simShader;
-        ID3D11ComputeShader* m_fillShader;
+        Dx::UniquePtr<ID3D11Buffer> m_buffer;
+        Dx::UniquePtr<ID3D11Buffer> m_bufferOut;
+        Dx::UniquePtr<ID3D11Buffer> m_bufferVertexBuffer;
+        Dx::UniquePtr<ID3D11ShaderResourceView> m_bufferSRV;
+        Dx::UniquePtr<ID3D11UnorderedAccessView> m_bufferOutUAV;
+        Dx::UniquePtr<ID3D11UnorderedAccessView> m_fillView;
+        Dx::UniquePtr<ID3D11UnorderedAccessView> m_fillOutView;
+        Dx::UniquePtr<ID3D11ShaderResourceView> m_vertexBufferView;
+        Dx::UniquePtr<ID3D11ComputeShader> m_simShader;
+        Dx::UniquePtr<ID3D11ComputeShader> m_fillShader;
     };
 }
 }

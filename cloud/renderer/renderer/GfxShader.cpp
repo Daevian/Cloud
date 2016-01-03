@@ -4,16 +4,11 @@
 
 Cloud::Renderer::GfxComputeShader::GfxComputeShader()
     : GfxResource()
-    , m_shader(nullptr)
 {
 }
 
 Cloud::Renderer::GfxComputeShader::~GfxComputeShader()
 {
-    if (m_shader)
-    {
-        m_shader->Release();
-    }
 }
 
 CLbool Cloud::Renderer::GfxShaderFactory::CompileShader(const ClString& shaderPath, const ClString& entryPoint, const ClString& shaderModel, GfxShaderBlob& shaderBlobOutput)
@@ -70,14 +65,17 @@ Cloud::Renderer::GfxComputeShader::UniquePtr Cloud::Renderer::GfxShaderFactory::
 
     shader->m_desc = desc;
 
-    HRESULT result = GfxCore::Instance().GetDevice()->CreateComputeShader(desc.shaderBlob.blob->GetBufferPointer(), desc.shaderBlob.blob->GetBufferSize(), 0, &shader->m_shader);
+    ID3D11ComputeShader* dxShader;
+    HRESULT result = GfxCore::Instance().GetDevice()->CreateComputeShader(desc.shaderBlob.blob->GetBufferPointer(), desc.shaderBlob.blob->GetBufferSize(), 0, &dxShader);
     if (FAILED(result))
     {
         CL_ASSERT_MSG("Failed to create compute shader!");
         shader = nullptr;
     }
 
-    RenderCore::SetDebugObjectName(shader->m_shader, (desc.name + ".cs").c_str());
+    shader->m_shader = Dx::MakeUnique(dxShader);
+    
+    RenderCore::SetDebugObjectName(shader->m_shader.get(), (desc.name + ".cs").c_str());
 
     return shader;
 }

@@ -6,11 +6,6 @@
 #include "Texture.h"
 
 Cloud::Renderer::CSTest::CSTest()
-    : m_textureResource(0)
-    , m_textureSRV(0)
-    , m_textureUAV(0)
-    , m_samplerState(0)
-    , m_csShader(0)
 {
 }
 
@@ -56,13 +51,16 @@ CLbool Cloud::Renderer::CSTest::Initialise()
         desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
         auto device = RenderCore::Instance().GetDevice();
-        auto result = device->CreateTexture2D(&desc, &data, &m_textureResource);
+        ID3D11Texture2D* dxTex;
+        auto result = device->CreateTexture2D(&desc, &data, &dxTex);
 
         if (FAILED(result))
         {
             CL_ASSERT_MSG("Couldn't create Texture2D Resource!");
             return false;
         }
+
+        m_textureResource = Dx::MakeUnique(dxTex);
     }
 
     // SRV
@@ -75,13 +73,16 @@ CLbool Cloud::Renderer::CSTest::Initialise()
         desc.Texture2D.MostDetailedMip = 0;
 
         auto device = RenderCore::Instance().GetDevice();
-        auto result = device->CreateShaderResourceView(m_textureResource, &desc, &m_textureSRV);
+        ID3D11ShaderResourceView* dxSrv;
+        auto result = device->CreateShaderResourceView(m_textureResource.get(), &desc, &dxSrv);
 
         if (FAILED(result))
         {
             CL_ASSERT_MSG("Couldn't create Texture2D SRV!");
             return false;
         }
+
+        m_textureSRV = Dx::MakeUnique(dxSrv);
     }
 
     // UAV
@@ -94,13 +95,16 @@ CLbool Cloud::Renderer::CSTest::Initialise()
         desc.Texture2D.MipSlice = 0;
 
         auto device = RenderCore::Instance().GetDevice();
-        auto result = device->CreateUnorderedAccessView(m_textureResource, &desc, &m_textureUAV);
+        ID3D11UnorderedAccessView* dxUav;
+        auto result = device->CreateUnorderedAccessView(m_textureResource.get(), &desc, &dxUav);
 
         if (FAILED(result))
         {
             CL_ASSERT_MSG("Couldn't create Texture2D UAV!");
             return false;
         }
+
+        m_textureUAV = Dx::MakeUnique(dxUav);
     }
 
     // SAMPLER
@@ -116,12 +120,16 @@ CLbool Cloud::Renderer::CSTest::Initialise()
         samplerDesc.MinLOD = 0;
         samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-        auto result = RenderCore::Instance().GetDevice()->CreateSamplerState( &samplerDesc, &m_samplerState);
+        ID3D11SamplerState* dxSampler;
+        auto result = RenderCore::Instance().GetDevice()->CreateSamplerState( &samplerDesc, &dxSampler);
+        
         if (FAILED(result))
         {
             CL_ASSERT_MSG("Couldn't create Sampler State!");
             return false;
         }
+
+        m_samplerState = Dx::MakeUnique(dxSampler);
     }
 
     // SHADER
@@ -167,7 +175,9 @@ CLbool Cloud::Renderer::CSTest::Initialise()
         }
 
         auto device = RenderCore::Instance().GetDevice();
-        result = device->CreateComputeShader(blob->GetBufferPointer(), blob->GetBufferSize(), 0, &m_csShader);
+        ID3D11ComputeShader* dxShader;
+        result = device->CreateComputeShader(blob->GetBufferPointer(), blob->GetBufferSize(), 0, &dxShader);
+        m_csShader = Dx::MakeUnique(dxShader);
     }
 
     return true;
@@ -213,18 +223,24 @@ void Cloud::Renderer::CSTest::Uninitialise()
 {
     m_indexBuffer.Uninitialise();
     m_vertexBuffer.Uninitialise();
+
+    m_textureResource = nullptr;
+    m_textureSRV = nullptr;
+    m_textureUAV = nullptr;
+    m_samplerState = nullptr;
+    m_csShader = nullptr;
 }
 
 void Cloud::Renderer::CSTest::Update()
 {
     auto context = RenderCore::Instance().GetContext();
 
-    context->CSSetShader(m_csShader, 0, 0);
+    context->CSSetShader(m_csShader.get(), 0, 0);
 
     //ID3D11ShaderResourceView* srViews[1] = { m_textureSRV };
     //context->CSSetShaderResources(0, 1, srViews);
 
-    ID3D11UnorderedAccessView* uaViews[1] = { m_textureUAV };
+    ID3D11UnorderedAccessView* uaViews[1] = { m_textureUAV.get() };
     context->CSSetUnorderedAccessViews(0, 1, uaViews, 0);
 
     context->Dispatch(4, 4, 1);
@@ -262,7 +278,7 @@ void Cloud::Renderer::CSTest::Render()
     RenderingDevice& renderingDevice = RenderCore::Instance().GetRenderingDevice();
 
    // renderingDevice.SetTexture(m_textureSRV, 0);
-    renderingDevice.SetSamplerState(m_samplerState, 0);
+    renderingDevice.SetSamplerState(m_samplerState.get(), 0);
     //renderingDevice.SetTexture(m_texture);
     renderingDevice.SetEffect(m_effect);
     renderingDevice.SetVertexBuffer(&m_vertexBuffer);

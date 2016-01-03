@@ -5,31 +5,11 @@
 
 Cloud::Renderer::GfxBuffer::GfxBuffer()
     : GfxResource()
-    , m_buffer(nullptr)
-    , m_srv(nullptr)
-    , m_uav(nullptr)
 {
 }
 
 Cloud::Renderer::GfxBuffer::~GfxBuffer()
 {
-    if (m_buffer)
-    {
-        m_buffer->Release();
-        m_buffer = nullptr;
-    }
-
-    if (m_srv)
-    {
-        m_srv->Release();
-        m_buffer = nullptr;
-    }
-
-    if (m_uav)
-    {
-        m_uav->Release();
-        m_buffer = nullptr;
-    }
 }
 
 Cloud::Renderer::GfxBuffer::UniquePtr Cloud::Renderer::GfxBufferFactory::Create(const GfxBufferDesc& desc)
@@ -44,8 +24,6 @@ Cloud::Renderer::GfxBuffer::UniquePtr Cloud::Renderer::GfxBufferFactory::Create(
 
     buffer->m_desc = desc;
 
-    buffer->m_buffer = nullptr;
-
     D3D11_BUFFER_DESC bufDesc;
     ClMemZero(&bufDesc, sizeof(bufDesc));
     bufDesc.ByteWidth = desc.elementSize * desc.elementCount;
@@ -59,7 +37,9 @@ Cloud::Renderer::GfxBuffer::UniquePtr Cloud::Renderer::GfxBufferFactory::Create(
 
     D3D11_SUBRESOURCE_DATA initData;
     initData.pSysMem = desc.initialData;
-    auto hr = GfxCore::Instance().GetDevice()->CreateBuffer( &bufDesc, desc.initialData ? &initData : nullptr, &buffer->m_buffer);
+
+    ID3D11Buffer* buf;
+    auto hr = GfxCore::Instance().GetDevice()->CreateBuffer( &bufDesc, desc.initialData ? &initData : nullptr, &buf);
     if (FAILED(hr))
     {
         CL_ASSERT_MSG("Failed to create the GfxBuffer!");
@@ -67,7 +47,9 @@ Cloud::Renderer::GfxBuffer::UniquePtr Cloud::Renderer::GfxBufferFactory::Create(
         return nullptr;
     }
 
-    RenderCore::SetDebugObjectName(buffer->m_buffer, (desc.name + ".buf").c_str());
+    buffer->m_buffer = Dx::MakeUnique(buf);
+
+    RenderCore::SetDebugObjectName(buffer->m_buffer.get(), (desc.name + ".buf").c_str());
 
     if (desc.bindFlags & D3D11_BIND_SHADER_RESOURCE)
     {
@@ -93,13 +75,16 @@ void Cloud::Renderer::GfxBufferFactory::InitSrv(const GfxBufferDesc& desc, GfxBu
     srvDesc.BufferEx.FirstElement = 0;
     srvDesc.BufferEx.NumElements = desc.elementCount;
 
-    auto hr = GfxCore::Instance().GetDevice()->CreateShaderResourceView(buffer.m_buffer, &srvDesc, &buffer.m_srv);
+    ID3D11ShaderResourceView* srv;
+    auto hr = GfxCore::Instance().GetDevice()->CreateShaderResourceView(buffer.m_buffer.get(), &srvDesc, &srv);
     if (FAILED(hr))
     {
         CL_ASSERT_MSG("Failed to create the GfxBuffer SRV!");
     }
 
-    RenderCore::SetDebugObjectName(buffer.m_srv, (desc.name + ".srv").c_str());
+    buffer.m_srv = Dx::MakeUnique(srv);
+
+    RenderCore::SetDebugObjectName(buffer.m_srv.get(), (desc.name + ".srv").c_str());
 }
 
 void Cloud::Renderer::GfxBufferFactory::InitUav(const GfxBufferDesc& desc, GfxBuffer& buffer)
@@ -113,13 +98,16 @@ void Cloud::Renderer::GfxBufferFactory::InitUav(const GfxBufferDesc& desc, GfxBu
     uavDesc.Buffer.FirstElement = 0;
     uavDesc.Buffer.NumElements = desc.elementCount;
 
-    auto hr = GfxCore::Instance().GetDevice()->CreateUnorderedAccessView(buffer.m_buffer, &uavDesc, &buffer.m_uav);
+    ID3D11UnorderedAccessView* uav;
+    auto hr = GfxCore::Instance().GetDevice()->CreateUnorderedAccessView(buffer.m_buffer.get(), &uavDesc, &uav);
     if (FAILED(hr))
     {
         CL_ASSERT_MSG("Failed to create the GfxBuffer UAV!");
     }
 
-    RenderCore::SetDebugObjectName(buffer.m_uav, (desc.name + ".uav").c_str());
+    buffer.m_uav = Dx::MakeUnique(uav);
+
+    RenderCore::SetDebugObjectName(buffer.m_uav.get(), (desc.name + ".uav").c_str());
 }
 
 CLbool Cloud::Renderer::GfxBufferFactory::VerifySetup(const GfxBufferDesc& desc)

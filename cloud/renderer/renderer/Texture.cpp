@@ -5,8 +5,11 @@
 
 
 Cloud::Renderer::Texture::Texture(const std::string& texturePath)
-: m_samplerState(nullptr)
-, m_texturePath(texturePath)
+    : m_texturePath(texturePath)
+{
+}
+
+Cloud::Renderer::Texture::~Texture()
 {
 }
 
@@ -23,12 +26,7 @@ void Cloud::Renderer::Texture::Unload()
     CL_ASSERT(m_samplerState != 0, "Can't unload uninitialised texture!");
 
     m_texture = nullptr;
-
-    if (m_samplerState)
-    {
-        m_samplerState->Release();
-        m_samplerState = 0;
-    }
+    m_samplerState = nullptr;
 }
 
 CLbool Cloud::Renderer::Texture::LoadResource()
@@ -130,8 +128,9 @@ CLbool Cloud::Renderer::Texture::LoadSampler()
     samplerDesc.MinLOD = 0;
     samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-    auto result = RenderCore::Instance().GetDevice()->CreateSamplerState( &samplerDesc, &m_samplerState);
-    if(FAILED(result))
+    ID3D11SamplerState* dxSampler;
+    auto result = RenderCore::Instance().GetDevice()->CreateSamplerState( &samplerDesc, &dxSampler);
+    if (FAILED(result))
     {
         std::stringstream assertMessage;
         assertMessage << "Couldn't create sampler for " << m_texturePath;
@@ -140,6 +139,8 @@ CLbool Cloud::Renderer::Texture::LoadSampler()
         CL_ASSERT_MSG(assertMessage.str().c_str());
         return false;
     }
+
+    m_samplerState = Dx::MakeUnique(dxSampler);
 
     return true;
 }

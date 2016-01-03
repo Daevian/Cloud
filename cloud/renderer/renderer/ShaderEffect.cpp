@@ -5,10 +5,10 @@
 #include "Texture.h"
 
 Cloud::Renderer::ShaderEffect::ShaderEffect()
-: m_vertexShader(0)
-, m_geometryShader(0)
-, m_pixelShader(0)
-, m_blendState(0)
+{
+}
+
+Cloud::Renderer::ShaderEffect::~ShaderEffect()
 {
 }
 
@@ -60,110 +60,80 @@ void Cloud::Renderer::ShaderEffect::Unload()
 
     m_inputLayout.Unload();
 
-    if (m_vertexShader)
-    {
-        m_vertexShader->Release();
-        m_vertexShader = 0;
-    }
-
-    if (m_geometryShader)
-    {
-        m_geometryShader->Release();
-        m_geometryShader = 0;
-    }
-
-    if (m_pixelShader)
-    {
-        m_pixelShader->Release();
-        m_pixelShader = 0;
-    }
-
-    if (m_blendState)
-    {
-        m_blendState->Release();
-        m_blendState = 0;
-    }
+    m_vertexShader = nullptr;
+    m_geometryShader = nullptr;
+    m_pixelShader = nullptr;
+    m_blendState = nullptr;
 }
 
 CLbool Cloud::Renderer::ShaderEffect::LoadShaders(const InputLayout::InputLayoutDesc& inputLayoutDesc)
 {
-    ID3DBlob* vertexShaderBlob = 0;
-    ID3DBlob* geometryShaderBlob = 0;
-    ID3DBlob* pixelShaderBlob = 0;
+    Dx::UniquePtr<ID3DBlob> vertexShaderBlob;
+    Dx::UniquePtr<ID3DBlob> geometryShaderBlob;
+    Dx::UniquePtr<ID3DBlob> pixelShaderBlob;
 
     if (!m_vsFile.empty() && !m_vsEntryPoint.empty())
     {
-        if (!CompileShader(m_vsFile, m_vsEntryPoint, "vs_5_0", vertexShaderBlob))
+        ID3DBlob* dxObj;
+        if (!CompileShader(m_vsFile, m_vsEntryPoint, "vs_5_0", dxObj))
+        {
             return false;
+        }
+
+        vertexShaderBlob = Dx::MakeUnique(dxObj);
     }
 
     if (!m_gsFile.empty() && !m_gsEntryPoint.empty())
     {
-        if (!CompileShader(m_gsFile, m_gsEntryPoint, "gs_5_0", geometryShaderBlob))
+        ID3DBlob* dxObj;
+        if (!CompileShader(m_gsFile, m_gsEntryPoint, "gs_5_0", dxObj))
+        {
             return false;
+        }
+
+        geometryShaderBlob = Dx::MakeUnique(dxObj);
     }
 
     if (!m_psFile.empty() && !m_psEntryPoint.empty())
     {
-        if (!CompileShader(m_psFile, m_psEntryPoint, "ps_5_0", pixelShaderBlob))
+        ID3DBlob* dxObj;
+        if (!CompileShader(m_psFile, m_psEntryPoint, "ps_5_0", dxObj))
+        {
             return false;
+        }
+
+        pixelShaderBlob = Dx::MakeUnique(dxObj);
     }
-
-    auto cleanUp = [](ID3DBlob* vsBlob, ID3DBlob* gsBlob, ID3DBlob* psBlob)
-    {
-        if (vsBlob)
-        {
-            vsBlob->Release();
-            vsBlob = 0;
-        }
-
-        if (gsBlob)
-        {
-            gsBlob->Release();
-            gsBlob = 0;
-        }
-
-        if (psBlob)
-        {
-            psBlob->Release();
-            psBlob = 0;
-        }
-    };
 
     if (vertexShaderBlob)
     {
-        if (!CreateVertexShader(vertexShaderBlob))
+        if (!CreateVertexShader(vertexShaderBlob.get()))
         {
-            cleanUp(vertexShaderBlob, geometryShaderBlob, pixelShaderBlob);
             return false;
         }
     }
-
+    
     if (geometryShaderBlob)
     {
-        if (!CreateGeometryShader(geometryShaderBlob))
+        if (!CreateGeometryShader(geometryShaderBlob.get()))
         {
-            cleanUp(vertexShaderBlob, geometryShaderBlob, pixelShaderBlob);
             return false;
         }
     }
 
     if (pixelShaderBlob)
     {
-        if (!CreatePixelShader(pixelShaderBlob))
+        if (!CreatePixelShader(pixelShaderBlob.get()))
         {
-            cleanUp(vertexShaderBlob, geometryShaderBlob, pixelShaderBlob);
             return false;
         }
     }
 
-    if (!m_inputLayout.Init(vertexShaderBlob, inputLayoutDesc))
+    if (!m_inputLayout.Init(vertexShaderBlob.get(), inputLayoutDesc))
     {
-        cleanUp(vertexShaderBlob, geometryShaderBlob, pixelShaderBlob);
         return false;
     }
 
-    cleanUp(vertexShaderBlob, geometryShaderBlob, pixelShaderBlob);
     return true;
 }
 
@@ -264,12 +234,15 @@ CLbool Cloud::Renderer::ShaderEffect::CreateVertexShader(ID3DBlob* vertexShaderB
 {
     CL_ASSERT_NULL(vertexShaderBlob);
 
-    HRESULT result = RenderCore::Instance().GetDevice()->CreateVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), 0, &m_vertexShader);
+    ID3D11VertexShader* dxObj;
+    HRESULT result = RenderCore::Instance().GetDevice()->CreateVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), 0, &dxObj);
     if (FAILED(result))
     {
         CL_ASSERT_MSG("Failed to create vertex shader!");
         return false;
     }
+
+    m_vertexShader = Dx::MakeUnique(dxObj);
 
     return true;
 }
@@ -278,12 +251,15 @@ CLbool Cloud::Renderer::ShaderEffect::CreateGeometryShader(ID3DBlob* geometrySha
 {
     CL_ASSERT_NULL(geometryShaderBlob);
 
-    HRESULT result = RenderCore::Instance().GetDevice()->CreateGeometryShader(geometryShaderBlob->GetBufferPointer(), geometryShaderBlob->GetBufferSize(), 0, &m_geometryShader);
+    ID3D11GeometryShader* dxObj;
+    HRESULT result = RenderCore::Instance().GetDevice()->CreateGeometryShader(geometryShaderBlob->GetBufferPointer(), geometryShaderBlob->GetBufferSize(), 0, &dxObj);
     if (FAILED(result))
     {
         CL_ASSERT_MSG("Failed to create geometry shader!");
         return false;
     }
+
+    m_geometryShader = Dx::MakeUnique(dxObj);
 
     return true;
 }
@@ -292,12 +268,15 @@ CLbool Cloud::Renderer::ShaderEffect::CreatePixelShader(ID3DBlob* pixelShaderBlo
 {
     CL_ASSERT_NULL(pixelShaderBlob);
 
-    HRESULT result = RenderCore::Instance().GetDevice()->CreatePixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), 0, &m_pixelShader);
+    ID3D11PixelShader* dxObj;
+    HRESULT result = RenderCore::Instance().GetDevice()->CreatePixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), 0, &dxObj);
     if (FAILED(result))
     {
         CL_ASSERT_MSG("Failed to create pixel shader!");
         return false;
     }
+
+    m_pixelShader = Dx::MakeUnique(dxObj);
 
     return true;
 }
@@ -316,12 +295,15 @@ CLbool Cloud::Renderer::ShaderEffect::CreateBlendState()
     blendStateDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
     blendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-    auto result = RenderCore::Instance().GetDevice()->CreateBlendState(&blendStateDesc, &m_blendState);
+    ID3D11BlendState* dxObj;
+    auto result = RenderCore::Instance().GetDevice()->CreateBlendState(&blendStateDesc, &dxObj);
     if (FAILED(result))
     {
         CL_ASSERT_MSG("Failed to create blend state!");
         return false;
     }
+
+    m_blendState = Dx::MakeUnique(dxObj);
 
     return true;
 }

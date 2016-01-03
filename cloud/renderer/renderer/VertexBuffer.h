@@ -11,15 +11,17 @@ namespace Cloud
         {
         public:
             VertexBuffer();
-            VertexBuffer(const VertexBuffer& vertexBuffer);
+            VertexBuffer(const VertexBuffer& vertexBuffer) = delete;
+            VertexBuffer(VertexBuffer&& vertexBuffer);
+
 
             CLbool Initialise();
             void Uninitialise();
 
             CLint   GetVertexCount()                const { return m_vertexCount; }
             CLint   GetVertexSize()                 const { return m_vertexSize; }
-            void* GetVertexData()                 const { return m_vertexData; }
-            ID3D11Buffer* GetBuffer()               const { return m_vertexBuffer; }
+            void*   GetVertexData()                 const { return m_vertexData; }
+            ID3D11Buffer* GetBuffer()               const { return m_vertexBuffer.get(); }
             GfxPrimitiveTopology GetTopology()      const { return m_topology; }
 
             void SetVertexCount(CLint vertexCount)              { m_vertexCount = vertexCount; }
@@ -34,7 +36,7 @@ namespace Cloud
             CLint m_vertexSize;
             void* m_vertexData;
             GfxPrimitiveTopology m_topology;
-            ID3D11Buffer* m_vertexBuffer;
+            Dx::UniquePtr<ID3D11Buffer> m_vertexBuffer;
         };
     }
 }

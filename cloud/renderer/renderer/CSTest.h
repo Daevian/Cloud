@@ -43,14 +43,14 @@ namespace Renderer
         VertexBuffer m_vertexBuffer;
         IndexBuffer m_indexBuffer;
 
-        ID3D11Texture2D* m_textureResource;
-        ID3D11ShaderResourceView* m_textureSRV;
-        ID3D11UnorderedAccessView* m_textureUAV;
-        ID3D11SamplerState* m_samplerState;
+        Dx::UniquePtr<ID3D11Texture2D> m_textureResource;
+        Dx::UniquePtr<ID3D11ShaderResourceView> m_textureSRV;
+        Dx::UniquePtr<ID3D11UnorderedAccessView> m_textureUAV;
+        Dx::UniquePtr<ID3D11SamplerState> m_samplerState;
         
         ShaderEffect* m_effect;
 
-        ID3D11ComputeShader* m_csShader;
+        Dx::UniquePtr<ID3D11ComputeShader> m_csShader;
     };
 }
 }

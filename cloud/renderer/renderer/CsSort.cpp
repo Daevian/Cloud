@@ -11,6 +11,10 @@ Cloud::Renderer::CsSorter::CsSorter()
     }
 }
 
+Cloud::Renderer::CsSorter::~CsSorter()
+{
+}
+
 void Cloud::Renderer::CsSorter::Init()
 {
     {
@@ -100,7 +104,7 @@ void Cloud::Renderer::CsSorter::Update()
         m_buffer0[i].f = static_cast<CLfloat>(rand() % c_elementCount);
     }
 
-    GfxCore::Instance().GetRenderingDevice().UpdateSubresource(m_outputBuffer.get(), m_buffer0.GetBuffer());
+    GfxCore::Instance().GetRenderingDevice().UpdateSubresource(m_outputBuffer.get(), m_buffer0.data());
 }
 
 void Cloud::Renderer::CsSorter::Dispatch()
@@ -178,7 +182,7 @@ void Cloud::Renderer::CsSorter::Dispatch()
         if (device.Map(desc, mappedResource))
         {
             ElementType* elements = (ElementType*)mappedResource.data;
-            ClMemCopy(m_buffer0.GetBuffer(), elements, m_buffer0.SizeOf());
+            ClMemCopy(m_buffer0.data(), elements, m_buffer0.size() * sizeof(ElementType));
 
             device.Unmap(desc);
         }

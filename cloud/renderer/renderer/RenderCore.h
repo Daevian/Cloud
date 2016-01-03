@@ -9,6 +9,7 @@
 #include "GfxBuffer.h"
 #include "GfxTexture.h"
 #include "GfxShader.h"
+#include "DirectxHelpers.h"
 
 namespace Cloud
 {
@@ -42,8 +43,8 @@ namespace Cloud
 
             void Present();
 
-            ID3D11Device*           GetDevice()                     { return m_device; }
-            ID3D11DeviceContext*    GetContext()                    { return m_context; }
+            ID3D11Device*           GetDevice()                     { return m_device.get(); }
+            ID3D11DeviceContext*    GetContext()                    { return m_context.get(); }
             RenderingDevice&        GetRenderingDevice()            { return m_renderingDevice; }
             GfxTexture*             GetBackbuffer()                 { return m_backbuffer.get(); }
             GfxTexture*             GetDepthStencil()               { return m_depthStencil.get(); }
@@ -53,7 +54,7 @@ namespace Cloud
 
             PerSceneConstBuffer&    GetPerSceneConstData()          { return m_perSceneConstData; }
             PerModelConstBuffer&    GetPerModelConstData()          { return m_perModelConstData; }
-            IDXGISwapChain*         GetSwapChain()                  { return m_swapChain; }
+            IDXGISwapChain*         GetSwapChain()                  { return m_swapChain.get(); }
 
             void GpuUpdatePerSceneConstBuffer();
             void GpuUpdatePerModelConstBuffer();
@@ -68,6 +69,14 @@ namespace Cloud
             RenderCore();
             ~RenderCore();
 
+            struct Deleter
+            {
+                void operator()(RenderCore* ptr) const
+                {
+                    delete ptr;
+                }
+            };
+
             CLbool Initialise(const Settings& settings);
             void Shutdown();
 
@@ -79,7 +88,7 @@ namespace Cloud
 
             CLuint GetMSAAQuality(CLuint samples, DXGI_FORMAT format);
 
-            static RenderCore* s_instance;
+            static std::unique_ptr<RenderCore, Deleter> s_instance;
 
             TextureContainer m_textureContainer;
             ShaderEffectContainer m_effectContainer;
@@ -87,9 +96,9 @@ namespace Cloud
             GfxTextureFactory m_gfxTextureFactory;
             GfxShaderFactory m_gfxShaderFactory;
             
-            ID3D11Device* m_device;
-            ID3D11DeviceContext* m_context;
-            IDXGISwapChain* m_swapChain;
+            Dx::UniquePtr<ID3D11Device> m_device;
+            Dx::UniquePtr<ID3D11DeviceContext> m_context;
+            Dx::UniquePtr<IDXGISwapChain> m_swapChain;
             GfxTexture::UniquePtr m_backbuffer;
             GfxTexture::UniquePtr m_depthStencil;
 
