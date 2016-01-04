@@ -8,7 +8,8 @@
 #include "DebugRenderer.h"
 #include "CsSort.h"
 
-struct lua_State;
+
+//struct lua_State;
 
 namespace Cloud
 {
@@ -20,6 +21,7 @@ namespace Renderer
     {
     public:
         Renderer();
+        ~Renderer();
 
         CLbool Initialise();
         void Shutdown();
@@ -41,13 +43,12 @@ namespace Renderer
         ParticleManager m_particleManager;
         CsSorter m_csSorter;
         Camera m_camera;
-        GfxTexture* m_3dSceneSurface;
 
         static const CLuint c_boxes = 800;
         std::array<ClFloat3, c_boxes> m_randomRotations;
         std::array<CLfloat, c_boxes> m_randomScales;
 
-        lua_State* m_luaState;
+        Lua::StateUniquePtr m_luaState;
     };
 }
 }

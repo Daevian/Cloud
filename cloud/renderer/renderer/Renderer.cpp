@@ -4,26 +4,12 @@
 #include "RenderCore.h"
 #include "Settings.h"
 
-#include "lua-5.3.2/LuaWrapper.h"
-
 Cloud::Renderer::Renderer::Renderer()
-    : m_luaState(nullptr)
 {
 }
 
-static int LuaPrint(lua_State* state)
+Cloud::Renderer::Renderer::~Renderer()
 {
-    int nargs = lua_gettop(state);
-    std::stringstream stream;
-
-    for (int i = 1; i <= nargs; ++i)
-    {
-        stream << lua_tostring(state, i);
-    }
-
-    CL_TRACE_CHANNEL("LUA", stream.str().c_str());
-
-    return 0;
 }
 
 CLbool Cloud::Renderer::Renderer::Initialise()
@@ -33,15 +19,6 @@ CLbool Cloud::Renderer::Renderer::Initialise()
     //m_csSorter.Init();
     //m_csTest.Initialise();
     //m_particleManager.Initialise();
-
-    {
-        //GfxCore::Instance().m_renderTargetView;
-        GfxTextureDesc desc;
-        ClMemZero(&desc, sizeof(desc));
-        desc.name = "3dSceneSurface";
-        //desc.
-       // m_3dSceneSurface
-    }
 
 
     const CLfloat width  = (CLfloat)Cloud::Renderer::Settings::Instance().GetRoot()["Resolution"]["Width"].asDouble();
@@ -65,36 +42,71 @@ CLbool Cloud::Renderer::Renderer::Initialise()
         scale = ClRandFloat() * 0.5f + 0.5f;
     }
 
-    int top;
-    m_luaState = luaL_newstate();
-    top = lua_gettop(m_luaState);
-    luaL_openlibs(m_luaState);
-    top = lua_gettop(m_luaState);
-    
+    m_luaState = Lua::NewStateAndSetup();
 
-    const luaL_Reg printlib[] = {
-        { "print", LuaPrint },
-        { nullptr, nullptr }, /* end of array */
-    };
-
-    lua_getglobal(m_luaState, "_G");
-    luaL_setfuncs(m_luaState, printlib, 0);
-    lua_pop(m_luaState, 1);
-
-    int result = luaL_loadfile(m_luaState, "data/scripts/renderer/render.lua");
-    top = lua_gettop(m_luaState);
-   // int result = luaL_dofile(m_luaState, "data/scripts/renderer/render.lua");
-    //lua_load
-    if (result != LUA_OK && result == LUA_ERRFILE)
+    Lua::Register(m_luaState.get(), "GfxClearColour", [](lua_State* state)->int
     {
-        CL_ASSERT_MSG("couldn't load lua file");
-    }
+        GfxTexture* texture = static_cast<GfxTexture*>(lua_touserdata(state, 1));
+        if (texture && texture->GetRtv())
+        {
+            RenderCore::Instance().GetRenderingDevice().ClearColour(*texture);
+        }
+
+        return 0;
+    });
+
+    Lua::Register(m_luaState.get(), "GfxClearDepth", [](lua_State* state)->int
+    {
+        GfxTexture* texture = static_cast<GfxTexture*>(lua_touserdata(state, 1));
+        if (texture && texture->GetDsv())
+        {
+            RenderCore::Instance().GetRenderingDevice().ClearDepth(*texture);
+        }
+        
+        return 0;
+    });
+
+    Lua::Register(m_luaState.get(), "GfxSetRenderTarget", [](lua_State* state)->int
+    {
+        GfxTexture* renderTarget = static_cast<GfxTexture*>(lua_touserdata(state, 1));
+        GfxTexture* depth = static_cast<GfxTexture*>(lua_touserdata(state, 2));
+        if ((renderTarget && !renderTarget->GetRtv()) ||
+            (depth && !depth->GetDsv()))
+        {
+            return 0;
+        }
+
+        RenderCore::Instance().GetRenderingDevice().SetRenderTarget(renderTarget, depth);
+
+        return 0;
+    });
+
+    Lua::Register(m_luaState.get(), "GetResource", [](lua_State* state)->int
+    {
+        const char* resourceId = lua_tostring(state, 1);
+
+        auto& renderCore = RenderCore::Instance();
+        if (strcmp(resourceId, "backbuffer") == 0)
+        {
+            auto backbuffer = renderCore.GetBackbuffer();
+            lua_pushlightuserdata(state, backbuffer);
+        }
+        else if (strcmp(resourceId, "depth") == 0)
+        {
+            auto depth = renderCore.GetDepthStencil();
+            lua_pushlightuserdata(state, depth);
+        }
+
+        return 1;
+    });
+    
 
     return true;
 }
 
 void Cloud::Renderer::Renderer::Shutdown()
 {
+    m_luaState = nullptr;
     //m_csSorter.Uninit();
    // m_csTest.Uninitialise();
    // m_particleManager.Uninitialise();
@@ -143,10 +155,7 @@ void Cloud::Renderer::Renderer::Update(CLdouble totalTime, CLdouble timeStep)
 
 void Cloud::Renderer::Renderer::Render()
 {
-    int result = 0;
-    //int test;
-    
-    //result = luaL_dofile(m_luaState, "data/scripts/renderer/render.lua");
+    Lua::DoFile(m_luaState.get(), "data/scripts/renderer/render.lua");
 
     /*
     //result = lua_getglobal(m_luaState, "Main");
@@ -161,24 +170,9 @@ void Cloud::Renderer::Renderer::Render()
    //int stackSize = lua_gettop(m_luaState);
    //lua_pop(m_luaState, stackSize);
    */
-    if (result != LUA_OK && result == LUA_ERRRUN)
-    {
-        if (lua_isstring(m_luaState, -1))
-        {
-            const char* err = lua_tostring(m_luaState, -1);
-            CL_TRACE(err);
-        }
-    }
+
 
     auto& renderCore = RenderCore::Instance();
-
-    auto backbuffer = renderCore.GetBackbuffer();
-    auto depthStencil = renderCore.GetDepthStencil();
-
-    renderCore.GetRenderingDevice().ClearColour(*backbuffer);
-    renderCore.GetRenderingDevice().ClearDepth(*depthStencil);
-
-    renderCore.GetRenderingDevice().SetRenderTarget(backbuffer, depthStencil);
     
     // Sort items
     //m_csSorter.Dispatch();
