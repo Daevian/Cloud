@@ -46,7 +46,7 @@ CLbool Cloud::Renderer::Renderer::Initialise()
 
     Lua::Register(m_luaState.get(), "GfxClearColour", [](lua_State* state)->int
     {
-        GfxTexture* texture = static_cast<GfxTexture*>(lua_touserdata(state, 1));
+        GfxTexture* texture = Lua::ToUserData<GfxTexture>(state, 1);
         if (texture && texture->GetRtv())
         {
             RenderCore::Instance().GetRenderingDevice().ClearColour(*texture);
@@ -57,7 +57,7 @@ CLbool Cloud::Renderer::Renderer::Initialise()
 
     Lua::Register(m_luaState.get(), "GfxClearDepth", [](lua_State* state)->int
     {
-        GfxTexture* texture = static_cast<GfxTexture*>(lua_touserdata(state, 1));
+        GfxTexture* texture = Lua::ToUserData<GfxTexture>(state, 1);
         if (texture && texture->GetDsv())
         {
             RenderCore::Instance().GetRenderingDevice().ClearDepth(*texture);
@@ -68,14 +68,14 @@ CLbool Cloud::Renderer::Renderer::Initialise()
 
     Lua::Register(m_luaState.get(), "GfxSetRenderTarget", [](lua_State* state)->int
     {
-        GfxTexture* renderTarget = static_cast<GfxTexture*>(lua_touserdata(state, 1));
-        GfxTexture* depth = static_cast<GfxTexture*>(lua_touserdata(state, 2));
+        GfxTexture* renderTarget = Lua::ToUserData<GfxTexture>(state, 1);
+        GfxTexture* depth        = Lua::ToUserData<GfxTexture>(state, 2);
         if ((renderTarget && !renderTarget->GetRtv()) ||
             (depth && !depth->GetDsv()))
         {
             return 0;
         }
-
+        
         RenderCore::Instance().GetRenderingDevice().SetRenderTarget(renderTarget, depth);
 
         return 0;
@@ -89,12 +89,12 @@ CLbool Cloud::Renderer::Renderer::Initialise()
         if (strcmp(resourceId, "backbuffer") == 0)
         {
             auto backbuffer = renderCore.GetBackbuffer();
-            lua_pushlightuserdata(state, backbuffer);
+            Lua::PushLightUserData(state, backbuffer);
         }
         else if (strcmp(resourceId, "depth") == 0)
         {
             auto depth = renderCore.GetDepthStencil();
-            lua_pushlightuserdata(state, depth);
+            Lua::PushLightUserData(state, depth);
         }
 
         return 1;

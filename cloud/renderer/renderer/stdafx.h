@@ -21,6 +21,7 @@
 
 #include <vector>
 #include <array>
+#include <map>
 #include <math.h>
 #include <algorithm>
 #include <functional>

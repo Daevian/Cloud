@@ -49,12 +49,16 @@
 #include <sstream>
 #include <memory>
 #include <functional>
+#include <map>
+#include <typeinfo>
 #include "../../core_libraries/debugging/DebugLog.h"
 
 namespace Cloud
 {
-    namespace Lua
+    class Lua
     {
+    public:
+
         enum class ErrorCode : int
         {
             Ok          = LUA_OK,
@@ -78,118 +82,94 @@ namespace Cloud
 
         typedef std::unique_ptr<lua_State, Deleter> StateUniquePtr;
 
-        inline int LuaPrint(lua_State* state)
-        {
-            int nargs = lua_gettop(state);
-            std::stringstream stream;
-
-            for (int i = 1; i <= nargs; ++i)
-            {
-                stream << lua_tostring(state, i);
-            }
-
-            CL_TRACE_CHANNEL("LUA", stream.str().c_str());
-
-            return 0;
-        }
-
-        inline int LuaPanic(lua_State* L)
-        {
-            CL_TRACE_CHANNEL("LUA", "PANIC: unprotected error in call to Lua API:\n(%s)\n", lua_tostring(L, -1));
-            return 0;  /* return to Lua to abort */
-        }
+        static int LuaPrint(lua_State* state);
+        static int LuaPanic(lua_State* state);
         
-        inline StateUniquePtr NewState()
-        {
-            auto* state = luaL_newstate();
-            if (state)
-            {
-                lua_atpanic(state, &LuaPanic);
-            }
+        static StateUniquePtr NewState();
+        static StateUniquePtr NewStateAndSetup();
 
-            return StateUniquePtr(state);
-        }
+        static ErrorCode LoadFile(lua_State* state, const std::string& filename);
+        static ErrorCode DoFile(lua_State* state, const std::string& filename);
+        static ErrorCode PCall(lua_State* state);
+        
+        static void Register(lua_State* state, const std::string& funcName, lua_CFunction func);
 
-        inline StateUniquePtr NewStateAndSetup()
+        template <class TYPE>
+        static void PushLightUserData(lua_State* state, TYPE* pointer);
+
+        template <class TYPE>
+        static TYPE* ToUserData(lua_State* state, int index);
+
+    private:
+        static size_t NextTypeId(const char* name)
         {
-            auto luaState = NewState();
+            static size_t id = 0;
+            size_t result = id;
+            // lock
+            ++id;
+#ifdef _DEBUG
             
-            // open standard libs
-            auto* s = luaState.get();
-            luaL_openlibs(s);
-
-
-            // redirect print function
-            const luaL_Reg printlib[] = {
-                { "print", LuaPrint },
-                { nullptr, nullptr }, /* end of array */
-            };
-
-            lua_getglobal(s, "_G");
-            luaL_setfuncs(s, printlib, 0);
-            lua_pop(s, 1);
-
-
-            return luaState;
-        }
-
-        inline ErrorCode LoadFile(lua_State* state, const std::string& filename)
-        {
-            ErrorCode result = static_cast<ErrorCode>(luaL_loadfile(state, filename.c_str()));
+            s_typenames[result] = name;
             
-            if (result == ErrorCode::ErrFile)
-            {
-                if (lua_isstring(state, -1))
-                {
-                    const char* err = lua_tostring(state, -1);
-                    CL_TRACE_CHANNEL("LUA", "Lua file error:\n%s", err);
-                }
-            }
-
-            if (result == ErrorCode::ErrSyntax)
-            {
-                if (lua_isstring(state, -1))
-                {
-                    const char* err = lua_tostring(state, -1);
-                    CL_TRACE_CHANNEL("LUA", "Lua syntax error:\n%s", err);
-                }
-            }
-
+#endif
+            // unlock
             return result;
         }
 
-        inline ErrorCode PCall(lua_State* state)
+        template <typename TYPE>
+        static size_t getUniqueTypeId()
         {
-            ErrorCode result = static_cast<ErrorCode>(lua_pcall(state, 0, LUA_MULTRET, 0));
-
-            if (result == ErrorCode::ErrRun)
-            {
-                if (lua_isstring(state, -1))
-                {
-                    const char* err = lua_tostring(state, -1);
-                    CL_TRACE_CHANNEL("LUA", "Lua run error:\n%s", err);
-                }
-            }
-
-            return result;
+            static size_t id = NextTypeId(typeid(TYPE).name());
+            return id;
         }
 
-        inline ErrorCode DoFile(lua_State* state, const std::string& filename)
-        {
-            ErrorCode result;
-            result = LoadFile(state, filename);
-            if (result != ErrorCode::Ok)
-            {
-                return result;
-            }
+        static std::map<void*, size_t> s_pointerTypeRegister;
+#ifdef _DEBUG
+        static std::map<size_t, std::string> s_typenames;
+#endif
+    };
 
-            result = PCall(state);
-            return result;
+    template<class TYPE>
+    inline void Lua::PushLightUserData(lua_State* state, TYPE* pointer)
+    {
+        auto typeId = getUniqueTypeId<TYPE>();
+        // lock
+        s_pointerTypeRegister[pointer] = typeId;
+        //unlock
+        
+        lua_pushlightuserdata(state, pointer);
+    }
+
+    template<class TYPE>
+    inline TYPE* Lua::ToUserData(lua_State* state, int index)
+    {
+        const auto castTypeId = getUniqueTypeId<TYPE>();
+        
+        void* pointer = lua_touserdata(state, index);
+        
+        // lock
+        const auto registeredTypeId = s_pointerTypeRegister[pointer];
+        // unlock
+
+        if (registeredTypeId == castTypeId)
+        {
+            return static_cast<TYPE*>(pointer);
         }
-
-        inline void Register(lua_State* state, const std::string& funcName, lua_CFunction func)
+        else
         {
-            lua_register(state, funcName.c_str(), func);
+            // lock
+#ifdef _DEBUG
+            const char* registeredTypeName = s_typenames[registeredTypeId].c_str();
+#else
+            const char* registeredTypeName = "<type not available>";
+#endif
+            CL_TRACE_CHANNEL("LUA",
+                "Lua ToUserData cast error:\n"
+                "Trying to cast stack index %d, ptr:%p '%s (typeid:%zu)' to '%s (typeid:%zu)'\n"
+                "ToUserData will return nullptr",
+                index, pointer, registeredTypeName, s_pointerTypeRegister[pointer], typeid(TYPE).name(), castTypeId);
+            // unlock
+            return nullptr;
         }
     }
 }
