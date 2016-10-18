@@ -134,7 +134,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\cloud\core_libraries;..\..\cloud\externals;..\..\cloud\renderer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\cloud\externals\lua;..\..\cloud\core_libraries;..\..\cloud\externals;..\..\cloud\renderer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -175,7 +175,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\cloud\core_libraries;..\..\cloud\externals;..\..\cloud\renderer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\cloud\externals\lua;..\..\cloud\core_libraries;..\..\cloud\externals;..\..\cloud\renderer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -233,6 +233,9 @@
     <ProjectReference Include="..\..\cloud\core_libraries\debugging\debugging.vcxproj">
       <Project>{986edde2-60e0-4b66-99f6-5fa0e6154c3e}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\..\cloud\core_libraries\luacpp\luacpp.vcxproj">
+      <Project>{6e9e2f5e-17a7-436d-b6bb-ec7ce00c5ea2}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\cloud\core_libraries\utilities\utilities.vcxproj">
       <Project>{f1b37d5e-7ac9-4d34-97ed-ab04af7a774c}</Project>
