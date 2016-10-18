@@ -1,0 +1,136 @@
+#ifndef CLOUD_LUA_CPP_STATE_HEADER
+#define CLOUD_LUA_CPP_STATE_HEADER
+
+#include "luacpp.h"
+
+namespace Cloud
+{
+    class LuaState
+    {
+    public:
+        LuaState();
+        LuaState(const LuaState&) = delete;
+        LuaState(LuaState&& other);
+        virtual ~LuaState() {};
+
+        void Register(const CLchar* funcName, lua_CFunction func);
+
+        CLbool          CheckStack(CLint requiredStackSlots); // TODO: test behaviour
+        CLint           GetTop() const;
+        void            SetTop(CLint stackIndex);
+
+        Lua::Type       Type(CLint stackIndex) const;
+        const CLchar*   Typename(CLint stackIndex) const;
+
+        template <Lua::Type TYPE>
+        CLbool          IsType(CLint stackIndex) const
+        {
+            return Type(stackIndex) == Type;
+        }
+
+        template <class T>
+        T* ToUserData(CLint stackIndex) const
+        {
+            return static_cast<T*>(lua_touserdata(GetState(), stackIndex));
+        }
+
+        template <typename TYPE>
+        TYPE            To(CLint stackIndex) const
+        {
+            return ToUserData<std::remove_pointer_t<TYPE>>(stackIndex);
+        }
+
+        CLint UpValueIndex(CLint upValueIndex) const
+        {
+            return lua_upvalueindex(upValueIndex);
+        }
+
+        template <typename TYPE>
+        TYPE            Opt(CLint stackIndex, const TYPE& defaultValue) const;
+
+        template <class TYPE>
+        void PushLightUserData(TYPE* pointer)
+        {
+            lua_pushlightuserdata(GetState(), pointer);
+        }
+
+        void PushCClosure(lua_CFunction func, CLint numUpValues)
+        {
+            lua_pushcclosure(GetState(), func, numUpValues);
+        }
+
+        void PushNil()
+        {
+            lua_pushnil(GetState());
+        }
+
+        void            Push() {}
+        void            Push(CLbool value);
+        void            Push(CLint value);
+        void            Push(CLfloat value);
+        const CLchar*   Push(const CLchar* value);
+
+        template <typename _T>
+        void Push(_T* value)
+        {
+            PushLightUserData(value);
+        }
+
+        template<typename FirstArg, typename... MoreArgs>
+        void            Push(FirstArg&& firstArg, MoreArgs&&... moreArgs)
+        {
+            Push(std::forward<FirstArg>(firstArg));
+            Push(std::forward<MoreArgs>(moreArgs)...);
+        }
+
+        void            Pop(CLint numElements); // TODO: what happens with negative values?
+        void            Remove(CLint stackIndex); // TODO: what happens OOB?
+
+        void            PushValue(CLint sourceIndex); // TODO: what happens when indexing OOB?
+        void            Insert(CLint targetIndex); // TODO: test what happens if inserting outside stack
+        void            Replace(CLint targetIndex); // TODO: test what happens if inserting outside stack
+
+        void            CreateTable(CLint narr = 0, CLint nrec = 0); // TODO: narr and nrec means? and can they be negative...?
+
+        Lua::Type       GetTable(CLint stackIndex);
+        void            SetTable(CLint stackIndex);
+
+        Lua::Type       GetField(CLint stackIndex, const CLchar* key);
+        void            SetField(CLint stackIndex, const CLchar* key);
+
+        CLbool          GetMetatable(CLint stackIndex);
+        void            SetMetatable(CLint stackIndex);
+
+        Lua::Type       GetGlobal(const CLchar* name);
+        void            SetGlobal(const CLchar* name);
+
+        void            PushGlobal() // todo: implement
+        {
+            // push value
+            // set global
+        }
+
+        Lua::Type       RawGet(CLint stackIndex);
+        void            RawSet(CLint stackIndex);
+        Lua::Type       RawGetI(CLint stackIndex, CLint tableIndex);
+        void            RawSetI(CLint stackIndex, CLint tableIndex);
+        CLsize_t        RawLen(CLint stackIndex) const;
+
+        CLbool          Next(CLint stackIndex);
+
+        Lua::ErrorCode LoadFile(const CLchar* fileName);
+        Lua::ErrorCode DoFile(const CLchar* fileName);
+        Lua::ErrorCode PCall(CLint argCount = 0, CLint retArgCount = LUA_MULTRET);
+
+    protected:
+        lua_State* GetState() const { return m_state.get(); }
+
+    private:
+        Lua::StateUniquePtr m_state;
+
+    };
+}
+
+#include "state.inl"
+
+#endif // CLOUD_LUA_CPP_STATE_HEADER

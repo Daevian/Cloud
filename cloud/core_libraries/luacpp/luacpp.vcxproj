@@ -135,18 +135,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="luacpp.cpp" />
+    <ClCompile Include="stack_sentry.cpp" />
+    <ClCompile Include="state.cpp" />
+    <ClCompile Include="state_ex.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="function.h" />
     <ClInclude Include="luacpp.h" />
+    <ClInclude Include="stack_sentry.h" />
+    <ClInclude Include="state.h" />
+    <ClInclude Include="state_ex.h" />
+    <ClInclude Include="utility.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\externals\lua\lua.vcxproj">
       <Project>{e067e48f-1fd8-4b89-8fe6-166043c76d28}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="state.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

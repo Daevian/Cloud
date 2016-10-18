@@ -53,4 +53,4 @@
 #include "DirectxHelpers.h"
 
 #include "jsoncpp-src-0.5.0/include/json/json.h"
-#include "luacpp/luacpp.h"
+#include "luacpp/state_ex.h"
