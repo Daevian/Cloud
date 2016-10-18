@@ -2,6 +2,7 @@
 #define CLOUD_DATASTRUCTURES_STATICARRAY_HEADER
 
 #include "DefinesTypes.h"
+#include <array>
 
 namespace Cloud
 {
@@ -27,7 +28,7 @@ namespace Cloud
             Type*  GetBuffer() { return &m_items[0]; }
 
         protected:
-            Type m_items[Size];
+            std::array<Type, Size> m_items;
 
         };
     }

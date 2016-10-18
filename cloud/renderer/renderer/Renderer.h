@@ -48,7 +48,7 @@ namespace Renderer
         std::array<ClFloat3, c_boxes> m_randomRotations;
         std::array<CLfloat, c_boxes> m_randomScales;
 
-        Lua::StateUniquePtr m_luaState;
+        std::unique_ptr<LuaStateEx> m_luaState;
     };
 }
 }

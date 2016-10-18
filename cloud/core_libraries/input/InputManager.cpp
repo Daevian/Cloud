@@ -4,6 +4,7 @@
 #include "../utilities/DefinesMacros.h"
 #include "../utilities/IntrinsicFunctions.h"
 #include <sstream>
+#include <span.h>
 
 Cloud::Input::InputManager::InputManager()
     : m_directInput(0)
@@ -24,7 +25,8 @@ CLbool Cloud::Input::InputManager::Initialise(const Settings& settings)
 {
     m_settings = settings;
 
-    auto result = DirectInput8Create(m_settings.m_hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, reinterpret_cast<void**>(&m_directInput), 0);
+#pragma warning(suppress: 26490)
+    auto result = DirectInput8Create(m_settings.m_hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, reinterpret_cast<LPVOID*>(&m_directInput), 0);
     if (FAILED(result))
     {
         CL_ASSERT_MSG("Couldn't create initialise direct input!");
@@ -115,6 +117,8 @@ CLbool Cloud::Input::InputManager::GetKeyReleased(Key key)
 
 CLbool Cloud::Input::InputManager::GetMouseUp(CLuchar key)
 {
+    //auto buttons = gsl::as_span(m_currectMouseState.rgbButtons);
+    //return (buttons[key] & 0x80) == 0;
     return (m_currectMouseState.rgbButtons[key] & 0x80) == 0;
 }
 
@@ -254,7 +258,7 @@ void Cloud::Input::InputManager::UpdateMouse()
 
 void Cloud::Input::InputManager::UpdateControllers()
 {
-    DWORD dwResult;
+    DWORD dwResult = NO_ERROR;
     for( DWORD i = 0; i < c_maxControllers; i++ )
     {
         auto& controller = m_controllers[i];

@@ -12,6 +12,23 @@ Cloud::Renderer::Renderer::~Renderer()
 {
 }
 
+static CLint TestFunction(CLfloat val1, CLint val2)
+{
+    CLint val = static_cast<CLint>(val1 + val2);
+    return val;
+}
+
+static CLint TestFunction2(CLfloat val1)
+{
+    CLint val = static_cast<CLint>(val1 + val1);
+    return val;
+}
+
+static CLfloat TestFunction3()
+{
+    return 3.14f;
+}
+
 CLbool Cloud::Renderer::Renderer::Initialise()
 {
     m_debugRenderer.Initialise();
@@ -42,9 +59,21 @@ CLbool Cloud::Renderer::Renderer::Initialise()
         scale = ClRandFloat() * 0.5f + 0.5f;
     }
 
-    m_luaState = Lua::NewStateAndSetup();
+    m_luaState = std::make_unique<LuaStateEx>();
 
-    Lua::Register(m_luaState.get(), "GfxClearColour", [](lua_State* state)->int
+    m_luaState->RegisterFunc<CLint, CLfloat, CLint>("TestFunction", TestFunction);
+    m_luaState->RegisterFunc<CLint, CLfloat>("TestFunction2", TestFunction2);
+    m_luaState->RegisterFunc<CLfloat>("TestFunction3", TestFunction3);
+
+    m_luaState->RegisterFunc<void, GfxTexture*>("GfxClearColour2", [](GfxTexture* texture)
+    {
+        if (texture && texture->GetRtv())
+        {
+            RenderCore::Instance().GetRenderingDevice().ClearColour(*texture);
+        }
+    });
+
+    m_luaState->Register("GfxClearColour", [](lua_State* state)->int
     {
         GfxTexture* texture = Lua::ToUserData<GfxTexture>(state, 1);
         if (texture && texture->GetRtv())
@@ -55,7 +84,7 @@ CLbool Cloud::Renderer::Renderer::Initialise()
         return 0;
     });
 
-    Lua::Register(m_luaState.get(), "GfxClearDepth", [](lua_State* state)->int
+    m_luaState->Register("GfxClearDepth", [](lua_State* state)->int
     {
         GfxTexture* texture = Lua::ToUserData<GfxTexture>(state, 1);
         if (texture && texture->GetDsv())
@@ -66,7 +95,7 @@ CLbool Cloud::Renderer::Renderer::Initialise()
         return 0;
     });
 
-    Lua::Register(m_luaState.get(), "GfxSetRenderTarget", [](lua_State* state)->int
+    m_luaState->Register("GfxSetRenderTarget", [](lua_State* state)->int
     {
         GfxTexture* renderTarget = Lua::ToUserData<GfxTexture>(state, 1);
         GfxTexture* depth        = Lua::ToUserData<GfxTexture>(state, 2);
@@ -81,7 +110,7 @@ CLbool Cloud::Renderer::Renderer::Initialise()
         return 0;
     });
 
-    Lua::Register(m_luaState.get(), "GetResource", [](lua_State* state)->int
+    m_luaState->Register("GetResource", [](lua_State* state)->int
     {
         const char* resourceId = lua_tostring(state, 1);
 
@@ -155,21 +184,11 @@ void Cloud::Renderer::Renderer::Update(CLdouble totalTime, CLdouble timeStep)
 
 void Cloud::Renderer::Renderer::Render()
 {
-    Lua::DoFile(m_luaState.get(), "data/scripts/renderer/render.lua");
-
-    /*
-    //result = lua_getglobal(m_luaState, "Main");
-    lua_pushvalue(m_luaState, -1);
-    test = lua_gettop(m_luaState);
-    result = lua_pcall(m_luaState, 0, 0, 0);
-    //result = luaL_loadfile(m_luaState, "data/scripts/renderer/render.lua");
-    test = lua_gettop(m_luaState);
-    lua_pushvalue(m_luaState, -1);
-    test = lua_gettop(m_luaState);
-    result = lua_pcall(m_luaState, 0, 0, 0);
-   //int stackSize = lua_gettop(m_luaState);
-   //lua_pop(m_luaState, stackSize);
-   */
+    m_luaState->DoFile("data/scripts/renderer/render.lua");
+    
+    auto test = m_luaState->Call<CLfloat, CLint>("testest", "lol", "nope", 123, 142.43f);
+    CL_UNUSED(test);
+    m_luaState->Call("render");
 
 
     auto& renderCore = RenderCore::Instance();

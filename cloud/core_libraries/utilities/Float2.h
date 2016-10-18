@@ -1,6 +1,8 @@
 #ifndef CLOUD_MATH_FLOAT2_HEADER
 #define CLOUD_MATH_FLOAT2_HEADER
 
+#include <array>
+
 #pragma warning (disable:4201)
 
 namespace Cloud
@@ -46,7 +48,7 @@ namespace Cloud
 
             union
             {
-                CLfloat a[2];
+                std::array<CLfloat, 2> a;
                 struct
                 {
                     CLfloat x, y;

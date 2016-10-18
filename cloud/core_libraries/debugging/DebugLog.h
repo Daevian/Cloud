@@ -35,11 +35,14 @@ namespace Cloud
             DebugLog();
             ~DebugLog();
 
+            static const CLint MAX_CHARS = 1024;
+            static const CLint MAX_HANDLERS = 4;
+
             CLbool Initialise();
             void Shutdown();
 
             void WriteToChannel(const CLchar* channel, const CLchar* output, va_list args);
-            void WriteToBuffer(CLchar* buffer, const CLchar* output, va_list args);
+            void WriteToBuffer(std::array<CLchar, MAX_CHARS>& buffer, const CLchar* output, va_list args);
             void PushBufferToHandlers(const CLchar* buffer);
 
             typedef std::pair<const CLchar*, bool> Channel;
@@ -47,9 +50,6 @@ namespace Cloud
             typedef ChannelList::iterator ChannelIterator;
 
             static DebugLog* s_instance;
-
-            static const CLint MAX_CHARS = 1023;
-            static const CLint MAX_HANDLERS = 4;
 
             Utils::StaticArray<BaseLogHandler*, MAX_HANDLERS> m_logHandlers;
             ChannelList m_channelList;

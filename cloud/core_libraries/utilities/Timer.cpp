@@ -3,6 +3,10 @@
 Cloud::Utils::Timer::Timer()
     : m_totalTime(0.0)
     , m_timeStep(0.0)
+    , m_performanceTimercalibrationData{ 0, 0 }
+    , m_clockStarted{ 0, 0 }
+    , m_frameStarted{ 0, 0 }
+    , m_callOverhead{ 0, 0 }
 {
 }
 
@@ -35,6 +39,8 @@ void Cloud::Utils::Timer::Update()
     m_clockStarted.QuadPart += m_callOverhead.QuadPart;
 
     CLdouble lastFrameTime = m_totalTime;
+
+#pragma warning(suppress: 26491)
     m_totalTime = static_cast<CLdouble>((frameEnd.QuadPart - m_clockStarted.QuadPart)) / static_cast<CLdouble>(m_performanceTimercalibrationData.QuadPart);
     m_timeStep = m_totalTime - lastFrameTime;
     

@@ -7,6 +7,6 @@
     "Graphics" :
     {
         "MSAA" : 1,
-        "VSync" : 0
+        "VSync" : 1
     }
 }

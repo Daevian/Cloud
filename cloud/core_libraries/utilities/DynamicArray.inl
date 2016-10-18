@@ -60,6 +60,7 @@ template <class Type>
 inline Type& Cloud::Utils::DynamicArray<Type>::operator[](const CLint& index)
 {
     CL_ASSERT(index >= 0 && index < m_count, "Index is out of bounds!");
+#pragma warning(suppress: 26481)
     return m_items[index];
 }
 
@@ -67,6 +68,7 @@ template <class Type>
 inline const Type& Cloud::Utils::DynamicArray<Type>::operator[](const CLint& index) const
 {
     CL_ASSERT(index >= 0 && index < m_count, "Index is out of bounds!");
+#pragma warning(suppress: 26481)
     return m_items[index];
 }
 
@@ -94,7 +96,9 @@ inline void Cloud::Utils::DynamicArray<Type>::Add(const Type& item)
     }
 
     ++m_count;
+#pragma warning(suppress: 26481)
     m_items[m_count - 1] = item;
+#pragma warning(suppress: 26481)
     m_last = &m_items[m_count];
 }
 
@@ -107,7 +111,9 @@ inline void Cloud::Utils::DynamicArray<Type>::Add(Type&& item)
     }
 
     ++m_count;
+#pragma warning(suppress: 26481)
     m_items[m_count - 1] = std::move(item);
+#pragma warning(suppress: 26481)
     m_last = &m_items[m_count];
 }
 
@@ -193,6 +199,7 @@ void Cloud::Utils::DynamicArray<Type>::Resize(CLint newSize)
     CL_ASSERT(newSize > 0, "New size can't be 0 or less!");
     CL_ASSERT(m_items != 0, "Trying to resize an uninitialised DynamicArray!");
 
+#pragma warning(suppress: 26481)
     Type* oldList = &m_items[0];
 
     m_items = new Type [newSize];

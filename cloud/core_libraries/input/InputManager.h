@@ -26,6 +26,11 @@ namespace Input
     public:
         struct Settings
         {
+            Settings()
+                : m_hInstance(nullptr)
+                , m_hWnd(nullptr)
+            {}
+
             HINSTANCE m_hInstance;
             HWND m_hWnd;
         };

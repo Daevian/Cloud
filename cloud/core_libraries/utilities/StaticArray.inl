@@ -4,6 +4,7 @@
 #include "DefinesAsserts.h"
 
 template<class Type, CLuint Size>
+#pragma warning(suppress: 26495)
 Cloud::Utils::StaticArray<Type, Size>::StaticArray()
 {
 }

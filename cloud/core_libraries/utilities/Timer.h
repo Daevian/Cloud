@@ -2,7 +2,7 @@
 #define CLOUD_UTILITIES_TIMER_HEADER
 
 #include "DefinesTypes.h"
-#include <windows.h>
+#include "Windows.h"
 
 namespace Cloud
 {

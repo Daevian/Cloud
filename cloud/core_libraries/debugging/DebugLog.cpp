@@ -83,27 +83,27 @@ void Cloud::Debug::DebugLog::TraceChannel(const CLchar* channel, const CLchar* o
 
 void Cloud::Debug::DebugLog::WriteToChannel(const CLchar* channel, const CLchar* output, va_list args)
 {
-    CLchar buffer[MAX_CHARS + 1];
+    std::array<CLchar, MAX_CHARS> buffer;
     WriteToBuffer(buffer, output, args);
 
     ChannelIterator i = m_channelList.find(channel);
     if (i == m_channelList.end())
     {
         m_channelList.insert(Channel(channel, true));
-        PushBufferToHandlers(buffer);
+        PushBufferToHandlers(&buffer[0]);
         return;
     }
 
     if (i->second)
     {
-        PushBufferToHandlers(buffer);
+        PushBufferToHandlers(&buffer[0]);
     }
 }
 
-void Cloud::Debug::DebugLog::WriteToBuffer(CLchar* buffer, const CLchar* output, va_list args)
+void Cloud::Debug::DebugLog::WriteToBuffer(std::array<CLchar, MAX_CHARS>& buffer, const CLchar* output, va_list args)
 {
-    vsnprintf_s(buffer, MAX_CHARS - 1, MAX_CHARS, output, args);
-    buffer[MAX_CHARS] = '\0';
+    vsnprintf_s(&buffer[0], MAX_CHARS, MAX_CHARS, output, args);
+    buffer[MAX_CHARS - 1] = '\0';
 }
 
 void Cloud::Debug::DebugLog::PushBufferToHandlers(const CLchar* buffer)
