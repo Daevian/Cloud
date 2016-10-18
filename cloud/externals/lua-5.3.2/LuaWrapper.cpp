@@ -1,9 +1,9 @@
 #include "LuaWrapper.h"
 
-std::unordered_map<void*, size_t> Cloud::Lua::s_pointerTypeRegister;
+std::unordered_map<void*, size_t> Cloud::LuaStateEx::s_pointerTypeRegister;
 
 #ifdef _DEBUG
-std::unordered_map<size_t, std::string> Cloud::Lua::s_typenames;
+std::unordered_map<size_t, std::string> Cloud::LuaStateEx::s_typenames;
 #endif
 
 int Cloud::Lua::LuaPrint(lua_State* state)
@@ -59,60 +59,6 @@ Cloud::Lua::StateUniquePtr Cloud::Lua::NewStateAndSetup()
 
 
     return luaState;
-}
-
-Cloud::Lua::ErrorCode Cloud::Lua::LoadFile(lua_State* state, const CLchar* fileName)
-{
-    ErrorCode result = static_cast<ErrorCode>(luaL_loadfile(state, fileName));
-
-    if (result == ErrorCode::ErrFile)
-    {
-        if (lua_isstring(state, -1))
-        {
-            const char* err = lua_tostring(state, -1);
-            CL_TRACE_CHANNEL("LUA", "Lua file error:\n%s", err);
-        }
-    }
-
-    if (result == ErrorCode::ErrSyntax)
-    {
-        if (lua_isstring(state, -1))
-        {
-            const char* err = lua_tostring(state, -1);
-            CL_TRACE_CHANNEL("LUA", "Lua syntax error:\n%s", err);
-        }
-    }
-
-    return result;
-}
-
-Cloud::Lua::ErrorCode Cloud::Lua::DoFile(lua_State* state, const CLchar* fileName)
-{
-    ErrorCode result;
-    result = LoadFile(state, fileName);
-    if (result != ErrorCode::Ok)
-    {
-        return result;
-    }
-
-    result = PCall(state);
-    return result;
-}
-
-Cloud::Lua::ErrorCode Cloud::Lua::PCall(lua_State* state, CLint argCount, CLint retArgCount)
-{
-    ErrorCode result = static_cast<ErrorCode>(lua_pcall(state, argCount, retArgCount, 0));
-
-    if (result == ErrorCode::ErrRun)
-    {
-        if (lua_isstring(state, -1))
-        {
-            const char* err = lua_tostring(state, -1);
-            CL_TRACE_CHANNEL("LUA", "Lua run error:\n%s", err);
-        }
-    }
-
-    return result;
 }
 
 Cloud::LuaState::LuaState()
@@ -279,12 +225,56 @@ CLbool Cloud::LuaState::Next(CLint stackIndex)
 
 Cloud::Lua::ErrorCode Cloud::LuaState::LoadFile(const CLchar* fileName)
 {
-    return Lua::LoadFile(GetState(), fileName);
+    Lua::ErrorCode result = static_cast<Lua::ErrorCode>(luaL_loadfile(GetState(), fileName));
+
+    if (result == Lua::ErrorCode::ErrFile)
+    {
+        if (lua_isstring(GetState(), -1))
+        {
+            const char* err = lua_tostring(GetState(), -1);
+            CL_TRACE_CHANNEL("LUA", "Lua file error:\n%s", err);
+        }
+    }
+
+    if (result == Lua::ErrorCode::ErrSyntax)
+    {
+        if (lua_isstring(GetState(), -1))
+        {
+            const char* err = lua_tostring(GetState(), -1);
+            CL_TRACE_CHANNEL("LUA", "Lua syntax error:\n%s", err);
+        }
+    }
+
+    return result;
 }
 
 Cloud::Lua::ErrorCode Cloud::LuaState::DoFile(const CLchar* fileName)
 {
-    return Lua::DoFile(GetState(), fileName);
+    Lua::ErrorCode result;
+    result = LoadFile(fileName);
+    if (result != Lua::ErrorCode::Ok)
+    {
+        return result;
+    }
+
+    result = PCall();
+    return result;
+}
+
+Cloud::Lua::ErrorCode Cloud::LuaState::PCall(CLint argCount, CLint retArgCount)
+{
+    Lua::ErrorCode result = static_cast<Lua::ErrorCode>(lua_pcall(GetState(), argCount, retArgCount, 0));
+
+    if (result == Lua::ErrorCode::ErrRun)
+    {
+        if (lua_isstring(GetState(), -1))
+        {
+            const char* err = lua_tostring(GetState(), -1);
+            CL_TRACE_CHANNEL("LUA", "Lua run error:\n%s", err);
+        }
+    }
+
+    return result;
 }
 
 Cloud::LuaStackSentry::LuaStackSentry(const LuaState& state)

@@ -118,44 +118,7 @@ namespace Cloud
         static StateUniquePtr NewState();
         static StateUniquePtr NewStateAndSetup();
 
-        static ErrorCode LoadFile(lua_State* state, const CLchar* fileName);
-        static ErrorCode DoFile(lua_State* state, const CLchar* fileName);
-        static ErrorCode PCall(lua_State* state, CLint argCount = 0, CLint retArgCount = LUA_MULTRET);
-
-        template <class TYPE>
-        static void PushLightUserData(lua_State* state, TYPE* pointer);
-
-        template <class TYPE>
-        static TYPE* ToUserData(lua_State* state, int index);
-
     private:
-        static size_t NextTypeId(const char* name)
-        {
-            static size_t id = 0;
-            size_t result = id;
-            // lock
-            ++id;
-            CL_UNUSED(name);
-#ifdef _DEBUG
-            
-            s_typenames[result] = name;
-            
-#endif
-            // unlock
-            return result;
-        }
-
-        template <typename TYPE>
-        static size_t getUniqueTypeId()
-        {
-            static size_t id = NextTypeId(typeid(TYPE).name());
-            return id;
-        }
-
-        static std::unordered_map<void*, size_t> s_pointerTypeRegister;
-#ifdef _DEBUG
-        static std::unordered_map<size_t, std::string> s_typenames;
-#endif
     };
 
     template <std::size_t... T_Indices>
@@ -217,24 +180,6 @@ namespace Cloud
         template <typename TYPE>
         TYPE            Opt(CLint stackIndex, const TYPE& defaultValue) const;
 
-        void            Push() {}
-        void            Push(CLbool value);
-        void            Push(CLint value);
-        void            Push(CLfloat value);
-        const CLchar*   Push(const CLchar* value);
-
-        template<typename FirstArg, typename... MoreArgs>
-        void            Push(FirstArg&& firstArg, MoreArgs&&... moreArgs)
-        {
-            Push(std::forward<FirstArg>(firstArg));
-            Push(std::forward<MoreArgs>(moreArgs)...);
-        }
-
-        void PushNil()
-        {
-            lua_pushnil(GetState());
-        }
-
         template <class TYPE>
         void PushLightUserData(TYPE* pointer)
         {
@@ -244,6 +189,30 @@ namespace Cloud
         void PushCClosure(lua_CFunction func, CLint numUpValues)
         {
             lua_pushcclosure(GetState(), func, numUpValues);
+        }
+
+        void PushNil()
+        {
+            lua_pushnil(GetState());
+        }
+
+        void            Push() {}
+        void            Push(CLbool value);
+        void            Push(CLint value);
+        void            Push(CLfloat value);
+        const CLchar*   Push(const CLchar* value);
+
+        template <typename _T>
+        void Push(_T* value)
+        {
+            PushLightUserData(value);
+        }
+
+        template<typename FirstArg, typename... MoreArgs>
+        void            Push(FirstArg&& firstArg, MoreArgs&&... moreArgs)
+        {
+            Push(std::forward<FirstArg>(firstArg));
+            Push(std::forward<MoreArgs>(moreArgs)...);
         }
 
         void            Pop(CLint numElements); // TODO: what happens with negative values?
@@ -283,6 +252,7 @@ namespace Cloud
 
         Lua::ErrorCode LoadFile(const CLchar* fileName);
         Lua::ErrorCode DoFile(const CLchar* fileName);
+        Lua::ErrorCode PCall(CLint argCount = 0, CLint retArgCount = LUA_MULTRET);
 
     protected:
         lua_State* GetState() const { return m_state.get(); }
@@ -428,7 +398,7 @@ namespace Cloud
     public:
 
         template <typename T_Return, typename... T_Args>
-        void RegisterFunc(const CLchar* funcName, const std::function<T_Return(T_Args...)>& func)
+        void RegisterFunction(const CLchar* funcName, const std::function<T_Return(T_Args...)>& func)
         {
             LuaStackSentry sentry(*this);
 
@@ -437,7 +407,7 @@ namespace Cloud
         }
 
         template <typename T_Return>
-        void RegisterFunc(const CLchar* funcName, const std::function<T_Return()>& func)
+        void RegisterFunction(const CLchar* funcName, const std::function<T_Return()>& func)
         {
             LuaStackSentry sentry(*this);
 
@@ -511,7 +481,7 @@ namespace Cloud
 
             constexpr auto argCount = sizeof...(Args);
             constexpr auto retCount = sizeof...(ReturnArgs);
-            auto error = Lua::PCall(GetState(), argCount, retCount);
+            auto error = PCall(argCount, retCount);
             CL_UNUSED(error);
 
             return PopReturn<ReturnArgs...>();
@@ -530,55 +500,81 @@ namespace Cloud
             // ORDER NOT GUARATEED!
         }
 
+        template <class TYPE>
+        static void PushLightUserDataChecked(TYPE* pointer)
+        {
+            auto typeId = getUniqueTypeId<TYPE>();
+            // lock
+            s_pointerTypeRegister[pointer] = typeId;
+            //unlock
+
+            PushLightUserData(pointer);
+        }
+
+        template <class TYPE>
+        static TYPE* ToUserDataChecked(CLint index)
+        {
+            const auto castTypeId = getUniqueTypeId<TYPE>();
+
+            auto&& pointer = ToUserData<TYPE>(index);
+
+            // lock
+            const auto registeredTypeId = s_pointerTypeRegister[pointer];
+            // unlock
+
+            if (registeredTypeId == castTypeId)
+            {
+                return pointer;
+            }
+            else
+            {
+                // lock
+#ifdef _DEBUG
+                const char* registeredTypeName = s_typenames[registeredTypeId].c_str();
+#else
+                const char* registeredTypeName = "<type not available>";
+#endif
+                CL_TRACE_CHANNEL("LUA",
+                                 "Lua ToUserData cast error:\n"
+                                 "Trying to cast stack index %d, ptr:%p '%s (typeid:%zu)' to '%s (typeid:%zu)'\n"
+                                 "ToUserData will return nullptr",
+                                 index, pointer, registeredTypeName, s_pointerTypeRegister[pointer], typeid(TYPE).name(), castTypeId);
+                // unlock
+                return nullptr;
+            }
+        }
+
     private:
+        static size_t NextTypeId(const char* name)
+        {
+            static size_t id = 0;
+            size_t result = id;
+            // lock
+            ++id;
+            CL_UNUSED(name);
+#ifdef _DEBUG
+
+            s_typenames[result] = name;
+
+#endif
+            // unlock
+            return result;
+        }
+
+        template <typename TYPE>
+        static size_t getUniqueTypeId()
+        {
+            static size_t id = NextTypeId(typeid(TYPE).name());
+            return id;
+        }
+
+        static std::unordered_map<void*, size_t> s_pointerTypeRegister;
+#ifdef _DEBUG
+        static std::unordered_map<size_t, std::string> s_typenames;
+#endif
+
         std::unordered_map<const char*, std::unique_ptr<LuaFunctionBase>> m_functions;
     };
-
-    
-
-    template<class TYPE>
-    inline void Lua::PushLightUserData(lua_State* state, TYPE* pointer)
-    {
-        auto typeId = getUniqueTypeId<TYPE>();
-        // lock
-        s_pointerTypeRegister[pointer] = typeId;
-        //unlock
-        
-        lua_pushlightuserdata(state, pointer);
-    }
-
-    template<class TYPE>
-    inline TYPE* Lua::ToUserData(lua_State* state, int index)
-    {
-        const auto castTypeId = getUniqueTypeId<TYPE>();
-        
-        void* pointer = lua_touserdata(state, index);
-        
-        // lock
-        const auto registeredTypeId = s_pointerTypeRegister[pointer];
-        // unlock
-
-        if (registeredTypeId == castTypeId)
-        {
-            return static_cast<TYPE*>(pointer);
-        }
-        else
-        {
-            // lock
-#ifdef _DEBUG
-            const char* registeredTypeName = s_typenames[registeredTypeId].c_str();
-#else
-            const char* registeredTypeName = "<type not available>";
-#endif
-            CL_TRACE_CHANNEL("LUA",
-                "Lua ToUserData cast error:\n"
-                "Trying to cast stack index %d, ptr:%p '%s (typeid:%zu)' to '%s (typeid:%zu)'\n"
-                "ToUserData will return nullptr",
-                index, pointer, registeredTypeName, s_pointerTypeRegister[pointer], typeid(TYPE).name(), castTypeId);
-            // unlock
-            return nullptr;
-        }
-    }
 }
 
 #endif // CLOUD_LUA_WRAPPER_HEADER

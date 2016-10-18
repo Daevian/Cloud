@@ -20,7 +20,7 @@ RPG::UIManager::~UIManager()
 CLbool RPG::UIManager::Initialise(Cloud::Renderer::Renderer& renderer)
 {
     m_renderer = &renderer;
-
+/*
     m_backgroundSprite = m_renderer->GetSpriteManager().CreateSprite("main_menu_background");
     m_newGameSprite = m_renderer->GetSpriteManager().CreateSprite("main_menu_new_game");
     m_continueSprite = m_renderer->GetSpriteManager().CreateSprite("main_menu_continue");
@@ -48,7 +48,7 @@ CLbool RPG::UIManager::Initialise(Cloud::Renderer::Renderer& renderer)
     cursor->Initialise(m_cursorSprite);
     cursor->SetPosition(Cloud::Math::Float2(0.35546875f, 0.4986f));
     cursor->SetScale(Cloud::Math::Float2(0.1f, 0.089f));
-    m_uiElements.push_back(std::move(cursor));
+    m_uiElements.push_back(std::move(cursor));*/
 
     return true;
 }

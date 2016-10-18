@@ -18,8 +18,7 @@ function render()
 	backbuffer = GetResource("backbuffer")
     depth = GetResource("depth")
     
-    GfxClearColour2(backbuffer)
-    --GfxClearColour(backbuffer)
+    GfxClearColour(backbuffer)
     GfxClearDepth(depth)
     GfxSetRenderTarget(backbuffer, depth)
 end

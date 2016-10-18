@@ -61,11 +61,11 @@ CLbool Cloud::Renderer::Renderer::Initialise()
 
     m_luaState = std::make_unique<LuaStateEx>();
 
-    m_luaState->RegisterFunc<CLint, CLfloat, CLint>("TestFunction", TestFunction);
-    m_luaState->RegisterFunc<CLint, CLfloat>("TestFunction2", TestFunction2);
-    m_luaState->RegisterFunc<CLfloat>("TestFunction3", TestFunction3);
+    m_luaState->RegisterFunction<CLint, CLfloat, CLint>("TestFunction", TestFunction);
+    m_luaState->RegisterFunction<CLint, CLfloat>("TestFunction2", TestFunction2);
+    m_luaState->RegisterFunction<CLfloat>("TestFunction3", TestFunction3);
 
-    m_luaState->RegisterFunc<void, GfxTexture*>("GfxClearColour2", [](GfxTexture* texture)
+    m_luaState->RegisterFunction<void, GfxTexture*>("GfxClearColour", [](GfxTexture* texture)
     {
         if (texture && texture->GetRtv())
         {
@@ -73,60 +73,40 @@ CLbool Cloud::Renderer::Renderer::Initialise()
         }
     });
 
-    m_luaState->Register("GfxClearColour", [](lua_State* state)->int
+    m_luaState->RegisterFunction<void, GfxTexture*>("GfxClearDepth", [](GfxTexture* texture)
     {
-        GfxTexture* texture = Lua::ToUserData<GfxTexture>(state, 1);
-        if (texture && texture->GetRtv())
-        {
-            RenderCore::Instance().GetRenderingDevice().ClearColour(*texture);
-        }
-
-        return 0;
-    });
-
-    m_luaState->Register("GfxClearDepth", [](lua_State* state)->int
-    {
-        GfxTexture* texture = Lua::ToUserData<GfxTexture>(state, 1);
         if (texture && texture->GetDsv())
         {
             RenderCore::Instance().GetRenderingDevice().ClearDepth(*texture);
         }
-        
-        return 0;
     });
 
-    m_luaState->Register("GfxSetRenderTarget", [](lua_State* state)->int
+    m_luaState->RegisterFunction<void, GfxTexture*, GfxTexture*>("GfxSetRenderTarget", [](GfxTexture* renderTarget, GfxTexture* depth)
     {
-        GfxTexture* renderTarget = Lua::ToUserData<GfxTexture>(state, 1);
-        GfxTexture* depth        = Lua::ToUserData<GfxTexture>(state, 2);
         if ((renderTarget && !renderTarget->GetRtv()) ||
             (depth && !depth->GetDsv()))
         {
-            return 0;
+            return;
         }
         
         RenderCore::Instance().GetRenderingDevice().SetRenderTarget(renderTarget, depth);
-
-        return 0;
     });
 
-    m_luaState->Register("GetResource", [](lua_State* state)->int
+    m_luaState->RegisterFunction<GfxTexture*, const CLchar*>("GetResource", [](const CLchar* resourceId)
     {
-        const char* resourceId = lua_tostring(state, 1);
-
         auto& renderCore = RenderCore::Instance();
         if (strcmp(resourceId, "backbuffer") == 0)
         {
             auto backbuffer = renderCore.GetBackbuffer();
-            Lua::PushLightUserData(state, backbuffer);
+            return backbuffer;
         }
         else if (strcmp(resourceId, "depth") == 0)
         {
             auto depth = renderCore.GetDepthStencil();
-            Lua::PushLightUserData(state, depth);
+            return depth;
         }
 
-        return 1;
+        return static_cast<GfxTexture*>(nullptr);
     });
     
 
