@@ -20,24 +20,27 @@ namespace Cloud
             CLuint                      height;
             CLuint                      depth;
 #ifdef USE_DIRECTX12
+            D3D12_RESOURCE_DIMENSION    dim;
 #else
             D3D11_RESOURCE_DIMENSION    dim;
 #endif
             CLuint                      arraySize;
             CLuint                      mipCount;
-#ifdef USE_DIRECTX12
-#else
             DXGI_FORMAT                 format;
+#ifdef USE_DIRECTX12
+            D3D12_RESOURCE_FLAGS        flags;
+            D3D12_HEAP_TYPE             heapType;
+            D3D12_RESOURCE_STATES       initialState;
+            D3D12_CLEAR_VALUE           clearValue;
+#else
             D3D11_USAGE                 usage;
-#endif
             CLuint                      bindFlags;
             CLuint                      cpuAccessFlags;
             CLuint                      miscFlags;
-            InitialData                 initialData;
-#ifdef USE_DIRECTX12
-#else
-            DXGI_SAMPLE_DESC            sampleDesc;
 #endif
+            
+            InitialData                 initialData;
+            DXGI_SAMPLE_DESC            sampleDesc;
             CLbool                      isCubeMap;
         };
 
@@ -49,6 +52,9 @@ namespace Cloud
 
             const GfxTextureDesc&       GetDesc() const         { return m_desc; }
 #ifdef USE_DIRECTX12
+            CD3DX12_CPU_DESCRIPTOR_HANDLE GetSrv() const        { return m_srv; }
+            CD3DX12_CPU_DESCRIPTOR_HANDLE GetRtv() const        { return m_rtv; }
+            CD3DX12_CPU_DESCRIPTOR_HANDLE GetDsv() const        { return m_dsv; }
 #else
             ID3D11ShaderResourceView*   GetSrv() const          { return m_srv.get(); }
             ID3D11RenderTargetView*     GetRtv() const          { return m_rtv.get(); }
@@ -62,6 +68,10 @@ namespace Cloud
             static UniquePtr MakeUnique() { return GfxTexture::UniquePtr(new GfxTexture(), GfxResource::Deleter()); }
 
 #ifdef USE_DIRECTX12
+            ComPtr<ID3D12Resource> m_resource;
+            CD3DX12_CPU_DESCRIPTOR_HANDLE m_srv = { CD3DX12_DEFAULT() };
+            CD3DX12_CPU_DESCRIPTOR_HANDLE m_rtv = { CD3DX12_DEFAULT() };
+            CD3DX12_CPU_DESCRIPTOR_HANDLE m_dsv = { CD3DX12_DEFAULT() };
 #else
             Dx::UniquePtr<ID3D11Texture2D>            m_texture;
             Dx::UniquePtr<ID3D11ShaderResourceView>   m_srv;

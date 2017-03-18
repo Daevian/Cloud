@@ -39,6 +39,7 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <gsl.h>
 
 #include "utilities/Windows.h"

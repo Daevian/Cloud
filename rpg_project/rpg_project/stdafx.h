@@ -43,6 +43,7 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
+#include <mutex>
 
 #include "utilities/DefinesAsserts.h"
 #include "utilities/DefinesMacros.h"

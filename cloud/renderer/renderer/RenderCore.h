@@ -67,6 +67,7 @@ namespace Cloud
             ID3D12RootSignature*    GetRootSignature() { return m_rootSignature.Get(); }
             ID3D12CommandAllocator* GetCommandAllocator() { return m_commandAllocator.Get(); }
             ID3D12DescriptorHeap*   GetCbvHeap() { return m_cbvHeap.Get(); }
+            ID3D12DescriptorHeap*   GetDsvHeap() { return m_dsvHeap.Get(); }
             CD3DX12_VIEWPORT&       GetViewPort() { return m_viewPort; }
             CD3DX12_RECT&           GetScissorRect() { return m_scissorRect; }
             CD3DX12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBuffer();
@@ -128,17 +129,20 @@ namespace Cloud
             ComPtr<ID3D12CommandQueue> m_commandQueue;
             ComPtr<IDXGISwapChain3> m_swapChain;
             ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
+            ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
             ComPtr<ID3D12DescriptorHeap> m_cbvHeap;
             ComPtr<ID3D12CommandAllocator> m_commandAllocator;
             std::array<ComPtr<ID3D12Resource>, c_frameBufferCount> m_renderTargets;
 
             UINT m_rtvDescriptorSize = 0;
+            UINT m_dsvDescriptorSize = 0;
 
             UINT m_frameIndex = 0;
 
+            CLuint m_recordedCommandLists = 0;
+            std::array<ComPtr<ID3D12GraphicsCommandList>, 10> m_commandLists;
             ComPtr<ID3D12GraphicsCommandList> m_frameBeginCl;
             ComPtr<ID3D12GraphicsCommandList> m_frameEndCl;
-            ComPtr<ID3D12GraphicsCommandList> m_commandList;
             ComPtr<ID3D12RootSignature> m_rootSignature;
             ComPtr<ID3D12PipelineState> m_pipelineState;
 

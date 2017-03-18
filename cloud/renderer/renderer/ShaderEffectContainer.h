@@ -15,12 +15,14 @@ namespace Cloud
             ShaderEffectContainer();
             ~ShaderEffectContainer();
 
+            std::shared_ptr<ShaderEffect> FindEffect(const std::string& effectPath);
             ShaderEffect* GetEffect(const std::string& effectPath);
 
         private:
             ShaderEffect* LoadEffect(const std::string& effectPath);
 
-            Utils::DynamicArray<ShaderEffect*> m_effects;
+            std::unordered_map<ClString, std::weak_ptr<ShaderEffect>> m_effects;
+            std::mutex m_cacheLock;
 
         };
     }

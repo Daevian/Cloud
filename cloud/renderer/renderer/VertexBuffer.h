@@ -22,7 +22,7 @@ namespace Cloud
             CLint   GetVertexSize()                 const { return m_vertexSize; }
             void*   GetVertexData()                 const { return m_vertexData; }
 #ifdef USE_DIRECTX12
-            D3D12_VERTEX_BUFFER_VIEW& GetView()  { return m_view; }
+            const D3D12_VERTEX_BUFFER_VIEW& GetView() const { return m_view; }
 #else
             ID3D11Buffer* GetBuffer()               const { return m_vertexBuffer.get(); }
             GfxPrimitiveTopology GetTopology()      const { return m_topology; }

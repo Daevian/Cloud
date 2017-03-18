@@ -18,7 +18,7 @@ namespace Cloud
             CLint GetIndexCount() const                     { return m_indexCount; }
             void* GetIndexData()  const                     { return m_indexData; }
 #ifdef USE_DIRECTX12
-            D3D12_INDEX_BUFFER_VIEW& GetView()       { return m_view; }
+            const D3D12_INDEX_BUFFER_VIEW& GetView() const  { return m_view; }
 #else
             ID3D11Buffer* GetBuffer() const                 { return m_indexBuffer.get(); }
 #endif

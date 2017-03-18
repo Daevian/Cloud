@@ -3,6 +3,7 @@
 
 #include "RenderCore.h"
 #include "Settings.h"
+#include "Scene.h"
 
 Cloud::Renderer::Renderer::Renderer()
 {
@@ -36,6 +37,11 @@ CLbool Cloud::Renderer::Renderer::Initialise()
     //m_csSorter.Init();
     //m_csTest.Initialise();
     //m_particleManager.Initialise();
+
+    m_instance = std::make_unique<ModelInstance>();
+    m_forwardScene = std::make_unique<Scene>(m_modelRenderer);
+
+    m_forwardScene->addModelInstance(*m_instance);
 
 
     const CLfloat width  = (CLfloat)Cloud::Renderer::Settings::Instance().GetRoot()["Resolution"]["Width"].asDouble();
@@ -175,22 +181,32 @@ void Cloud::Renderer::Renderer::Render()
 {
     m_luaState->DoFile("data/scripts/renderer/render.lua");
     
-    auto test = m_luaState->Call<CLfloat, CLint>("testest", "lol", "nope", 123, 142.43f);
-    CL_UNUSED(test);
+   // auto test = m_luaState->Call<CLfloat, CLint>("testest", "lol", "nope", 123, 142.43f);
+   // CL_UNUSED(test);
     m_luaState->Call("render");
 
+    
+    
 
     auto& renderCore = RenderCore::Instance();
-    
+
     // Sort items
     //m_csSorter.Dispatch();
-
-    // Render all items
 
     auto& perSceneConstBuffer = renderCore.GetPerSceneConstData();
     perSceneConstBuffer.view = m_camera.GetView();
     perSceneConstBuffer.projection = m_camera.GetProjection();
     renderCore.GpuUpdatePerSceneConstBuffer();
+
+    // render gbuffer
+    // render deferred lighting
+    
+    auto&& forwardScene = *m_forwardScene;
+    RenderCore::Instance().QueueRecordCommandListJob(
+        [&forwardScene](ID3D12GraphicsCommandList* cl)
+    {
+        forwardScene.RecordCommandList(cl);
+    });
 
     //m_spriteManager.Render();
     //m_particleManager.Render();

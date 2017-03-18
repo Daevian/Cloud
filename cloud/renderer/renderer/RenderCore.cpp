@@ -85,7 +85,7 @@ CLbool Cloud::Renderer::RenderCore::Initialise(const Settings& settings)
 
     if (!InitSwapChain()) return false;
     //if (!InitBackBuffer()) return false;
-    //if (!InitDepthBuffer()) return false;
+    if (!InitDepthBuffer()) return false;
     if (!InitConstantBuffers()) return false;
     InitViewPort();
 
@@ -123,18 +123,22 @@ CLbool Cloud::Renderer::RenderCore::Initialise(const Settings& settings)
 
     // m_commandList
     {
-        if (FAILED(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_commandList))))
+        for (auto&& commandList : m_commandLists)
         {
-            CL_ASSERT_MSG("Failed to create command list!");
-            return false;
-        }
+            if (FAILED(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList))))
+            {
+                CL_ASSERT_MSG("Failed to create command list!");
+                return false;
+            }
 
-        // The main loop expects it to be closed, so close it now by default.
-        if (FAILED(m_commandList->Close()))
-        {
-            CL_ASSERT_MSG("Failed to close command list!");
-            return false;
+            // The main loop expects it to be closed, so close it now by default.
+            if (FAILED(commandList->Close()))
+            {
+                CL_ASSERT_MSG("Failed to close command list!");
+                return false;
+            }
         }
+        
     }
 
     if (FAILED(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence))))
@@ -317,6 +321,20 @@ CLbool Cloud::Renderer::RenderCore::InitSwapChain()
 
     {
         D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+        desc.NumDescriptors = 1;
+        desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+        desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+        if (FAILED(m_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_dsvHeap))))
+        {
+            CL_ASSERT_MSG("couldn't create DSVdesc heap!");
+            return false;
+        }
+
+        m_dsvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+    }
+
+    {
+        D3D12_DESCRIPTOR_HEAP_DESC desc = {};
         desc.NumDescriptors = 2;
         desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
         desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
@@ -342,6 +360,25 @@ CLbool Cloud::Renderer::RenderCore::InitSwapChain()
             rtvHandle.Offset(1, m_rtvDescriptorSize);
         }
     }
+
+/*
+    {
+        CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+
+        m_de
+        
+        if (FAILED(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_depthTarget))))
+        {
+            CL_ASSERT_MSG("couldn't get swap chain buffer!");
+            return false;
+        }
+
+        m_device->CreateRenderTargetView(m_renderTargets[i].Get(), nullptr, rtvHandle);
+        rtvHandle.Offset(1, m_rtvDescriptorSize);
+        
+    }*/
+
+    
 
     if (FAILED(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator))))
     {
@@ -419,9 +456,6 @@ CLbool Cloud::Renderer::RenderCore::InitBackBuffer()
 {
 #ifdef USE_DIRECTX12
 
-
-
-
     return false;
 #else
     m_backbuffer = m_gfxTextureFactory.CreateFromBackbuffer();
@@ -438,13 +472,26 @@ CLbool Cloud::Renderer::RenderCore::InitBackBuffer()
 
 CLbool Cloud::Renderer::RenderCore::InitDepthBuffer()
 {
-#ifdef USE_DIRECTX12
-    return false;
-#else
     auto& settings = Cloud::Renderer::Settings::Instance().GetRoot();
 
-    GfxTextureDesc desc;
-    ClMemZero(&desc, sizeof(desc));
+    GfxTextureDesc desc = {};
+
+#ifdef USE_DIRECTX12
+    desc.name = "depthstencil";
+    desc.dim = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    desc.width = settings["Resolution"]["Width"].asInt();
+    desc.height = settings["Resolution"]["Height"].asInt();
+    desc.mipCount = 1;
+    desc.arraySize = 1;
+    desc.format = (DXGI_FORMAT)GfxFormat::R32_TYPELESS;
+    desc.sampleDesc.Count = settings["Graphics"]["MSAA"].asInt();
+    desc.sampleDesc.Quality = 0;
+    desc.heapType = D3D12_HEAP_TYPE_DEFAULT;
+    desc.initialState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+    desc.flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+    desc.clearValue.Format = DXGI_FORMAT_D32_FLOAT;
+    desc.clearValue.DepthStencil.Depth = 1.0f;
+#else
     desc.name                   = "depthstencil";
     desc.dim                    = D3D11_RESOURCE_DIMENSION_TEXTURE2D;
     desc.width                  = settings["Resolution"]["Width"].asInt();
@@ -458,6 +505,7 @@ CLbool Cloud::Renderer::RenderCore::InitDepthBuffer()
 	desc.bindFlags				= D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
     desc.cpuAccessFlags         = 0;
     desc.miscFlags              = 0;
+#endif // USE_DIRECTX12
 
     m_depthStencil = Create(desc);
     if (!m_depthStencil)
@@ -468,7 +516,6 @@ CLbool Cloud::Renderer::RenderCore::InitDepthBuffer()
     }
 
     return true;
-#endif // USE_DIRECTX12
 }
 
 CLbool Cloud::Renderer::RenderCore::InitConstantBuffers()
@@ -564,15 +611,16 @@ void Cloud::Renderer::RenderCore::RecordCommandLists()
     // jobs
     for (auto&& job : m_recordCommandListJobs)
     {
+        auto&& commandList = m_commandLists[m_recordedCommandLists++];
         // can be reset anytime after ExecuteCommandList(), and always has to be reset before recording
-        if (FAILED(m_commandList->Reset(GetCommandAllocator(), nullptr)))
+        if (FAILED(commandList->Reset(GetCommandAllocator(), nullptr)))
         {
             CL_ASSERT_MSG("Failed to reset command list!");
         }
 
-        job(m_commandList.Get());
+        job(commandList.Get());
 
-        if (FAILED(m_commandList->Close()))
+        if (FAILED(commandList->Close()))
         {
             CL_ASSERT_MSG("Failed to close command list!");
         }
@@ -603,7 +651,18 @@ void Cloud::Renderer::RenderCore::Present()
 {
 #ifdef USE_DIRECTX12
 
-    std::vector<ID3D12CommandList*> commandLists = { m_frameBeginCl.Get(), m_commandList.Get(), m_frameEndCl.Get() };
+    std::vector<ID3D12CommandList*> commandLists;
+    commandLists.emplace_back(m_frameBeginCl.Get());
+    for (CLuint i = 0; i < m_recordedCommandLists; i++)
+    {
+        commandLists.emplace_back(m_commandLists[i].Get());
+    }
+
+    commandLists.emplace_back(m_frameEndCl.Get());
+
+    m_recordedCommandLists = 0;
+
+
     m_commandQueue->ExecuteCommandLists(gsl::narrow_cast<CLuint>(commandLists.size()), commandLists.data());
 
     const CLbool enableVSync = Cloud::Renderer::Settings::Instance().GetRoot()["Graphics"]["VSync"].asBool();
@@ -614,6 +673,7 @@ void Cloud::Renderer::RenderCore::Present()
     }
 
     m_recordCommandListJobs.clear();
+    
 
     WaitForPreviousFrame();
 

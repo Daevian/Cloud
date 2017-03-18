@@ -13,14 +13,28 @@ Cloud::Renderer::GfxTexture::~GfxTexture()
 {
 }
 
-Cloud::Renderer::GfxTexture::UniquePtr Cloud::Renderer::GfxTextureFactory::Create(const GfxTextureDesc& /*desc*/)
+Cloud::Renderer::GfxTexture::UniquePtr Cloud::Renderer::GfxTextureFactory::Create(const GfxTextureDesc& desc)
 {
-#ifdef USE_DIRECTX12
-    return nullptr;
-#else
     auto texture = GfxTexture::MakeUnique();
-
     texture->m_desc = desc;
+
+#ifdef USE_DIRECTX12
+    switch (desc.dim)
+    {
+        case D3D12_RESOURCE_DIMENSION_TEXTURE2D:
+            Init2d(desc, *texture);
+            break;
+        default:
+            CL_ASSERT_MSG("dim not supported yet");
+            break;
+    }
+
+    if (desc.flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
+    {
+        InitDsv(desc, *texture);
+    }
+
+#else
 
     switch (desc.dim)
     {
@@ -46,14 +60,42 @@ Cloud::Renderer::GfxTexture::UniquePtr Cloud::Renderer::GfxTextureFactory::Creat
     {
         InitDsv(desc, *texture);
     }
+#endif
 
     return std::move(texture);
-#endif
 }
 
-void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& /*desc*/, GfxTexture& /*texture*/)
+void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxTexture& texture)
 {
 #ifdef USE_DIRECTX12
+    auto&& device = RenderCore::Instance().GetDevice();
+
+    D3D12_RESOURCE_DESC dxDesc = {};
+    dxDesc.MipLevels = gsl::narrow_cast<UINT16>(desc.mipCount);
+    dxDesc.Format = desc.format;
+    dxDesc.Width = desc.width;
+    dxDesc.Height = desc.height;
+    dxDesc.Flags = desc.flags;
+    dxDesc.DepthOrArraySize = gsl::narrow_cast<UINT16>(desc.arraySize);
+    dxDesc.SampleDesc.Count = desc.sampleDesc.Count;
+    dxDesc.SampleDesc.Quality = desc.sampleDesc.Quality;
+    dxDesc.Dimension = desc.dim;
+
+    
+
+    auto&& heapProperties = CD3DX12_HEAP_PROPERTIES(desc.heapType);
+    if (FAILED(device->CreateCommittedResource(
+        &heapProperties,
+        D3D12_HEAP_FLAG_NONE,
+        &dxDesc,
+        desc.initialState,
+        &desc.clearValue,
+        IID_PPV_ARGS(&texture.m_resource))))
+    {
+        CL_ASSERT_MSG("Couldn't create texture!");
+        return;
+    }
+
 #else
     CL_ASSERT(desc.dim == D3D11_RESOURCE_DIMENSION_TEXTURE2D, "dim has to be 2d for 2d textures");
     CL_ASSERT(!texture.m_texture, "The texture has already been created!");
@@ -211,9 +253,41 @@ void Cloud::Renderer::GfxTextureFactory::InitRtv(const GfxTextureDesc& /*desc*/,
 #endif
 }
 
-void Cloud::Renderer::GfxTextureFactory::InitDsv(const GfxTextureDesc& /*desc*/, GfxTexture& /*texture*/)
+void Cloud::Renderer::GfxTextureFactory::InitDsv(const GfxTextureDesc& desc, GfxTexture& texture)
 {
 #ifdef USE_DIRECTX12
+
+    auto&& device = RenderCore::Instance().GetDevice();
+
+    static auto s_descriptorIndex = 0;
+    static const auto c_dsvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+    texture.m_dsv.InitOffsetted(RenderCore::Instance().GetDsvHeap()->GetCPUDescriptorHandleForHeapStart(), s_descriptorIndex++, c_dsvDescriptorSize);
+
+    D3D12_DEPTH_STENCIL_VIEW_DESC viewDesc = {};
+
+    switch (desc.format)
+    {
+        case DXGI_FORMAT_R32_TYPELESS:
+            viewDesc.Format = DXGI_FORMAT_D32_FLOAT;
+            break;
+        default:
+            CL_ASSERT_MSG("format not supported!");
+            break;
+    }
+
+    switch (desc.dim)
+    {
+        case D3D12_RESOURCE_DIMENSION_TEXTURE2D:
+            viewDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+            viewDesc.Texture2D.MipSlice = 0;
+            break;
+        default:
+            CL_ASSERT_MSG("dim not supported!");
+            break;
+    }
+
+    device->CreateDepthStencilView(texture.m_resource.Get(), &viewDesc, texture.m_dsv);
+
 #else
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthDesc;
 	depthDesc.Flags = 0;

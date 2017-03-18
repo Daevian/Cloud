@@ -203,10 +203,12 @@
     <ClCompile Include="GfxShaderResourceView.cpp" />
     <ClCompile Include="GfxTexture.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
+    <ClCompile Include="ModelRenderer.cpp" />
     <ClCompile Include="ParticleManager.cpp" />
     <ClCompile Include="PostBlur.cpp" />
     <ClCompile Include="RenderCoreDx12.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="SpriteFactory.cpp" />
     <ClCompile Include="SpriteManager.cpp" />
@@ -245,10 +247,12 @@
     <ClInclude Include="GfxShaderResourceView.h" />
     <ClInclude Include="GfxTexture.h" />
     <ClInclude Include="IndexBuffer.h" />
+    <ClInclude Include="ModelRenderer.h" />
     <ClInclude Include="ParticleManager.h" />
     <ClInclude Include="PostBlur.h" />
     <ClInclude Include="RenderCoreDx12.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SpriteFactory.h" />
     <ClInclude Include="SpriteManager.h" />

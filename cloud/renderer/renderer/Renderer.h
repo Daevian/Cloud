@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "DebugRenderer.h"
 #include "CsSort.h"
+#include "ModelRenderer.h"
 
 
 //struct lua_State;
@@ -16,6 +17,7 @@ namespace Cloud
 namespace Renderer
 {
     class GfxTexture;
+    class Scene;
 
     class Renderer
     {
@@ -41,6 +43,7 @@ namespace Renderer
         DebugRenderer m_debugRenderer;
         SpriteManager m_spriteManager;
         ParticleManager m_particleManager;
+        ModelRenderer m_modelRenderer;
         CsSorter m_csSorter;
         Camera m_camera;
 
@@ -49,6 +52,9 @@ namespace Renderer
         std::array<CLfloat, c_boxes> m_randomScales;
 
         std::unique_ptr<LuaStateEx> m_luaState;
+
+        std::unique_ptr<ModelInstance> m_instance;
+        std::unique_ptr<Scene> m_forwardScene;
     };
 }
 }

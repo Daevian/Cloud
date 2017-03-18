@@ -4,31 +4,31 @@
 #include "ShaderEffect.h"
 
 Cloud::Renderer::ShaderEffectContainer::ShaderEffectContainer()
-:m_effects(128, 128)
 {
 }
 
 Cloud::Renderer::ShaderEffectContainer::~ShaderEffectContainer()
 {
-    for (CLint i = 0; i < m_effects.Count(); ++i)
+}
+
+std::shared_ptr<Cloud::Renderer::ShaderEffect> Cloud::Renderer::ShaderEffectContainer::FindEffect(const std::string& effectPath)
+{
+    std::lock_guard<std::mutex> lock(m_cacheLock);
+
+    auto cachedEffect = m_effects[effectPath].lock();
+
+    if (!cachedEffect)
     {
-        m_effects[i]->Unload();
-        delete m_effects[i];
+        cachedEffect = std::make_shared<ShaderEffect>();
+        m_effects[effectPath] = cachedEffect;
+        cachedEffect->Load(effectPath);
     }
 
-    m_effects.RemoveAll();
+    return cachedEffect;
 }
 
 Cloud::Renderer::ShaderEffect* Cloud::Renderer::ShaderEffectContainer::GetEffect(const std::string& effectPath)
 {
-    for (CLint i = 0; i < m_effects.Count(); ++i)
-    {
-        if (m_effects[i]->GetPath() == effectPath)
-        {
-            return m_effects[i];
-        }
-    }
-
     return LoadEffect(effectPath);
 }
 
@@ -36,7 +36,6 @@ Cloud::Renderer::ShaderEffect* Cloud::Renderer::ShaderEffectContainer::LoadEffec
 {
     ShaderEffect* effect = new ShaderEffect();
     effect->Load(effectPath);
-    m_effects.Add(effect);
 
     return effect;
 }

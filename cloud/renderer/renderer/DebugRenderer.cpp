@@ -239,7 +239,8 @@ void Cloud::Renderer::DebugRenderer::RecordCommandList(ID3D12GraphicsCommandList
     commandList->RSSetScissorRects(1, &renderCore.GetScissorRect());
 
     auto&& rtvHandle = renderCore.GetCurrentBackBuffer();
-    commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+    auto&& dsvHandle = renderCore.GetDepthStencil()->GetDsv();
+    commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
     // clear depth?
     RenderBoxes(commandList);

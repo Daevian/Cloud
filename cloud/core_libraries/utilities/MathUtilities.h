@@ -10,6 +10,7 @@
 #define ClMax(a, b) Cloud::Math::Max(a, b)
 #define ClClamp(min, max, val) Cloud::Math::Clamp(min, max, val)
 #define ClAbs(a) Cloud::Math::Abs(a)
+#define CL_PI 3.14159265359f
 
 namespace Cloud
 {
