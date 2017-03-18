@@ -7,12 +7,18 @@ Cloud::Renderer::GfxInstanceBuffer::GfxInstanceBuffer()
     : m_instanceCount(0)
     , m_instanceSize(0)
     , m_instanceData(0)
+#ifdef USE_DIRECTX12
+#else
     , m_instanceBuffer(0)
+#endif
 {
 }
 
 CLbool Cloud::Renderer::GfxInstanceBuffer::Initialise()
 {
+#ifdef USE_DIRECTX12
+    return false;
+#else
     D3D11_BUFFER_DESC bufferDesc;
     bufferDesc.Usage = D3D11_USAGE_DEFAULT;
     bufferDesc.ByteWidth = m_instanceSize * m_instanceCount;
@@ -33,10 +39,13 @@ CLbool Cloud::Renderer::GfxInstanceBuffer::Initialise()
     }
 
     return true;
+#endif
 }
 
 void Cloud::Renderer::GfxInstanceBuffer::Uninitialise()
 {
+#ifdef USE_DIRECTX12
+#else
     CL_ASSERT(m_instanceBuffer != 0, "Can't unload uninitialised effect!");
 
     if (m_instanceBuffer)
@@ -44,17 +53,23 @@ void Cloud::Renderer::GfxInstanceBuffer::Uninitialise()
         m_instanceBuffer->Release();
         m_instanceBuffer = 0;
     }
+#endif
 }
 
 void Cloud::Renderer::GfxInstanceBuffer::GpuSetInstanceBuffer()
 {
+#ifdef USE_DIRECTX12
+#else
     CLuint stride = m_instanceSize;
     CLuint offset = 0;
     RenderCore::Instance().GetContext()->IASetVertexBuffers(0, 1, &m_instanceBuffer, &stride, &offset);
+#endif
 }
 
 void Cloud::Renderer::GfxInstanceBuffer::GpuUpdateInstanceBuffer()
 {
+#ifdef USE_DIRECTX12
+#else
     RenderCore::Instance().GetContext()->UpdateSubresource(
         m_instanceBuffer,
         0,
@@ -62,4 +77,5 @@ void Cloud::Renderer::GfxInstanceBuffer::GpuUpdateInstanceBuffer()
         m_instanceData,
         0,
         0);
+#endif
 }

@@ -24,7 +24,10 @@ namespace Cloud
         public:
             typedef std::unique_ptr<GfxComputeShader, Deleter> UniquePtr;
 
+#ifdef USE_DIRECTX12
+#else
             ID3D11ComputeShader* GetShader() const { return m_shader.get(); }
+#endif
 
         private:
             GfxComputeShader();
@@ -32,7 +35,10 @@ namespace Cloud
 
             static UniquePtr MakeUnique() { return GfxComputeShader::UniquePtr(new GfxComputeShader(), GfxResource::Deleter()); }
 
+#ifdef USE_DIRECTX12
+#else
             Dx::UniquePtr<ID3D11ComputeShader>    m_shader;
+#endif
             GfxComputerShaderDesc   m_desc;
         };
 

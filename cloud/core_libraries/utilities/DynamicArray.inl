@@ -3,32 +3,30 @@
 
 #include "DefinesMacros.h"
 #include "DefinesAsserts.h"
+#include "MathUtilities.h"
 
 template <class Type>
 Cloud::Utils::DynamicArray<Type>::DynamicArray()
-:m_items(0)
-,m_last(0)
-,m_count(0)
-,m_maxCount(0)
-,m_growSize(1)
+    : m_last(nullptr)
+    , m_count(0)
+    , m_maxCount(0)
+    , m_growSize(1)
 {
     Init(0, 1);
 }
 
 template <class Type>
 Cloud::Utils::DynamicArray<Type>::DynamicArray(const CLint& startSize, const CLint& growSize)
-:m_items(0)
-,m_last(0)
-,m_count(0)
-,m_maxCount(startSize)
-,m_growSize(growSize)
+    : m_last(nullptr)
+    , m_count(0)
+    , m_maxCount(startSize)
+    , m_growSize(growSize)
 {
     Init(startSize, growSize);
 }
 
 template <class Type>
 Cloud::Utils::DynamicArray<Type>::DynamicArray(const DynamicArray& dynamicArray)
-:m_items(0)
 {
     *this = dynamicArray;
 }
@@ -37,7 +35,6 @@ template <class Type>
 Cloud::Utils::DynamicArray<Type>::~DynamicArray()
 {
     m_last = 0;
-    SAFE_DELETE_ARRAY(m_items);
 }
 
 template <class Type>
@@ -45,7 +42,7 @@ Cloud::Utils::DynamicArray<Type>& Cloud::Utils::DynamicArray<Type>::operator=(co
 {
     Init(dynamicArray.m_maxCount, dynamicArray.m_growSize);
 
-    for(CLint i = 0; i < dynamicArray.m_count; ++i)
+    for (CLint i = 0; i < dynamicArray.m_count; ++i)
     {
         m_items[i] = dynamicArray.m_items[i];
     }
@@ -77,14 +74,12 @@ void Cloud::Utils::DynamicArray<Type>::Init(const CLint& startSize, const CLint&
 {
     CL_ASSERT(growSize > 0, "Grow size can't be 0 or less!");
 
-    SAFE_DELETE_ARRAY(m_items);
-
     m_maxCount = startSize;
     m_growSize = growSize;
     m_count = 0;
 
-    m_items = new Type[m_maxCount];
-    m_last = m_items;
+    m_items = std::make_unique<Type[]>(m_maxCount);
+    m_last = m_items.get();
 }
 
 template <class Type>
@@ -127,7 +122,7 @@ inline void Cloud::Utils::DynamicArray<Type>::Insert(const CLint& index, const T
         Resize(m_count + m_growSize);
     }
 
-    for(CLint i = m_count; i >= index; --i)
+    for (CLint i = m_count; i >= index; --i)
     {
         m_items[i] = m_items[i - 1];
     }
@@ -190,26 +185,23 @@ template <class Type>
 inline void Cloud::Utils::DynamicArray<Type>::RemoveAll()
 {
     m_count = 0;
-    m_last = m_items;
+    m_last = m_items.get();
 }
 
 template <class Type>
 void Cloud::Utils::DynamicArray<Type>::Resize(CLint newSize)
 {
     CL_ASSERT(newSize > 0, "New size can't be 0 or less!");
-    CL_ASSERT(m_items != 0, "Trying to resize an uninitialised DynamicArray!");
+    CL_ASSERT(m_items.get() != 0, "Trying to resize an uninitialised DynamicArray!");
 
-#pragma warning(suppress: 26481)
-    Type* oldList = &m_items[0];
+    auto oldList = std::move(m_items);
 
-    m_items = new Type [newSize];
+    m_items = std::make_unique<Type[]>(newSize);
 
-    for(CLint i = 0; i < m_count; ++i)
+    for (CLint i = 0, count = ClMax(m_count, newSize); i < count; ++i)
     {
         m_items[i] = std::move(oldList[i]);
     }
-
-    SAFE_DELETE_ARRAY(oldList);
 
     m_maxCount = newSize;
     m_last = &m_items[m_count];

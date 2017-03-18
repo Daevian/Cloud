@@ -1,6 +1,10 @@
 #ifndef CLOUD_RENDERER_GFX_COMMON_HEADER
 #define CLOUD_RENDERER_GFX_COMMON_HEADER
 
+#ifdef USE_DIRECTX12
+
+#else
+
 #include <d3d11_1.h>
 
 namespace Cloud
@@ -22,6 +26,8 @@ namespace Cloud
         };
     }
 }
+
+#endif
 
 #endif // CLOUD_RENDERER_GFX_COMMON_HEADER
 

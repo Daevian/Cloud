@@ -16,7 +16,9 @@ Cloud::Renderer::RenderingDevice::RenderingDevice()
 {
 }
 
-void Cloud::Renderer::RenderingDevice::SetEffect(ShaderEffect* effect)
+#ifdef USE_DIRECTX12
+#else
+void Cloud::Renderer::RenderingDevice::SetEffect(ShaderEffect* /*effect*/)
 {
     if (effect)
     {
@@ -84,7 +86,7 @@ void Cloud::Renderer::RenderingDevice::SetPixelShader(ID3D11PixelShader* pixelSh
     }
 }
 
-void Cloud::Renderer::RenderingDevice::SetComputeShader(GfxComputeShader* shader)
+void Cloud::Renderer::RenderingDevice::SetComputeShader(GfxComputeShader* /*shader*/)
 {
     if (shader)
     {
@@ -109,7 +111,7 @@ void Cloud::Renderer::RenderingDevice::SetBlendState(ID3D11BlendState* blendStat
     }
 }
 
-void Cloud::Renderer::RenderingDevice::SetVertexBuffer(VertexBuffer* vertexBuffer)
+void Cloud::Renderer::RenderingDevice::SetVertexBuffer(VertexBuffer* /*vertexBuffer*/)
 {
     if (vertexBuffer)
     {
@@ -129,12 +131,12 @@ void Cloud::Renderer::RenderingDevice::SetVertexBuffer(VertexBuffer* vertexBuffe
     }
 }
 
-void Cloud::Renderer::RenderingDevice::SetPrimitiveTopology(GfxPrimitiveTopology topology)
+void Cloud::Renderer::RenderingDevice::SetPrimitiveTopology(GfxPrimitiveTopology /*topology*/)
 {
     RenderCore::Instance().GetContext()->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(topology));
 }
 
-void Cloud::Renderer::RenderingDevice::SetIndexBuffer(IndexBuffer* indexBuffer)
+void Cloud::Renderer::RenderingDevice::SetIndexBuffer(IndexBuffer* /*indexBuffer*/)
 {
     if (indexBuffer)
     {
@@ -149,7 +151,7 @@ void Cloud::Renderer::RenderingDevice::SetIndexBuffer(IndexBuffer* indexBuffer)
     }
 }
 
-void Cloud::Renderer::RenderingDevice::SetInstanceBuffer(GfxInstanceBuffer* instanceBuffer)
+void Cloud::Renderer::RenderingDevice::SetInstanceBuffer(GfxInstanceBuffer* /*instanceBuffer*/)
 {
     if (instanceBuffer)
     {
@@ -344,3 +346,5 @@ void Cloud::Renderer::RenderingDevice::ClearDepth(GfxTexture& texture)
     CL_ASSERT(texture.GetDsv(), "Can't clear colour on a non-dsv texture");
     RenderCore::Instance().GetContext()->ClearDepthStencilView(texture.GetDsv(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
+
+#endif

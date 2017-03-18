@@ -22,22 +22,22 @@ namespace Cloud
         Lua::Type       Type(CLint stackIndex) const;
         const CLchar*   Typename(CLint stackIndex) const;
 
-        template <Lua::Type TYPE>
+        template <Lua::Type _T>
         CLbool          IsType(CLint stackIndex) const
         {
-            return Type(stackIndex) == Type;
+            return Type(stackIndex) == _T;
         }
 
-        template <class T>
-        T* ToUserData(CLint stackIndex) const
+        template <class _T>
+        _T* ToUserData(CLint stackIndex) const
         {
-            return static_cast<T*>(lua_touserdata(GetState(), stackIndex));
+            return static_cast<_T*>(lua_touserdata(GetState(), stackIndex));
         }
 
-        template <typename TYPE>
-        TYPE            To(CLint stackIndex) const
+        template <typename _T>
+        _T            To(CLint stackIndex) const
         {
-            return ToUserData<std::remove_pointer_t<TYPE>>(stackIndex);
+            return ToUserData<std::remove_pointer_t<_T>>(stackIndex);
         }
 
         CLint UpValueIndex(CLint upValueIndex) const
@@ -45,11 +45,11 @@ namespace Cloud
             return lua_upvalueindex(upValueIndex);
         }
 
-        template <typename TYPE>
-        TYPE            Opt(CLint stackIndex, const TYPE& defaultValue) const;
+        template <typename _T>
+        _T            Opt(CLint stackIndex, const _T& defaultValue) const;
 
-        template <class TYPE>
-        void PushLightUserData(TYPE* pointer)
+        template <class _T>
+        void PushLightUserData(_T* pointer)
         {
             lua_pushlightuserdata(GetState(), pointer);
         }
@@ -76,11 +76,11 @@ namespace Cloud
             PushLightUserData(value);
         }
 
-        template<typename FirstArg, typename... MoreArgs>
-        void            Push(FirstArg&& firstArg, MoreArgs&&... moreArgs)
+        template<typename _FirstArg, typename... _MoreArgs>
+        void            Push(_FirstArg&& firstArg, _MoreArgs&&... moreArgs)
         {
-            Push(std::forward<FirstArg>(firstArg));
-            Push(std::forward<MoreArgs>(moreArgs)...);
+            Push(std::forward<_FirstArg>(firstArg));
+            Push(std::forward<_MoreArgs>(moreArgs)...);
         }
 
         void            Pop(CLint numElements); // TODO: what happens with negative values?

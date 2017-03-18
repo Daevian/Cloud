@@ -22,7 +22,10 @@ namespace Cloud
             const std::string& GetPath() const { return m_texturePath; };
 
             GfxTexture* GetTexture() const              { return m_texture.get(); }
+#ifdef USE_DIRECTX12
+#else
             ID3D11SamplerState* GetSamplerState() const { return m_samplerState.get(); }
+#endif
 
         private:
 
@@ -32,7 +35,10 @@ namespace Cloud
             CLbool IsDds(const std::unique_ptr<uint8_t[]>& ddsData);
 
             GfxTexture::UniquePtr m_texture;
+#ifdef USE_DIRECTX12
+#else
             Dx::UniquePtr<ID3D11SamplerState> m_samplerState;
+#endif
             std::string m_texturePath;
 
         };

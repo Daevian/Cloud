@@ -32,15 +32,15 @@ namespace Renderer
         void AddQuad(const ClFloat2& topLeft, const ClFloat2& bottomRight, const ClFloat4& colour);
         void AddBox(const ClFloat3& position, const ClFloat3& rotation, const ClFloat3& scale, const ClFloat4& colour);
         void AddBox(const ClMatrix4& matrix, const ClFloat4& colour);
-        void Render();
+        void RecordCommandList(ID3D12GraphicsCommandList* commandList);
 
     private:
         CLbool InitialiseLine2D();
         CLbool InitialiseQuad();
         CLbool InitialiseBox();
         void RenderLine2D();
-        void RenderQuads();
-        void RenderBoxes();
+        void RenderQuads(ID3D12GraphicsCommandList* commandList);
+        void RenderBoxes(ID3D12GraphicsCommandList* commandList);
 
         struct Line2D
         {
@@ -105,7 +105,8 @@ namespace Renderer
         Box::InstanceBuffer m_boxInstanceData;
         VertexBuffer m_boxVB;
         IndexBuffer  m_boxIB;
-        GfxInstanceBuffer m_boxInstanceBuffer;
+        VertexBuffer m_boxInstanceBuffer;
+        //GfxInstanceBuffer m_boxInstanceBuffer;
         ShaderEffect* m_boxEffect;
 
         CLuint m_line2DsToRender;

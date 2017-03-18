@@ -39,7 +39,7 @@ namespace Cloud
         protected:
             void Resize(CLint newSize);
 
-            Type* m_items;
+            std::unique_ptr<Type[]> m_items;
             Type* m_last;
             CLint m_count;
             CLint m_maxCount;

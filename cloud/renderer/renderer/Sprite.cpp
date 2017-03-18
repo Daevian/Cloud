@@ -32,7 +32,7 @@ CLbool Cloud::Renderer::Sprite::Init(Texture* texture)
     m_vertexBuffer.SetVertexCount(1);
     m_vertexBuffer.SetVertexSize(sizeof(SpriteVertex));
     m_vertexBuffer.SetVertexData((CLchar*)&m_vertex);
-    m_vertexBuffer.SetTopology(GfxPrimitiveTopology::Pointlist);
+    //m_vertexBuffer.SetTopology(GfxPrimitiveTopology::Pointlist);
 
     if (!m_vertexBuffer.Initialise()) return false;
 
@@ -46,6 +46,8 @@ void Cloud::Renderer::Sprite::Unload()
 
 void Cloud::Renderer::Sprite::Render()
 {
+#ifdef USE_DIRECTX12
+#else
     RenderingDevice& renderingDevice = RenderCore::Instance().GetRenderingDevice();
 
     m_vertexBuffer.GPUUpdateVertexBuffer();
@@ -56,4 +58,5 @@ void Cloud::Renderer::Sprite::Render()
     renderingDevice.SetVertexBuffer(&m_vertexBuffer);
 
     renderingDevice.Draw();
+#endif
 }

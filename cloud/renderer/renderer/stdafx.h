@@ -8,15 +8,28 @@
 #include "targetver.h"
 
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <windows.h>
 // TODO: reference additional headers your program requires here
+
+#define USE_DIRECTX12
 
 #include <string>
 #include <sstream>
 #include <fstream>
 
+#ifdef USE_DIRECTX12
+#include <d3d12.h>
+#include <dxgi1_4.h>
+#include <wrl.h>
+#include "DirectX-Graphics-Samples/Libraries/D3DX12/d3dx12.h"
+#else
 #include <d3d11_1.h>
 #include <d3dcompiler.h>
+#endif
+
 #include <mmsyscom.h>
 
 #include <vector>
@@ -26,6 +39,7 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
+#include <gsl.h>
 
 #include "utilities/Windows.h"
 #include "utilities/ClMemory.h"

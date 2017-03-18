@@ -18,7 +18,10 @@ namespace Cloud
             CLint   GetInstanceCount()                                   const { return m_instanceCount; }
             CLint   GetInstanceSize()                                    const { return m_instanceSize; }
             void*   GetInstanceData()                                    const { return m_instanceData; }
+#ifdef USE_DIRECTX12
+#else
             ID3D11Buffer* GetBuffer()                                    const { return m_instanceBuffer; }
+#endif
 
             void SetInstanceCount(CLint vertexCount)                     { m_instanceCount = vertexCount; }
             void SetInstanceSize(CLint vertexSize)                       { m_instanceSize = vertexSize; }
@@ -31,7 +34,10 @@ namespace Cloud
             CLint m_instanceCount;
             CLint m_instanceSize;
             void* m_instanceData;
+#ifdef USE_DIRECTX12
+#else
             ID3D11Buffer* m_instanceBuffer;
+#endif
         };
     }
 }

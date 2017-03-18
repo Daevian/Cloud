@@ -12,7 +12,10 @@ namespace Cloud
             ClDebugName name;
             CLuint      elementSize;
             CLuint      elementCount;
+#ifdef USE_DIRECTX12
+#else
             D3D11_USAGE usage;
+#endif
             CLuint      bindFlags;
             CLuint      cpuAccessFlags;
             CLuint      miscFlags;
@@ -27,9 +30,12 @@ namespace Cloud
             typedef std::unique_ptr<GfxBuffer, Deleter> UniquePtr;
 
             const GfxBufferDesc&        GetDesc() const         { return m_desc; }
+#ifdef USE_DIRECTX12
+#else
             ID3D11Buffer*               GetBuffer() const       { return m_buffer.get(); }
             ID3D11ShaderResourceView*   GetSrv() const          { return m_srv.get(); }
             ID3D11UnorderedAccessView*  GetUav() const          { return m_uav.get(); }
+#endif
 
         private:
             GfxBuffer();
@@ -37,9 +43,12 @@ namespace Cloud
 
             static UniquePtr MakeUnique()   { return GfxBuffer::UniquePtr(new GfxBuffer(), GfxResource::Deleter()); }
 
+#ifdef USE_DIRECTX12
+#else
             Dx::UniquePtr<ID3D11Buffer>                 m_buffer;
             Dx::UniquePtr<ID3D11ShaderResourceView>     m_srv;
             Dx::UniquePtr<ID3D11UnorderedAccessView>    m_uav;
+#endif
             GfxBufferDesc                               m_desc;
         };
 

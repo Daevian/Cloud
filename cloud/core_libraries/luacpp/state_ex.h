@@ -14,75 +14,75 @@ namespace Cloud
         LuaStateEx(LuaStateEx&& other);
         virtual ~LuaStateEx() override {};
 
-        template <typename T_Return, typename... T_Args>
-        void RegisterFunction(const CLchar* funcName, const std::function<T_Return(T_Args...)>& func)
+        template <typename _Return, typename... _Args>
+        void RegisterFunction(const CLchar* funcName, const std::function<_Return(_Args...)>& func)
         {
             LuaStackSentry sentry(*this);
 
-            auto luaFunc = std::make_unique<LuaFunction<T_Return, T_Args...>>(*this, funcName, func);
+            auto luaFunc = std::make_unique<LuaFunction<_Return, _Args...>>(*this, funcName, func);
             m_functions[funcName] = std::move(luaFunc);
         }
 
-        template <typename T_Return>
-        void RegisterFunction(const CLchar* funcName, const std::function<T_Return()>& func)
+        template <typename _Return>
+        void RegisterFunction(const CLchar* funcName, const std::function<_Return()>& func)
         {
             LuaStackSentry sentry(*this);
 
-            auto luaFunc = std::make_unique<LuaFunction<T_Return>>(*this, funcName, func);
+            auto luaFunc = std::make_unique<LuaFunction<_Return>>(*this, funcName, func);
             m_functions[funcName] = std::move(luaFunc);
         }
 
-        template <size_t, typename... T_Types>
+        template <size_t, typename... _Types>
         struct ReadbackTypeTrait
         {
-            template <typename T>
+            template <typename _T>
             static auto Readback(const LuaStateEx& state, const CLint stackIndex)
             {
-                auto value = std::make_tuple(state.To<T>(stackIndex));
+                auto value = std::make_tuple(state.To<_T>(stackIndex));
                 return value;
             }
 
-            template <typename T0, typename T1, typename... T_Rest>
+            template <typename _T0, typename _T1, typename... _Rest>
             static auto Readback(const LuaStateEx& state, const CLint stackIndex)
             {
-                auto first = std::make_tuple(state.To<T0>(stackIndex));
-                return std::tuple_cat(first, Readback<T1, T_Rest...>(state, stackIndex + 1));
+                auto first = std::make_tuple(state.To<_T0>(stackIndex));
+                return std::tuple_cat(first, Readback<_T1, _Rest...>(state, stackIndex + 1));
             }
 
             static auto Apply(LuaStateEx& state)
             {
-                constexpr CLint elementCount = static_cast<CLint>(sizeof...(T_Types));
-                auto value = Readback<T_Types...>(state, -elementCount);
-                state.Pop(sizeof...(T_Types));
+                constexpr CLint elementCount = static_cast<CLint>(sizeof...(_Types));
+                auto value = Readback<_Types...>(state, -elementCount);
+                state.Pop(sizeof...(_Types));
                 return value;
             }
         };
 
-        template <typename T>
-        struct ReadbackTypeTrait<1, T>
+        template <typename _T>
+        struct ReadbackTypeTrait<1, _T>
         {
             static auto Apply(LuaStateEx& state)
             {
-                auto value = state.To<T>(-1);
+                auto value = state.To<_T>(-1);
                 state.Pop(1);
                 return value;
             }
         };
 
-        template <typename... T_Types>
-        struct ReadbackTypeTrait<0, T_Types...>
+        template <typename... _Types>
+        struct ReadbackTypeTrait<0, _Types...>
         {
             static void Apply(LuaStateEx&) {}
         };
 
-        template <typename... T_Types>
+        template <typename... _Types>
         auto PopReturn()
         {
-            return ReadbackTypeTrait<sizeof...(T_Types), T_Types...>::Apply(*this);
+            return ReadbackTypeTrait<sizeof...(_Types), _Types...>::Apply(*this);
         }
 
-        template<typename... ReturnArgs, typename... Args>
-        auto Call(const CLchar* functionName, Args&&... args)
+        template<typename... _ReturnArgs, typename... _Args>
+        auto Call(const CLchar* functionName, _Args&&... args)
         {
             LuaStackSentry sentry(*this);
 
@@ -94,14 +94,14 @@ namespace Cloud
             }
 
             // check stack size
-            Push(std::forward<Args>(args)...);
+            Push(std::forward<_Args>(args)...);
 
-            constexpr auto argCount = sizeof...(Args);
-            constexpr auto retCount = sizeof...(ReturnArgs);
+            constexpr auto argCount = sizeof...(_Args);
+            constexpr auto retCount = sizeof...(_ReturnArgs);
             auto error = PCall(argCount, retCount);
             CL_UNUSED(error);
 
-            return PopReturn<ReturnArgs...>();
+            return PopReturn<_ReturnArgs...>();
 
         }
 

@@ -8,6 +8,8 @@
 
 #define CL_ALIGN(alignment) __declspec(align(alignment))
 
+#define CL_ALIGN_TO(value, alignment) ((value + (alignment - 1)) & ~(alignment - 1))
+
 #define CL_ARRAY_SIZE(a, type) sizeof(a) / sizeof(type)
 
 #define NULL 0

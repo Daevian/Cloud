@@ -2,6 +2,7 @@
 #include "DebugRenderer.h"
 
 #include "RenderCore.h"
+#include "ShaderEffect.h"
 
 Cloud::Renderer::DebugRenderer::DebugRenderer()
     : m_line2DEffect(0)
@@ -24,6 +25,7 @@ CLbool Cloud::Renderer::DebugRenderer::Initialise()
     if (!InitialiseBox())
         return false;
 
+    RenderCore::Instance().WaitForPreviousFrame();
     return true;
 }
 
@@ -37,29 +39,36 @@ void Cloud::Renderer::DebugRenderer::Uninitialise()
 
 CLbool Cloud::Renderer::DebugRenderer::InitialiseLine2D()
 {
-    // vertex buffer
-    m_line2DVB.SetVertexData(m_line2DVertices.GetBuffer());
-    m_line2DVB.SetVertexCount(m_line2DVertices.Count());
-    m_line2DVB.SetVertexSize(sizeof(Line2D::Vertex));
-    m_line2DVB.SetTopology(GfxPrimitiveTopology::Linelist);
-    if (!m_line2DVB.Initialise())
-        return false;
-
     // shader
-    m_line2DEffect = RenderCore::Instance().GetEffectContainer().GetEffect("data/core/debug/line2d.eff");
-    if (!m_line2DEffect)
-        return false;
+    //m_line2DEffect = RenderCore::Instance().GetEffectContainer().GetEffect("data/core/debug/line2d.eff");
+    //if (!m_line2DEffect)
+    //    return false;
+
+    //// vertex buffer
+    //m_line2DVB.SetVertexData(m_line2DVertices.GetBuffer());
+    //m_line2DVB.SetVertexCount(m_line2DVertices.Count());
+    //m_line2DVB.SetVertexSize(sizeof(Line2D::Vertex));
+    //m_line2DVB.SetTopology(GfxPrimitiveTopology::Linelist);
+    //if (!m_line2DVB.Initialise())
+    //    return false;
 
     return true;
 }
 
 CLbool Cloud::Renderer::DebugRenderer::InitialiseQuad()
 {
+    AddQuad(ClFloat2(-0.5f, -0.5f), ClFloat2(0.5f, 0.5f), ClFloat4(1.0f, 0.0f, 0.0f, 1.0f));
+
+    // shader
+    m_quadEffect = RenderCore::Instance().GetEffectContainer().GetEffect("data/core/debug/quad.eff");
+    if (!m_quadEffect)
+        return false;
+
     // vertex buffer
     m_quadVB.SetVertexData(m_quadVertices.GetBuffer());
     m_quadVB.SetVertexCount(m_quadVertices.Count());
     m_quadVB.SetVertexSize(sizeof(Quad::Vertex));
-    m_quadVB.SetTopology(GfxPrimitiveTopology::Trianglelist);
+    //m_quadVB.SetTopology(GfxPrimitiveTopology::Trianglelist);
     if (!m_quadVB.Initialise())
         return false;
 
@@ -68,10 +77,10 @@ CLbool Cloud::Renderer::DebugRenderer::InitialiseQuad()
     for (int i = 0; i < Quad::c_maxCount; ++i)
     {
         indices[i * 6]     = i * 4 + 0;
-        indices[i * 6 + 1] = i * 4 + 1;
-        indices[i * 6 + 2] = i * 4 + 2;
-        indices[i * 6 + 3] = i * 4 + 2;
-        indices[i * 6 + 4] = i * 4 + 1;
+        indices[i * 6 + 1] = i * 4 + 2;
+        indices[i * 6 + 2] = i * 4 + 1;
+        indices[i * 6 + 3] = i * 4 + 1;
+        indices[i * 6 + 4] = i * 4 + 2;
         indices[i * 6 + 5] = i * 4 + 3;
     }
 
@@ -80,16 +89,16 @@ CLbool Cloud::Renderer::DebugRenderer::InitialiseQuad()
     if (!m_quadIB.Initialise())
         return false;
 
-    // shader
-    m_quadEffect = RenderCore::Instance().GetEffectContainer().GetEffect("data/core/debug/quad.eff");
-    if (!m_quadEffect)
-        return false;
-
     return true;
 }
 
 CLbool Cloud::Renderer::DebugRenderer::InitialiseBox()
 {
+    // shader
+    m_boxEffect = RenderCore::Instance().GetEffectContainer().GetEffect("data/core/debug/box.eff");
+    if (!m_boxEffect)
+        return false;
+
     // vertices and indices
     Utils::StaticArray<Box::Vertex, 8> vertices;
     vertices[0].pos = ClFloat4( -1.0f, -1.0f,  1.0f, 1.0f);
@@ -122,7 +131,7 @@ CLbool Cloud::Renderer::DebugRenderer::InitialiseBox()
     m_boxVB.SetVertexData((CLchar*)vertices.GetBuffer());
     m_boxVB.SetVertexCount(vertices.Count());
     m_boxVB.SetVertexSize(sizeof(Box::Vertex));
-    m_boxVB.SetTopology(GfxPrimitiveTopology::Trianglelist);
+    //m_boxVB.SetTopology(GfxPrimitiveTopology::Trianglelist);
     if (!m_boxVB.Initialise())
         return false;
 
@@ -133,15 +142,10 @@ CLbool Cloud::Renderer::DebugRenderer::InitialiseBox()
         return false;
 
     // instance buffer
-    m_boxInstanceBuffer.SetInstanceData(m_boxInstances.GetBuffer());
-    m_boxInstanceBuffer.SetInstanceCount(m_boxInstances.Count());
-    m_boxInstanceBuffer.SetInstanceSize(sizeof(Box::Instance));
+    m_boxInstanceBuffer.SetVertexData(m_boxInstances.GetBuffer());
+    m_boxInstanceBuffer.SetVertexCount(m_boxInstances.Count());
+    m_boxInstanceBuffer.SetVertexSize(sizeof(Box::Instance));
     if (!m_boxInstanceBuffer.Initialise())
-        return false;
-
-    // shader
-    m_boxEffect = RenderCore::Instance().GetEffectContainer().GetEffect("data/core/debug/box.eff");
-    if (!m_boxEffect)
         return false;
 
     return true;
@@ -170,8 +174,8 @@ void Cloud::Renderer::DebugRenderer::AddBar(const ClFloat2& position, const ClFl
     {
     case Cloud::Renderer::DebugRenderer::BarDirection::Up:
         {
-            topLeft.Set(position.x - size.x, position.y + size.y);
-            bottomRight.Set(position.x + size.x, position.y - size.y);
+            topLeft.Set(position.x - size.x, position.y - size.y);
+            bottomRight.Set(position.x + size.x, position.y + size.y);
 
             value = Cloud::Math::Max(value, c_minValue);
             CLfloat length = topLeft.y - bottomRight.y;
@@ -221,31 +225,59 @@ void Cloud::Renderer::DebugRenderer::AddBox(const ClMatrix4& matrix, const ClFlo
     ++m_boxesToRender;
 }
 
-void Cloud::Renderer::DebugRenderer::Render()
+void Cloud::Renderer::DebugRenderer::RecordCommandList(ID3D12GraphicsCommandList* commandList)
 {
+    auto& renderCore = RenderCore::Instance();
+
+    std::array<ID3D12DescriptorHeap*, 1> heaps = { renderCore.GetCbvHeap() };
+    commandList->SetDescriptorHeaps(gsl::narrow_cast<CLuint>(heaps.size()), heaps.data());
+
+    commandList->SetGraphicsRootSignature(renderCore.GetRootSignature());
+    commandList->SetGraphicsRootDescriptorTable(0, renderCore.GetCbvHeap()->GetGPUDescriptorHandleForHeapStart());
+
+    commandList->RSSetViewports(1, &renderCore.GetViewPort());
+    commandList->RSSetScissorRects(1, &renderCore.GetScissorRect());
+
+    auto&& rtvHandle = renderCore.GetCurrentBackBuffer();
+    commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+
     // clear depth?
-    RenderBoxes();
-    RenderQuads();
+    RenderBoxes(commandList);
+    RenderQuads(commandList);
     RenderLine2D();
 }
 
 void Cloud::Renderer::DebugRenderer::RenderLine2D()
 {
+#ifdef USE_DIRECTX12
+#else
     auto& renderCore = RenderCore::Instance();
     auto& device = renderCore.GetRenderingDevice();
 
     m_line2DVB.GPUUpdateVertexBuffer();
-    
+
     device.SetEffect(m_line2DEffect);
     device.SetVertexBuffer(&m_line2DVB);
 
     device.Draw(m_line2DsToRender * 2);
+#endif
 
     m_line2DsToRender = 0;
 }
 
-void Cloud::Renderer::DebugRenderer::RenderQuads()
+void Cloud::Renderer::DebugRenderer::RenderQuads(ID3D12GraphicsCommandList* commandList)
 {
+#ifdef USE_DIRECTX12
+    m_quadVB.GPUUpdateVertexBuffer();
+
+    commandList->SetPipelineState(m_quadEffect->GetPipelineState());
+    
+    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    commandList->IASetVertexBuffers(0, 1, &m_quadVB.GetView());
+    commandList->IASetIndexBuffer(&m_quadIB.GetView());
+    commandList->DrawIndexedInstanced(m_quadsToRender * 6, 1, 0, 0, 0);
+
+#else
     auto& renderCore = RenderCore::Instance();
     auto& device = renderCore.GetRenderingDevice();
 
@@ -256,12 +288,27 @@ void Cloud::Renderer::DebugRenderer::RenderQuads()
     device.SetIndexBuffer(&m_quadIB);
 
     device.DrawIndexed(m_quadsToRender * 6);
-
+#endif
     m_quadsToRender = 0;
 }
 
-void Cloud::Renderer::DebugRenderer::RenderBoxes()
+void Cloud::Renderer::DebugRenderer::RenderBoxes(ID3D12GraphicsCommandList* commandList)
 {
+#ifdef USE_DIRECTX12
+    m_boxInstanceBuffer.GPUUpdateVertexBuffer();
+
+    commandList->SetPipelineState(m_boxEffect->GetPipelineState());
+
+    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    std::array<D3D12_VERTEX_BUFFER_VIEW,2> vbs = { m_boxVB.GetView(), m_boxInstanceBuffer.GetView() };
+    commandList->IASetVertexBuffers(0, gsl::narrow_cast<CLuint>(vbs.size()), vbs.data());
+
+    commandList->IASetIndexBuffer(&m_boxIB.GetView());
+    commandList->DrawIndexedInstanced(36, m_boxesToRender, 0, 0, 0);
+
+
+#else
     m_boxInstanceBuffer.GpuUpdateInstanceBuffer();
 
     auto& renderCore = RenderCore::Instance();
@@ -274,6 +321,6 @@ void Cloud::Renderer::DebugRenderer::RenderBoxes()
 
     device.DrawIndexedInstanced(m_boxesToRender);
     
-
+#endif
     m_boxesToRender = 0;
 }

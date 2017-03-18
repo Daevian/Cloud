@@ -54,7 +54,8 @@ namespace Renderer
         ShaderEffect* m_effect;
         Texture* m_texture;
 
-
+#ifdef USE_DIRECTX12
+#else
         Dx::UniquePtr<ID3D11Buffer> m_buffer;
         Dx::UniquePtr<ID3D11Buffer> m_bufferOut;
         Dx::UniquePtr<ID3D11Buffer> m_bufferVertexBuffer;
@@ -65,6 +66,7 @@ namespace Renderer
         Dx::UniquePtr<ID3D11ShaderResourceView> m_vertexBufferView;
         Dx::UniquePtr<ID3D11ComputeShader> m_simShader;
         Dx::UniquePtr<ID3D11ComputeShader> m_fillShader;
+#endif
     };
 }
 }

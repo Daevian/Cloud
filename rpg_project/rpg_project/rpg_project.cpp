@@ -5,7 +5,10 @@
 #include "GameApplication.h"
 #include "renderer/Renderer.h"
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, LPWSTR cmdLine, CLint cmdShow)
+int WINAPI wWinMain(_In_ HINSTANCE hInstance,
+                    _In_opt_ HINSTANCE prevHInstance,
+                    _In_ LPWSTR cmdLine,
+                    _In_ int cmdShow)
 {
     //ClSRand(ClTime());
     RPG::Application::Create();

@@ -16,12 +16,21 @@ namespace Renderer
 
         void GPUUpdateConstantBuffer();
 
+#ifdef USE_DIRECTX12
+#else
         ID3D11Buffer* getBuffer()   { return m_constantBuffer; }
+#endif
 
     private:
         void*         m_data;
         CLint         m_dataSize;
+#ifdef USE_DIRECTX12
+        ComPtr<ID3D12Resource> m_constantBuffer;
+        CD3DX12_CPU_DESCRIPTOR_HANDLE m_handle;
+        CLbyte* m_bufferData;
+#else
         ID3D11Buffer* m_constantBuffer;
+#endif
     };
 }
 }

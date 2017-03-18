@@ -17,7 +17,11 @@ namespace Cloud
 
             CLint GetIndexCount() const                     { return m_indexCount; }
             void* GetIndexData()  const                     { return m_indexData; }
+#ifdef USE_DIRECTX12
+            D3D12_INDEX_BUFFER_VIEW& GetView()       { return m_view; }
+#else
             ID3D11Buffer* GetBuffer() const                 { return m_indexBuffer.get(); }
+#endif
 
             void SetIndexCount(CLint indexCount)            { m_indexCount = indexCount; }
             void SetIndexData(void* indexData)              { m_indexData = indexData; }
@@ -28,7 +32,12 @@ namespace Cloud
             CLint m_indexCount;
             CLint m_indexSize;
             void* m_indexData;
+#ifdef USE_DIRECTX12
+            ComPtr<ID3D12Resource> m_buffer;
+            D3D12_INDEX_BUFFER_VIEW m_view;
+#else
             Dx::UniquePtr<ID3D11Buffer> m_indexBuffer;
+#endif
         };
     }
 }

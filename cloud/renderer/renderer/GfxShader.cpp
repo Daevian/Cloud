@@ -11,8 +11,11 @@ Cloud::Renderer::GfxComputeShader::~GfxComputeShader()
 {
 }
 
-CLbool Cloud::Renderer::GfxShaderFactory::CompileShader(const ClString& shaderPath, const ClString& entryPoint, const ClString& shaderModel, GfxShaderBlob& shaderBlobOutput)
+CLbool Cloud::Renderer::GfxShaderFactory::CompileShader(const ClString& /*shaderPath*/, const ClString& /*entryPoint*/, const ClString& /*shaderModel*/, GfxShaderBlob& /*shaderBlobOutput*/)
 {
+#ifdef USE_DIRECTX12
+    return false;
+#else
     shaderBlobOutput.blob = nullptr;
 
     CLdword shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
@@ -55,10 +58,14 @@ CLbool Cloud::Renderer::GfxShaderFactory::CompileShader(const ClString& shaderPa
     }
 
     return true;
+#endif
 }
 
-Cloud::Renderer::GfxComputeShader::UniquePtr Cloud::Renderer::GfxShaderFactory::Create(const GfxComputerShaderDesc& desc)
+Cloud::Renderer::GfxComputeShader::UniquePtr Cloud::Renderer::GfxShaderFactory::Create(const GfxComputerShaderDesc& /*desc*/)
 {
+#ifdef USE_DIRECTX12
+    return nullptr;
+#else
     auto shader = GfxComputeShader::MakeUnique();
 
     CL_ASSERT_NULL(desc.shaderBlob.blob);
@@ -78,4 +85,5 @@ Cloud::Renderer::GfxComputeShader::UniquePtr Cloud::Renderer::GfxShaderFactory::
     RenderCore::SetDebugObjectName(shader->m_shader.get(), (desc.name + ".cs").c_str());
 
     return shader;
+#endif
 }

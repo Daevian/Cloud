@@ -7,7 +7,7 @@ Cloud::Renderer::CsSorter::CsSorter()
 {
     for (CLuint i = 0; i < c_elementCount; ++i)
     {
-        m_buffer0[i].f = static_cast<CLfloat>(c_elementCount - i);
+        m_buffer0[i].f = gsl::narrow_cast<CLfloat>(c_elementCount - i);
     }
 }
 
@@ -17,6 +17,8 @@ Cloud::Renderer::CsSorter::~CsSorter()
 
 void Cloud::Renderer::CsSorter::Init()
 {
+#ifdef USE_DIRECTX12
+#else
     {
         GfxComputerShaderDesc desc;
         desc.name = "cs_sort/bitonicSort";
@@ -83,6 +85,7 @@ void Cloud::Renderer::CsSorter::Init()
         m_debugBuffer = GfxCore::Instance().Create(desc);
         CL_ASSERT_NULL(m_outputBuffer);
     }
+#endif
 }
 
 void Cloud::Renderer::CsSorter::Uninit()
@@ -104,11 +107,16 @@ void Cloud::Renderer::CsSorter::Update()
         m_buffer0[i].f = static_cast<CLfloat>(rand() % c_elementCount);
     }
 
+#ifdef USE_DIRECTX12
+#else
     GfxCore::Instance().GetRenderingDevice().UpdateSubresource(m_outputBuffer.get(), m_buffer0.data());
+#endif
 }
 
 void Cloud::Renderer::CsSorter::Dispatch()
 {
+#ifdef USE_DIRECTX12
+#else
     auto& device = GfxCore::Instance().GetRenderingDevice();
 
     const CLuint c_matrixWidth = c_bitonicBlockSize;
@@ -187,16 +195,23 @@ void Cloud::Renderer::CsSorter::Dispatch()
             device.Unmap(desc);
         }
     }
+#endif
 }
 
-void Cloud::Renderer::CsSorter::UpdateBitonicSortConstBuffer(CLuint level, CLuint levelMask)
+void Cloud::Renderer::CsSorter::UpdateBitonicSortConstBuffer(CLuint /*level*/, CLuint /*levelMask*/)
 {
+#ifdef USE_DIRECTX12
+#else
     BitonicSortConstBuffer constBuffer = {level, levelMask};
     GfxCore::Instance().GetRenderingDevice().UpdateSubresource(m_bitonicSortConstBuffer.get(), &constBuffer);
+#endif
 }
 
-void Cloud::Renderer::CsSorter::UpdateTransposeConstBuffer(CLuint width, CLuint height)
+void Cloud::Renderer::CsSorter::UpdateTransposeConstBuffer(CLuint /*width*/, CLuint /*height*/)
 {
+#ifdef USE_DIRECTX12
+#else
     TransposeConstBuffer constBuffer = {width, height};
     GfxCore::Instance().GetRenderingDevice().UpdateSubresource(m_transposeConstBuffer.get(), &constBuffer);
+#endif
 }

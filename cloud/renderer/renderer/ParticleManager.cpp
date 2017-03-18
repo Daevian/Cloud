@@ -21,7 +21,7 @@ CLbool Cloud::Renderer::ParticleManager::Initialise()
     m_vertexBuffer.SetVertexCount(m_particles.Count());
     m_vertexBuffer.SetVertexSize(sizeof(ParticleVertex));
     m_vertexBuffer.SetVertexData((CLchar*)&m_particleVertexData);
-    m_vertexBuffer.SetTopology(GfxPrimitiveTopology::Pointlist);
+//    m_vertexBuffer.SetTopology(GfxPrimitiveTopology::Pointlist);
 
     if (!m_vertexBuffer.Initialise()) return false;
 
@@ -38,6 +38,9 @@ CLbool Cloud::Renderer::ParticleManager::Initialise()
         m_gpuParticles[i].velocity = ClFloat4(velX, velY, velZ, 0.0f);
     }
 
+#ifdef USE_DIRECTX12
+    return false;
+#else
     // GPU sim input buffer
     auto d3dDevice = RenderCore::Instance().GetDevice();
     HRESULT result;
@@ -252,6 +255,7 @@ CLbool Cloud::Renderer::ParticleManager::Initialise()
 
 
     return true;
+#endif
 }
 
 void Cloud::Renderer::ParticleManager::Uninitialise()
@@ -269,7 +273,8 @@ void Cloud::Renderer::ParticleManager::Update(CLfloat timeStep)
         particle.position += particle.velocity * timeStepVector;
     }
 
-    
+#ifdef USE_DIRECTX12
+#else
     // GPU update
     auto context = RenderCore::Instance().GetContext();
 
@@ -303,6 +308,7 @@ void Cloud::Renderer::ParticleManager::Update(CLfloat timeStep)
     ClMemCopy(m_gpuParticlesOut.GetBuffer(), resource.pData, m_gpuParticlesOut.SizeOf());
 
     context->Unmap(buffer, 0);*/
+#endif
 }
 
 void Cloud::Renderer::ParticleManager::Fill()
@@ -321,7 +327,8 @@ void Cloud::Renderer::ParticleManager::Fill()
 
     m_vertexBuffer.GPUUpdateVertexBuffer();
 
-
+#ifdef USE_DIRECTX12
+#else
     // GPU update
     auto context = RenderCore::Instance().GetContext();
 
@@ -331,11 +338,14 @@ void Cloud::Renderer::ParticleManager::Fill()
     context->CSSetUnorderedAccessViews(0, 2, uaViews, 0);
 
     context->Dispatch(256, 1, 1);
+#endif
 
 }
 
 void Cloud::Renderer::ParticleManager::Render()
 {
+#ifdef USE_DIRECTX12
+#else
     RenderingDevice& renderingDevice = RenderCore::Instance().GetRenderingDevice();
     auto context = RenderCore::Instance().GetContext();
 
@@ -360,4 +370,5 @@ void Cloud::Renderer::ParticleManager::Render()
     context->VSSetShaderResources(1, 1, &vbSrv);
     renderingDevice.Draw();
     context->VSSetShaderResources(1, 1, 0);
+#endif
 }

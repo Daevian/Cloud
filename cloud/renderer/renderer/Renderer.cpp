@@ -65,24 +65,32 @@ CLbool Cloud::Renderer::Renderer::Initialise()
     m_luaState->RegisterFunction<CLint, CLfloat>("TestFunction2", TestFunction2);
     m_luaState->RegisterFunction<CLfloat>("TestFunction3", TestFunction3);
 
-    m_luaState->RegisterFunction<void, GfxTexture*>("GfxClearColour", [](GfxTexture* texture)
+    m_luaState->RegisterFunction<void, GfxTexture*>("GfxClearColour", [](GfxTexture* /*texture*/)
     {
+#ifdef USE_DIRECTX12
+#else
         if (texture && texture->GetRtv())
         {
             RenderCore::Instance().GetRenderingDevice().ClearColour(*texture);
         }
+#endif
     });
 
-    m_luaState->RegisterFunction<void, GfxTexture*>("GfxClearDepth", [](GfxTexture* texture)
+    m_luaState->RegisterFunction<void, GfxTexture*>("GfxClearDepth", [](GfxTexture* /*texture*/)
     {
+#ifdef USE_DIRECTX12
+#else
         if (texture && texture->GetDsv())
         {
             RenderCore::Instance().GetRenderingDevice().ClearDepth(*texture);
         }
+#endif
     });
 
-    m_luaState->RegisterFunction<void, GfxTexture*, GfxTexture*>("GfxSetRenderTarget", [](GfxTexture* renderTarget, GfxTexture* depth)
+    m_luaState->RegisterFunction<void, GfxTexture*, GfxTexture*>("GfxSetRenderTarget", [](GfxTexture* /*renderTarget*/, GfxTexture* /*depth*/)
     {
+#ifdef USE_DIRECTX12
+#else
         if ((renderTarget && !renderTarget->GetRtv()) ||
             (depth && !depth->GetDsv()))
         {
@@ -90,6 +98,7 @@ CLbool Cloud::Renderer::Renderer::Initialise()
         }
         
         RenderCore::Instance().GetRenderingDevice().SetRenderTarget(renderTarget, depth);
+#endif
     });
 
     m_luaState->RegisterFunction<GfxTexture*, const CLchar*>("GetResource", [](const CLchar* resourceId)
@@ -190,7 +199,13 @@ void Cloud::Renderer::Renderer::Render()
 
 
     // Render debug items
-    m_debugRenderer.Render();
+    auto& debugRenderer = m_debugRenderer;
+    RenderCore::Instance().QueueRecordCommandListJob(
+        [&debugRenderer](ID3D12GraphicsCommandList* cl)
+    {
+        debugRenderer.RecordCommandList(cl);
+    });
 
+    RenderCore::Instance().RecordCommandLists();
     RenderCore::Instance().Present();
 }

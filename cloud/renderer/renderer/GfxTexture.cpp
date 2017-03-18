@@ -13,8 +13,11 @@ Cloud::Renderer::GfxTexture::~GfxTexture()
 {
 }
 
-Cloud::Renderer::GfxTexture::UniquePtr Cloud::Renderer::GfxTextureFactory::Create(const GfxTextureDesc& desc)
+Cloud::Renderer::GfxTexture::UniquePtr Cloud::Renderer::GfxTextureFactory::Create(const GfxTextureDesc& /*desc*/)
 {
+#ifdef USE_DIRECTX12
+    return nullptr;
+#else
     auto texture = GfxTexture::MakeUnique();
 
     texture->m_desc = desc;
@@ -45,10 +48,13 @@ Cloud::Renderer::GfxTexture::UniquePtr Cloud::Renderer::GfxTextureFactory::Creat
     }
 
     return std::move(texture);
+#endif
 }
 
-void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxTexture& texture)
+void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& /*desc*/, GfxTexture& /*texture*/)
 {
+#ifdef USE_DIRECTX12
+#else
     CL_ASSERT(desc.dim == D3D11_RESOURCE_DIMENSION_TEXTURE2D, "dim has to be 2d for 2d textures");
     CL_ASSERT(!texture.m_texture, "The texture has already been created!");
 
@@ -108,7 +114,7 @@ void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxT
     }
     
     auto* device = GfxCore::Instance().GetDevice();
-    ID3D11Texture2D* dxTex;
+    ID3D11Texture2D* dxTex = nullptr;
     auto hr = device->CreateTexture2D(&dxDesc, desc.initialData.data ? initData.get() : nullptr, &dxTex);
     if (FAILED(hr))
     {
@@ -119,10 +125,13 @@ void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxT
     texture.m_texture = Dx::MakeUnique(dxTex);
 
     RenderCore::SetDebugObjectName(texture.m_texture.get(), (desc.name + ".tex").c_str());
+#endif
 }
 
-void Cloud::Renderer::GfxTextureFactory::InitSrv(const GfxTextureDesc& desc, GfxTexture& texture)
+void Cloud::Renderer::GfxTextureFactory::InitSrv(const GfxTextureDesc& /*desc*/, GfxTexture& /*texture*/)
 {
+#ifdef USE_DIRECTX12
+#else
     CL_ASSERT_NULL(texture.m_texture);
     CL_ASSERT(!texture.m_srv, "The srv has already been created!");
 
@@ -178,10 +187,13 @@ void Cloud::Renderer::GfxTextureFactory::InitSrv(const GfxTextureDesc& desc, Gfx
     texture.m_srv = Dx::MakeUnique(dxSrv);
 
     RenderCore::SetDebugObjectName(texture.m_srv.get(), (desc.name + ".srv").c_str());
+#endif
 }
 
-void Cloud::Renderer::GfxTextureFactory::InitRtv(const GfxTextureDesc& desc, GfxTexture& texture)
+void Cloud::Renderer::GfxTextureFactory::InitRtv(const GfxTextureDesc& /*desc*/, GfxTexture& /*texture*/)
 {
+#ifdef USE_DIRECTX12
+#else
     //D3D11_RENDER_TARGET_VIEW_DESC desc;
     //desc.
 
@@ -196,10 +208,13 @@ void Cloud::Renderer::GfxTextureFactory::InitRtv(const GfxTextureDesc& desc, Gfx
     texture.m_rtv = Dx::MakeUnique(dxRtv);
 
     RenderCore::SetDebugObjectName(texture.m_rtv.get(), (desc.name + ".rtv").c_str());
+#endif
 }
 
-void Cloud::Renderer::GfxTextureFactory::InitDsv(const GfxTextureDesc& desc, GfxTexture& texture)
+void Cloud::Renderer::GfxTextureFactory::InitDsv(const GfxTextureDesc& /*desc*/, GfxTexture& /*texture*/)
 {
+#ifdef USE_DIRECTX12
+#else
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthDesc;
 	depthDesc.Flags = 0;
 
@@ -235,8 +250,11 @@ void Cloud::Renderer::GfxTextureFactory::InitDsv(const GfxTextureDesc& desc, Gfx
     texture.m_dsv = Dx::MakeUnique(dxDsv);
 
     RenderCore::SetDebugObjectName(texture.m_dsv.get(), (desc.name + ".dsv").c_str());
+#endif
 }
 
+#ifdef USE_DIRECTX12
+#else
 void Cloud::Renderer::GfxTextureFactory::FillInitialData(CLuint width, CLuint height, CLuint depth, CLuint mipCount, CLuint arraySize, DXGI_FORMAT format, const CLuint8* imageData, CLsize_t imageDataSize, CLuint& tWidth, CLuint& tHeight, CLuint& tDepth, CLuint& skipMip, D3D11_SUBRESOURCE_DATA* initData)
 {
     CL_ASSERT_NULL(imageData);
@@ -319,9 +337,13 @@ void Cloud::Renderer::GfxTextureFactory::FillInitialData(CLuint width, CLuint he
 
     CL_ASSERT(index > 0, "All surface copies failed!");
 }
+#endif
 
 Cloud::Renderer::GfxTexture::UniquePtr Cloud::Renderer::GfxTextureFactory::CreateFromBackbuffer()
 {
+#ifdef USE_DIRECTX12
+    return nullptr;
+#else
     auto texture = GfxTexture::MakeUnique();
 
     {
@@ -365,4 +387,5 @@ Cloud::Renderer::GfxTexture::UniquePtr Cloud::Renderer::GfxTextureFactory::Creat
     }
 
     return texture;
+#endif
 }

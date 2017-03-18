@@ -23,7 +23,10 @@ namespace Cloud
         {
             GfxBuffer*  buffer;
             CLuint      subresource;
+#ifdef USE_DIRECTX12
+#else
             D3D11_MAP   mapType;
+#endif
             CLuint      mapFlags;
         };
 
@@ -39,6 +42,8 @@ namespace Cloud
         public:
             RenderingDevice();
 
+#ifdef USE_DIRECTX12
+#else
             void SetEffect(ShaderEffect* effect);
             void SetInputLayout(ID3D11InputLayout* inputLayout);
             void SetVertexShader(ID3D11VertexShader* vertexShader);
@@ -73,6 +78,8 @@ namespace Cloud
 
             void ClearColour(GfxTexture& texture);
             void ClearDepth(GfxTexture& texture);
+#endif
+
         private:
             CLuint          m_vertexCount;
             CLuint          m_indexCount;

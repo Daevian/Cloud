@@ -15,12 +15,14 @@ Cloud::Renderer::CSTest::~CSTest()
 
 CLbool Cloud::Renderer::CSTest::Initialise()
 {
+#ifdef USE_DIRECTX12
+#else
     if (!InitVBIB())
         return false;
 
     // TEXTURE
     {
-        CLuint32 pixels[16];
+        std::array<CLuint32, 16> pixels = { 0 };
         for (CLuint i = 0; i < 16; i += 8)
         {
             pixels[i + 0] = 0xFFFF0000;
@@ -179,7 +181,7 @@ CLbool Cloud::Renderer::CSTest::Initialise()
         result = device->CreateComputeShader(blob->GetBufferPointer(), blob->GetBufferSize(), 0, &dxShader);
         m_csShader = Dx::MakeUnique(dxShader);
     }
-
+#endif
     return true;
 }
 
@@ -207,7 +209,7 @@ CLbool Cloud::Renderer::CSTest::InitVBIB()
     m_vertexBuffer.SetVertexCount(m_vertexData.Count());
     m_vertexBuffer.SetVertexSize(sizeof(Vertex));
     m_vertexBuffer.SetVertexData((CLchar*)&m_vertexData);
-    m_vertexBuffer.SetTopology(GfxPrimitiveTopology::Trianglelist);
+    //m_vertexBuffer.SetTopology(GfxPrimitiveTopology::Trianglelist);
     if (!m_vertexBuffer.Initialise())
         return false;
 
@@ -224,15 +226,20 @@ void Cloud::Renderer::CSTest::Uninitialise()
     m_indexBuffer.Uninitialise();
     m_vertexBuffer.Uninitialise();
 
+#ifdef USE_DIRECTX12
+#else
     m_textureResource = nullptr;
     m_textureSRV = nullptr;
     m_textureUAV = nullptr;
     m_samplerState = nullptr;
     m_csShader = nullptr;
+#endif
 }
 
 void Cloud::Renderer::CSTest::Update()
 {
+#ifdef USE_DIRECTX12
+#else
     auto context = RenderCore::Instance().GetContext();
 
     context->CSSetShader(m_csShader.get(), 0, 0);
@@ -271,10 +278,13 @@ void Cloud::Renderer::CSTest::Update()
     ClMemCopy(m_gpuParticlesOut.GetBuffer(), resource.pData, m_gpuParticlesOut.SizeOf());
 
     context->Unmap(buffer, 0);*/
+#endif
 }
 
 void Cloud::Renderer::CSTest::Render()
 {
+#ifdef USE_DIRECTX12
+#else
     RenderingDevice& renderingDevice = RenderCore::Instance().GetRenderingDevice();
 
    // renderingDevice.SetTexture(m_textureSRV, 0);
@@ -285,4 +295,5 @@ void Cloud::Renderer::CSTest::Render()
     renderingDevice.SetIndexBuffer(&m_indexBuffer);
 
     renderingDevice.DrawIndexed();
+#endif
 }

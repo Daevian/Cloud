@@ -12,8 +12,11 @@ Cloud::Renderer::GfxBuffer::~GfxBuffer()
 {
 }
 
-Cloud::Renderer::GfxBuffer::UniquePtr Cloud::Renderer::GfxBufferFactory::Create(const GfxBufferDesc& desc)
+Cloud::Renderer::GfxBuffer::UniquePtr Cloud::Renderer::GfxBufferFactory::Create(const GfxBufferDesc& /*desc*/)
 {
+#ifdef USE_DIRECTX12
+    return nullptr;
+#else
     if (!VerifySetup(desc))
     {
         CL_ASSERT_MSG("Failed to create the GfxBuffer!");
@@ -38,7 +41,7 @@ Cloud::Renderer::GfxBuffer::UniquePtr Cloud::Renderer::GfxBufferFactory::Create(
     D3D11_SUBRESOURCE_DATA initData;
     initData.pSysMem = desc.initialData;
 
-    ID3D11Buffer* buf;
+    ID3D11Buffer* buf = nullptr;
     auto hr = GfxCore::Instance().GetDevice()->CreateBuffer( &bufDesc, desc.initialData ? &initData : nullptr, &buf);
     if (FAILED(hr))
     {
@@ -62,10 +65,13 @@ Cloud::Renderer::GfxBuffer::UniquePtr Cloud::Renderer::GfxBufferFactory::Create(
     }
 
     return buffer;
+#endif
 }
 
-void Cloud::Renderer::GfxBufferFactory::InitSrv(const GfxBufferDesc& desc, GfxBuffer& buffer)
+void Cloud::Renderer::GfxBufferFactory::InitSrv(const GfxBufferDesc& /*desc*/, GfxBuffer& /*buffer*/)
 {
+#ifdef USE_DIRECTX12
+#else
     CL_ASSERT_NULL(buffer.m_buffer);
 
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
@@ -85,10 +91,13 @@ void Cloud::Renderer::GfxBufferFactory::InitSrv(const GfxBufferDesc& desc, GfxBu
     buffer.m_srv = Dx::MakeUnique(srv);
 
     RenderCore::SetDebugObjectName(buffer.m_srv.get(), (desc.name + ".srv").c_str());
+#endif
 }
 
-void Cloud::Renderer::GfxBufferFactory::InitUav(const GfxBufferDesc& desc, GfxBuffer& buffer)
+void Cloud::Renderer::GfxBufferFactory::InitUav(const GfxBufferDesc& /*desc*/, GfxBuffer& /*buffer*/)
 {
+#ifdef USE_DIRECTX12
+#else
     CL_ASSERT_NULL(buffer.m_buffer);
 
     D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
@@ -108,10 +117,15 @@ void Cloud::Renderer::GfxBufferFactory::InitUav(const GfxBufferDesc& desc, GfxBu
     buffer.m_uav = Dx::MakeUnique(uav);
 
     RenderCore::SetDebugObjectName(buffer.m_uav.get(), (desc.name + ".uav").c_str());
+#endif
 }
 
 CLbool Cloud::Renderer::GfxBufferFactory::VerifySetup(const GfxBufferDesc& desc)
 {
+#ifdef USE_DIRECTX12
+    CL_UNUSED(desc);
+    return false;
+#else
     CL_UNUSED(desc);
 #ifdef _DEBUG
     if (desc.usage == D3D11_USAGE_DYNAMIC)
@@ -123,6 +137,6 @@ CLbool Cloud::Renderer::GfxBufferFactory::VerifySetup(const GfxBufferDesc& desc)
         }
     }
 #endif
-
     return true;
+#endif
 }

@@ -340,8 +340,8 @@ void RPG::Application::DrawInputDebug()
     }
 
     {
-        auto leftTrigger = m_inputManager.GetPadLeftTrigger(0);
-        auto rightTrigger = m_inputManager.GetPadRightTrigger(0);
+        auto leftTrigger = 0.5f;// m_inputManager.GetPadLeftTrigger(0);
+        auto rightTrigger = 1.0f;// m_inputManager.GetPadRightTrigger(0);
 
         const ClFloat2 centerLeft(-0.85f, 0.0f);
         const ClFloat2 centerRight(0.85f, 0.0f);

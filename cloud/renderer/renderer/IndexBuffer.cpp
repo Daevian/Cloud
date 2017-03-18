@@ -10,16 +10,60 @@ Cloud::Renderer::IndexBuffer::IndexBuffer()
 {
 }
 
-Cloud::Renderer::IndexBuffer::IndexBuffer(IndexBuffer&& vertexBuffer)
-    : m_indexCount(vertexBuffer.m_indexCount)
-    , m_indexSize(vertexBuffer.m_indexSize)
-    , m_indexData(vertexBuffer.m_indexData)
-    , m_indexBuffer(std::move(vertexBuffer.m_indexBuffer))
+Cloud::Renderer::IndexBuffer::IndexBuffer(IndexBuffer&& indexBuffer)
+    : m_indexCount(indexBuffer.m_indexCount)
+    , m_indexSize(indexBuffer.m_indexSize)
+    , m_indexData(indexBuffer.m_indexData)
+#ifdef USE_DIRECTX12
+#else
+    , m_indexBuffer(std::move(indexBuffer.m_indexBuffer))
+#endif
 {
+    CL_ASSERT_MSG("move constructor needs updating!");
 }
 
 CLbool Cloud::Renderer::IndexBuffer::Initialise()
 {
+#ifdef USE_DIRECTX12
+    // Note: using upload heaps to transfer static data like vert buffers is not 
+    // recommended. Every time the GPU needs it, the upload heap will be marshalled 
+    // over. Please read up on Default Heap usage. An upload heap is used here for 
+    // code simplicity and because there are very few verts to actually transfer.
+    auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+    auto buffer = CD3DX12_RESOURCE_DESC::Buffer(m_indexSize * m_indexCount);
+
+    if (FAILED(RenderCore::Instance().GetDevice()->CreateCommittedResource(
+        &heapProperties,
+        D3D12_HEAP_FLAG_NONE,
+        &buffer,
+        D3D12_RESOURCE_STATE_GENERIC_READ,
+        nullptr,
+        IID_PPV_ARGS(&m_buffer))))
+    {
+        CL_ASSERT_MSG("Couldn't create index buffer!");
+        return false;
+    }
+
+    // copy initial index data
+    {
+        UINT8* dataBegin;
+        CD3DX12_RANGE readRange(0, 0); // no CPU read
+        if (FAILED(m_buffer->Map(0, &readRange, reinterpret_cast<void**>(&dataBegin))))
+        {
+            CL_ASSERT_MSG("Couldn't map index buffer!");
+            return false;
+        }
+
+        memcpy(dataBegin, m_indexData, m_indexSize * m_indexCount);
+        m_buffer->Unmap(0, nullptr);
+    }
+
+    m_view.BufferLocation = m_buffer->GetGPUVirtualAddress();
+    m_view.Format = DXGI_FORMAT_R32_UINT;
+    m_view.SizeInBytes = m_indexSize * m_indexCount;
+
+    return true;
+#else
     D3D11_BUFFER_DESC bufferDesc;
     bufferDesc.Usage = D3D11_USAGE_DEFAULT;
     bufferDesc.ByteWidth = m_indexSize * m_indexCount;
@@ -43,17 +87,23 @@ CLbool Cloud::Renderer::IndexBuffer::Initialise()
     m_indexBuffer = Dx::MakeUnique(dxBuf);
 
     return true;
+#endif
 }
 
 void Cloud::Renderer::IndexBuffer::Uninitialise()
 {
+#ifdef USE_DIRECTX12
+#else
     CL_ASSERT(m_indexBuffer != 0, "Can't unload uninitialised effect!");
 
     m_indexBuffer = nullptr;
+#endif
 }
 
 void Cloud::Renderer::IndexBuffer::GPUUpdateIndexBuffer()
 {
+#ifdef USE_DIRECTX12
+#else
     RenderCore::Instance().GetContext()->UpdateSubresource(
         m_indexBuffer.get(),
         0,
@@ -61,4 +111,5 @@ void Cloud::Renderer::IndexBuffer::GPUUpdateIndexBuffer()
         m_indexData,
         0,
         0);
+#endif
 }

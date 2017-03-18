@@ -28,7 +28,7 @@ namespace Math
     template <class TYPE>
     inline const TYPE& Min(const TYPE& a, const TYPE& b)
     {
-        return min(a, b);
+        return std::min(a, b);
     };
 
     inline Float4 Min(const Float4& a, const Float4& b)
@@ -39,7 +39,7 @@ namespace Math
     template <class TYPE>
     inline const TYPE& Max(const TYPE& a, const TYPE& b)
     {
-        return max(a, b);
+        return std::max(a, b);
     };
 
     inline Float4 Max(const Float4& a, const Float4& b)

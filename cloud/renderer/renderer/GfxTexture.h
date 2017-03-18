@@ -19,16 +19,25 @@ namespace Cloud
             CLuint                      width;
             CLuint                      height;
             CLuint                      depth;
+#ifdef USE_DIRECTX12
+#else
             D3D11_RESOURCE_DIMENSION    dim;
+#endif
             CLuint                      arraySize;
             CLuint                      mipCount;
+#ifdef USE_DIRECTX12
+#else
             DXGI_FORMAT                 format;
             D3D11_USAGE                 usage;
+#endif
             CLuint                      bindFlags;
             CLuint                      cpuAccessFlags;
             CLuint                      miscFlags;
             InitialData                 initialData;
+#ifdef USE_DIRECTX12
+#else
             DXGI_SAMPLE_DESC            sampleDesc;
+#endif
             CLbool                      isCubeMap;
         };
 
@@ -39,9 +48,12 @@ namespace Cloud
             typedef std::unique_ptr<GfxTexture, Deleter> UniquePtr;
 
             const GfxTextureDesc&       GetDesc() const         { return m_desc; }
+#ifdef USE_DIRECTX12
+#else
             ID3D11ShaderResourceView*   GetSrv() const          { return m_srv.get(); }
             ID3D11RenderTargetView*     GetRtv() const          { return m_rtv.get(); }
             ID3D11DepthStencilView*     GetDsv() const          { return m_dsv.get(); }
+#endif
 
         private:
             GfxTexture();
@@ -49,10 +61,13 @@ namespace Cloud
 
             static UniquePtr MakeUnique() { return GfxTexture::UniquePtr(new GfxTexture(), GfxResource::Deleter()); }
 
+#ifdef USE_DIRECTX12
+#else
             Dx::UniquePtr<ID3D11Texture2D>            m_texture;
             Dx::UniquePtr<ID3D11ShaderResourceView>   m_srv;
             Dx::UniquePtr<ID3D11RenderTargetView>     m_rtv;
             Dx::UniquePtr<ID3D11DepthStencilView>     m_dsv;
+#endif
             GfxTextureDesc              m_desc;
         };
 
@@ -68,6 +83,8 @@ namespace Cloud
             void InitRtv(const GfxTextureDesc& desc, GfxTexture& texture);
             void InitDsv(const GfxTextureDesc& desc, GfxTexture& texture);
 
+#ifdef USE_DIRECTX12
+#else
             void FillInitialData(   CLuint width,
                                     CLuint height,
                                     CLuint depth,
@@ -81,6 +98,7 @@ namespace Cloud
                                     CLuint& tDepth,
                                     CLuint& skipMip,
                                     D3D11_SUBRESOURCE_DATA* initData);
+#endif
         };
     }
 }

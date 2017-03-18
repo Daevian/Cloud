@@ -23,14 +23,20 @@ CLbool Cloud::Renderer::Texture::Load()
 
 void Cloud::Renderer::Texture::Unload()
 {
+#ifdef USE_DIRECTX12
+#else
     CL_ASSERT(m_samplerState != 0, "Can't unload uninitialised texture!");
 
     m_texture = nullptr;
     m_samplerState = nullptr;
+#endif
 }
 
 CLbool Cloud::Renderer::Texture::LoadResource()
 {
+#ifdef USE_DIRECTX12
+    return false;
+#else
     CL_ASSERT(!m_texture, (m_texturePath + " already loaded!").c_str());
 
     //load file
@@ -113,10 +119,14 @@ CLbool Cloud::Renderer::Texture::LoadResource()
     }
 
     return true;
+#endif
 }
 
 CLbool Cloud::Renderer::Texture::LoadSampler()
 {
+#ifdef USE_DIRECTX12
+    return false;
+#else
     D3D11_SAMPLER_DESC samplerDesc;
     ClMemZero(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
 
@@ -143,6 +153,7 @@ CLbool Cloud::Renderer::Texture::LoadSampler()
     m_samplerState = Dx::MakeUnique(dxSampler);
 
     return true;
+#endif
 }
 
 void Cloud::Renderer::Texture::ReadTextureDataFromFile(const ClString& fileName, std::unique_ptr<CLuint8[]>& ddsData, DdsHeader*& header, DdsHeaderDXT10*& dxt10Header, CLuint8*& imageData, CLsize_t& imageDataSize)
@@ -179,7 +190,7 @@ void Cloud::Renderer::Texture::ReadTextureDataFromFile(const ClString& fileName,
     if ((header->ddspf.flags & DDS_FOURCC) &&
         (MAKEFOURCC('D', 'X', '1', '0') == header->ddspf.fourCC))
     {
-        dxt10Header = reinterpret_cast<DdsHeaderDXT10*>(header + sizeof(DdsHeader));
+        dxt10Header = reinterpret_cast<DdsHeaderDXT10*>(header + 1);
         if (fileSize < (sizeof(DDS_MAGIC) + sizeof(DdsHeader) + sizeof(DdsHeaderDXT10)))
         {
             CL_ASSERT_MSG("Must be long enough for both headers and magic value");

@@ -173,6 +173,7 @@
     <None Include="..\src\lib_json\json_internalarray.inl" />
     <None Include="..\src\lib_json\json_internalmap.inl" />
     <None Include="..\src\lib_json\json_valueiterator.inl" />
+    <None Include="jsoncpp.ruleset" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

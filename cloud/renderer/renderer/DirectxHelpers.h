@@ -3,6 +3,8 @@
 
 namespace Cloud
 {
+    using Microsoft::WRL::ComPtr;
+
     namespace Renderer
     {
         namespace Dx

@@ -3,6 +3,7 @@
 
 #include "RenderCore.h"
 #include "Texture.h"
+#include <d3dcompiler.h>
 
 Cloud::Renderer::ShaderEffect::ShaderEffect()
 {
@@ -14,9 +15,7 @@ Cloud::Renderer::ShaderEffect::~ShaderEffect()
 
 CLbool Cloud::Renderer::ShaderEffect::Load(const std::string& effectPath)
 {
-    CL_ASSERT(m_vertexShader == 0, ("vertex shader in " + effectPath + " already loaded!").c_str());
-    CL_ASSERT(m_geometryShader == 0, ("geometry shader in " + effectPath + " already loaded!").c_str());
-    CL_ASSERT(m_pixelShader == 0, ("pixel shader in " + effectPath + " already loaded!").c_str());
+    m_effectPath = effectPath;
 
     Json::Value root;
     std::ifstream jsonFile(effectPath.c_str());
@@ -33,28 +32,39 @@ CLbool Cloud::Renderer::ShaderEffect::Load(const std::string& effectPath)
         return false;
     }
 
-    m_vsFile        = root["VertexShader"]["File"].asString();
-    m_vsEntryPoint  = root["VertexShader"]["EntryPoint"].asString();
-    m_gsFile        = root["GeometryShader"]["File"].asString();
-    m_gsEntryPoint  = root["GeometryShader"]["EntryPoint"].asString();
-    m_psFile        = root["PixelShader"]["File"].asString();
-    m_psEntryPoint  = root["PixelShader"]["EntryPoint"].asString();
+    m_vsFile = root["VertexShader"]["File"].asString();
+    m_vsEntryPoint = root["VertexShader"]["EntryPoint"].asString();
+    m_gsFile = root["GeometryShader"]["File"].asString();
+    m_gsEntryPoint = root["GeometryShader"]["EntryPoint"].asString();
+    m_psFile = root["PixelShader"]["File"].asString();
+    m_psEntryPoint = root["PixelShader"]["EntryPoint"].asString();
 
     InputLayout::InputLayoutDesc inputLayoutDesc;
     ParseInputLayout(root["Input"], root["InstanceInput"], inputLayoutDesc);
 
     if (!LoadShaders(inputLayoutDesc))
         return false;
+
+#ifdef USE_DIRECTX12
+
+    return true;
+#else
+
+    CL_ASSERT(m_vertexShader == 0, ("vertex shader in " + effectPath + " already loaded!").c_str());
+    CL_ASSERT(m_geometryShader == 0, ("geometry shader in " + effectPath + " already loaded!").c_str());
+    CL_ASSERT(m_pixelShader == 0, ("pixel shader in " + effectPath + " already loaded!").c_str());
+    
     if (!CreateBlendState())
         return false;
 
-    m_effectPath = effectPath;
-
     return true;
+#endif
 }
 
 void Cloud::Renderer::ShaderEffect::Unload()
 {
+#ifdef USE_DIRECTX12
+#else
     CL_ASSERT(m_vertexShader != 0, "Can't unload uninitialised vertex shader!");
     CL_ASSERT(m_pixelShader!= 0, "Can't unload uninitialised pixel shader!");
 
@@ -64,10 +74,77 @@ void Cloud::Renderer::ShaderEffect::Unload()
     m_geometryShader = nullptr;
     m_pixelShader = nullptr;
     m_blendState = nullptr;
+#endif
 }
 
 CLbool Cloud::Renderer::ShaderEffect::LoadShaders(const InputLayout::InputLayoutDesc& inputLayoutDesc)
 {
+#ifdef USE_DIRECTX12
+    ComPtr<ID3DBlob> vertexShaderBlob;
+    ComPtr<ID3DBlob> geometryShaderBlob;
+    ComPtr<ID3DBlob> pixelShaderBlob;
+
+    if (!m_vsFile.empty() && !m_vsEntryPoint.empty())
+    {
+        vertexShaderBlob = CompileShader(m_vsFile, m_vsEntryPoint, "vs_5_0");
+        if (!vertexShaderBlob)
+        {
+            return false;
+        }
+    }
+
+    if (!m_gsFile.empty() && !m_gsEntryPoint.empty())
+    {
+        geometryShaderBlob = CompileShader(m_gsFile, m_gsEntryPoint, "gs_5_0");
+        if (!geometryShaderBlob)
+        {
+            return false;
+        }
+    }
+
+    if (!m_psFile.empty() && !m_psEntryPoint.empty())
+    {
+        pixelShaderBlob = CompileShader(m_psFile, m_psEntryPoint, "ps_5_0");
+        if (!pixelShaderBlob)
+        {
+            return false;
+        }
+    }
+
+    if (!m_inputLayout.Init(vertexShaderBlob.Get(), inputLayoutDesc))
+    {
+        return false;
+    }
+
+    // create PSO
+    {
+        auto& inputElementDescs = m_inputLayout.GetInputElementDescs();
+        D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+        psoDesc.InputLayout = { inputElementDescs.data(), gsl::narrow_cast<CLuint>(inputElementDescs.size()) };
+        psoDesc.pRootSignature = RenderCore::Instance().GetRootSignature();
+        psoDesc.VS = vertexShaderBlob ? CD3DX12_SHADER_BYTECODE(vertexShaderBlob.Get()) : CD3DX12_SHADER_BYTECODE(nullptr, 0);
+        psoDesc.GS = geometryShaderBlob ? CD3DX12_SHADER_BYTECODE(geometryShaderBlob.Get()) : CD3DX12_SHADER_BYTECODE(nullptr, 0);
+        psoDesc.PS = pixelShaderBlob ? CD3DX12_SHADER_BYTECODE(pixelShaderBlob.Get()) : CD3DX12_SHADER_BYTECODE(nullptr, 0);
+        psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+        psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+        psoDesc.DepthStencilState.DepthEnable = FALSE;
+        psoDesc.DepthStencilState.StencilEnable = FALSE;
+        psoDesc.SampleMask = UINT_MAX;
+        psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+        psoDesc.NumRenderTargets = 1;
+        psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+        psoDesc.SampleDesc.Count = 1;
+
+        if (FAILED(RenderCore::Instance().GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState))))
+        {
+            CL_ASSERT_MSG("Failed to create PSO!");
+            return false;
+        }
+    }
+
+    return true;
+
+#else
     Dx::UniquePtr<ID3DBlob> vertexShaderBlob;
     Dx::UniquePtr<ID3DBlob> geometryShaderBlob;
     Dx::UniquePtr<ID3DBlob> pixelShaderBlob;
@@ -135,9 +212,12 @@ CLbool Cloud::Renderer::ShaderEffect::LoadShaders(const InputLayout::InputLayout
     }
 
     return true;
+#endif
 }
 
-CLbool Cloud::Renderer::ShaderEffect::ParseInputLayout(const Json::Value& inputLayout,const Json::Value& instanceInputLayout, InputLayout::InputLayoutDesc& inputLayoutDescOutput)
+#ifdef USE_DIRECTX12
+
+CLbool Cloud::Renderer::ShaderEffect::ParseInputLayout(const Json::Value& inputLayout, const Json::Value& instanceInputLayout, InputLayout::InputLayoutDesc& inputLayoutDescOutput)
 {
     enum ElementVariables
     {
@@ -158,26 +238,26 @@ CLbool Cloud::Renderer::ShaderEffect::ParseInputLayout(const Json::Value& inputL
     for (CLuint i = 0; i < inputLayout.size(); ++i)
     {
         inputLayoutDescOutput.Add(InputElementDesc());
-        inputLayoutDescOutput[i].name                 = inputLayout[i][Name].asString();
-        inputLayoutDescOutput[i].format               = GetFormat(inputLayout[i][Format].asString());
-        inputLayoutDescOutput[i].semanticIndex        = inputLayout[i][SemanticIndex].asInt();
-        inputLayoutDescOutput[i].byteOffset           = elementByteOffset;
+        inputLayoutDescOutput[i].name = inputLayout[i][Name].asString();
+        inputLayoutDescOutput[i].format = GetFormat(inputLayout[i][Format].asString());
+        inputLayoutDescOutput[i].semanticIndex = inputLayout[i][SemanticIndex].asInt();
+        inputLayoutDescOutput[i].byteOffset = elementByteOffset;
         inputLayoutDescOutput[i].instanceDataStepRate = 0;
-        inputLayoutDescOutput[i].isInstanceData       = false;
+        inputLayoutDescOutput[i].isInstanceData = false;
 
         elementByteOffset += GetFormatSize(inputLayoutDescOutput[i].format);
     }
-    
+
     elementByteOffset = 0;
     for (CLuint targetIndex = inputLayoutDescOutput.Count(), sourceIndex = 0; sourceIndex < instanceInputLayout.size(); ++targetIndex, ++sourceIndex)
     {
         inputLayoutDescOutput.Add(InputElementDesc());
-        inputLayoutDescOutput[targetIndex].name                 = instanceInputLayout[sourceIndex][Name].asString();
-        inputLayoutDescOutput[targetIndex].format               = GetFormat(instanceInputLayout[sourceIndex][Format].asString());
-        inputLayoutDescOutput[targetIndex].semanticIndex        = instanceInputLayout[sourceIndex][SemanticIndex].asInt();
-        inputLayoutDescOutput[targetIndex].byteOffset           = elementByteOffset;
+        inputLayoutDescOutput[targetIndex].name = instanceInputLayout[sourceIndex][Name].asString();
+        inputLayoutDescOutput[targetIndex].format = GetFormat(instanceInputLayout[sourceIndex][Format].asString());
+        inputLayoutDescOutput[targetIndex].semanticIndex = instanceInputLayout[sourceIndex][SemanticIndex].asInt();
+        inputLayoutDescOutput[targetIndex].byteOffset = elementByteOffset;
         inputLayoutDescOutput[targetIndex].instanceDataStepRate = instanceInputLayout[sourceIndex][InstanceDataStepRate].asInt();
-        inputLayoutDescOutput[targetIndex].isInstanceData       = true;
+        inputLayoutDescOutput[targetIndex].isInstanceData = true;
 
         elementByteOffset += GetFormatSize(inputLayoutDescOutput[targetIndex].format);
     }
@@ -185,7 +265,56 @@ CLbool Cloud::Renderer::ShaderEffect::ParseInputLayout(const Json::Value& inputL
     return true;
 }
 
-CLbool Cloud::Renderer::ShaderEffect::CompileShader(const ClString& shaderPath, const ClString& entryPoint, const ClString& shaderModel, ID3DBlob*& shaderBlobOutput)
+Cloud::ComPtr<ID3DBlob> Cloud::Renderer::ShaderEffect::CompileShader(const ClString& shaderPath, const ClString& entryPoint, const ClString& shaderModel)
+{
+    CLdword shaderFlags = 0;//D3DCOMPILE_ENABLE_STRICTNESS;
+#if defined( DEBUG ) || defined( _DEBUG )
+    shaderFlags |= D3DCOMPILE_DEBUG;
+    shaderFlags |= D3DCOMPILE_PREFER_FLOW_CONTROL;
+    shaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
+    Cloud::ComPtr<ID3DBlob> shader;
+
+    CL_UNUSED(shaderModel);
+    CL_UNUSED(entryPoint);
+    ID3DBlob* errorBlob = 0;
+    HRESULT result = D3DCompileFromFile(
+        ClWString(shaderPath.begin(), shaderPath.end()).c_str(),
+        nullptr,
+        nullptr,
+        entryPoint.c_str(),
+        shaderModel.c_str(),
+        shaderFlags,
+        0,
+        &shader,
+        &errorBlob);
+
+    if (FAILED(result) || errorBlob)
+    {
+        std::stringstream assertMessage;
+        assertMessage << "Couldn't load " << shaderPath;
+
+        CL_TRACE_CHANNEL("ERROR", assertMessage.str().c_str());
+
+        if (errorBlob)
+        {
+            CLchar* error = static_cast<CLchar*>(errorBlob->GetBufferPointer());
+            CL_TRACE_CHANNEL("ERROR", error);
+        }
+
+        CL_ASSERT_MSG(assertMessage.str().c_str());
+
+        return nullptr;
+    }
+
+    return shader;
+}
+
+#else
+
+
+CLbool Cloud::Renderer::ShaderEffect::CompileShader(const ClString& /*shaderPath*/, const ClString& /*entryPoint*/, const ClString& /*shaderModel*/, ID3DBlob*& /*shaderBlobOutput*/)
 {
     CLdword shaderFlags = 0;//D3DCOMPILE_ENABLE_STRICTNESS;
 #if defined( DEBUG ) || defined( _DEBUG )
@@ -280,9 +409,13 @@ CLbool Cloud::Renderer::ShaderEffect::CreatePixelShader(ID3DBlob* pixelShaderBlo
 
     return true;
 }
+#endif
 
 CLbool Cloud::Renderer::ShaderEffect::CreateBlendState()
 {
+#ifdef USE_DIRECTX12
+    return false;
+#else
     D3D11_BLEND_DESC blendStateDesc;
     ClMemZero(&blendStateDesc, sizeof(D3D11_BLEND_DESC));
     blendStateDesc.IndependentBlendEnable = false;
@@ -306,4 +439,5 @@ CLbool Cloud::Renderer::ShaderEffect::CreateBlendState()
     m_blendState = Dx::MakeUnique(dxObj);
 
     return true;
+#endif
 }
