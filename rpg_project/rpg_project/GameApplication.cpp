@@ -35,8 +35,8 @@ RPG::Application::Application()
     : m_exitFlag(false)
     , m_frameCount(0)
     , m_debugCameraActive(true)
-    , m_cameraPosition(0.0f, 5.0f, -10.0f, 1.0f)
-    , m_cameraRotation(0.3f, 0.0f, 0.0f, 0.0f)
+    , m_cameraPosition(0.0f, 0.0f, -10.0f, 1.0f)
+    , m_cameraRotation(0.0f, 0.0f, 0.0f, 0.0f)
 {
 }
 
@@ -273,26 +273,42 @@ void RPG::Application::UpdateDebugCamera(CLfloat timeStep)
         m_cameraRotation += ClFloat4(-rightStick.y, rightStick.x, 0.0f, 0.0f) * rotationSpeed * timeStep;
     }
 
-    if (m_inputManager.GetKeyDown(Cloud::Input::Key::Left) ||
-        m_inputManager.GetKeyDown(Cloud::Input::Key::A))
+    if (m_inputManager.GetKeyDown(Cloud::Input::Key::Left))
+    {
+        m_cameraRotation += ClFloat4(0.0f, -1.0f, 0.0f, 0.0f) * rotationSpeed * timeStep;
+    }
+
+    if (m_inputManager.GetKeyDown(Cloud::Input::Key::Right))
+    {
+        m_cameraRotation += ClFloat4(0.0f, 1.0f, 0.0f, 0.0f) * rotationSpeed * timeStep;
+    }
+
+    if (m_inputManager.GetKeyDown(Cloud::Input::Key::Up))
+    {
+        m_cameraRotation += ClFloat4(-1.0f, 0.0f, 0.0f, 0.0f) * rotationSpeed * timeStep;
+    }
+
+    if (m_inputManager.GetKeyDown(Cloud::Input::Key::Down))
+    {
+        m_cameraRotation += ClFloat4(1.0f, 0.0f, 0.0f, 0.0f) * rotationSpeed * timeStep;
+    }
+
+    if (m_inputManager.GetKeyDown(Cloud::Input::Key::A))
     {
         cameraMovement = ClFloat4(-1.0f, 0.0f, 0.0f, 0.0f);
     }
 
-    if (m_inputManager.GetKeyDown(Cloud::Input::Key::Right) ||
-        m_inputManager.GetKeyDown(Cloud::Input::Key::D))
+    if (m_inputManager.GetKeyDown(Cloud::Input::Key::D))
     {
         cameraMovement = ClFloat4(1.0f, 0.0f, 0.0f, 0.0f);
     }
 
-    if (m_inputManager.GetKeyDown(Cloud::Input::Key::Up) ||
-        m_inputManager.GetKeyDown(Cloud::Input::Key::W))
+    if (m_inputManager.GetKeyDown(Cloud::Input::Key::W))
     {
         cameraMovement = ClFloat4(0.0f, 0.0f, 1.0f, 0.0f);
     }
 
-    if (m_inputManager.GetKeyDown(Cloud::Input::Key::Down) ||
-        m_inputManager.GetKeyDown(Cloud::Input::Key::S))
+    if (m_inputManager.GetKeyDown(Cloud::Input::Key::S))
     {
         cameraMovement = ClFloat4(0.0f, 0.0f, -1.0f, 0.0f);
     }

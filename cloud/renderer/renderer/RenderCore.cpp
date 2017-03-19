@@ -175,15 +175,13 @@ CLbool Cloud::Renderer::RenderCore::Initialise(const Settings& settings)
         std::array<CD3DX12_ROOT_PARAMETER1, 1> rootParameters;
 
         ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 2, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
-        rootParameters[0].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_VERTEX);
-
-
+        rootParameters[0].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_ALL);
+        
         D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
             D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
             D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
             D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-            D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-            D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
         
         CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
@@ -279,6 +277,7 @@ CLbool Cloud::Renderer::RenderCore::InitSwapChain()
         desc.BufferCount = c_frameBufferCount;
         desc.Width = settings["Resolution"]["Width"].asInt();
         desc.Height = settings["Resolution"]["Height"].asInt();
+        //desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
         desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
         desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;// | DXGI_USAGE_SHADER_INPUT;
         desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
