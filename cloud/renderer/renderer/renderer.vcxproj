@@ -135,7 +135,7 @@
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\..\core_libraries;..\..\externals;..\..\externals\lua</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\core_libraries;..\..\externals;..\..\externals\lua;..\..\externals\imgui</AdditionalIncludeDirectories>
       <EnablePREfast>false</EnablePREfast>
       <AdditionalOptions>/analyze:stacksize1048576 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -175,7 +175,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\..\core_libraries;..\..\externals;..\..\externals\lua</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\core_libraries;..\..\externals;..\..\externals\lua;..\..\externals\imgui</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <EnablePREfast>false</EnablePREfast>
       <AdditionalOptions>/analyze:stacksize1048576 %(AdditionalOptions)</AdditionalOptions>
@@ -279,6 +279,9 @@
     <ProjectReference Include="..\..\core_libraries\utilities\utilities.vcxproj">
       <Project>{f1b37d5e-7ac9-4d34-97ed-ab04af7a774c}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\..\externals\imgui\imgui.vcxproj">
+      <Project>{4a54a0fc-ed19-4d9e-b0ea-64eed3547b36}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

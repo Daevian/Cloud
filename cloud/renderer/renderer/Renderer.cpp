@@ -184,8 +184,6 @@ void Cloud::Renderer::Renderer::Render()
    // auto test = m_luaState->Call<CLfloat, CLint>("testest", "lol", "nope", 123, 142.43f);
    // CL_UNUSED(test);
     m_luaState->Call("render");
-
-    
     
 
     auto& renderCore = RenderCore::Instance();

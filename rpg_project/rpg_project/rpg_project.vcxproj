@@ -253,6 +253,9 @@
       <Project>{f1b37d5e-7ac9-4d34-97ed-ab04af7a774c}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\..\cloud\externals\imgui\imgui.vcxproj">
+      <Project>{4a54a0fc-ed19-4d9e-b0ea-64eed3547b36}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\cloud\renderer\renderer\renderer.vcxproj">
       <Project>{c11c215e-8da6-4e73-9d1c-d1bf50ad1764}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
