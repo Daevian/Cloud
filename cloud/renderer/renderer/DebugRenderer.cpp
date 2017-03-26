@@ -233,7 +233,13 @@ void Cloud::Renderer::DebugRenderer::RecordCommandList(ID3D12GraphicsCommandList
     commandList->SetDescriptorHeaps(gsl::narrow_cast<CLuint>(heaps.size()), heaps.data());
 
     commandList->SetGraphicsRootSignature(renderCore.GetRootSignature());
-    commandList->SetGraphicsRootDescriptorTable(0, renderCore.GetCbvHeap()->GetGPUDescriptorHandleForHeapStart());
+
+    commandList->SetGraphicsRootConstantBufferView(0, renderCore.GetPerSceneConstBuffer().GetCurrentVersionGpuAddress());
+    commandList->SetGraphicsRootConstantBufferView(1, renderCore.GetPerModelConstBuffer().GetCurrentVersionGpuAddress());
+
+    static const auto c_cbvDescriptorSize = renderCore.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    CD3DX12_GPU_DESCRIPTOR_HANDLE srvHandle(renderCore.GetCbvHeap()->GetGPUDescriptorHandleForHeapStart(), 2, c_cbvDescriptorSize);
+    commandList->SetGraphicsRootDescriptorTable(3, srvHandle);
 
     commandList->RSSetViewports(1, &renderCore.GetViewPort());
     commandList->RSSetScissorRects(1, &renderCore.GetScissorRect());
@@ -246,6 +252,10 @@ void Cloud::Renderer::DebugRenderer::RecordCommandList(ID3D12GraphicsCommandList
     RenderBoxes(commandList);
     RenderQuads(commandList);
     RenderLine2D();
+
+    m_boxesToRender = 0;
+    m_quadsToRender = 0;
+    m_line2DsToRender = 0;
 }
 
 void Cloud::Renderer::DebugRenderer::RenderLine2D()
@@ -262,8 +272,6 @@ void Cloud::Renderer::DebugRenderer::RenderLine2D()
 
     device.Draw(m_line2DsToRender * 2);
 #endif
-
-    m_line2DsToRender = 0;
 }
 
 void Cloud::Renderer::DebugRenderer::RenderQuads(ID3D12GraphicsCommandList* commandList)
@@ -290,7 +298,6 @@ void Cloud::Renderer::DebugRenderer::RenderQuads(ID3D12GraphicsCommandList* comm
 
     device.DrawIndexed(m_quadsToRender * 6);
 #endif
-    m_quadsToRender = 0;
 }
 
 void Cloud::Renderer::DebugRenderer::RenderBoxes(ID3D12GraphicsCommandList* commandList)
@@ -323,5 +330,4 @@ void Cloud::Renderer::DebugRenderer::RenderBoxes(ID3D12GraphicsCommandList* comm
     device.DrawIndexedInstanced(m_boxesToRender);
     
 #endif
-    m_boxesToRender = 0;
 }

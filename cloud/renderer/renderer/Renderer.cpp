@@ -4,9 +4,15 @@
 #include "RenderCore.h"
 #include "Settings.h"
 #include "Scene.h"
+#include "LightCollection.h"
+#include "Material.h"
+
+CLbool Cloud::Renderer::Renderer::s_showDebugMenu = false;
+Cloud::Renderer::ResourceContainer* Cloud::Renderer::Renderer::s_resourceContainer = nullptr;
 
 Cloud::Renderer::Renderer::Renderer()
 {
+    s_resourceContainer = &m_resourceContainer;
 }
 
 Cloud::Renderer::Renderer::~Renderer()
@@ -32,17 +38,29 @@ static CLfloat TestFunction3()
 
 CLbool Cloud::Renderer::Renderer::Initialise()
 {
+    m_modelRenderer.Initialise();
     m_debugRenderer.Initialise();
+    m_imguiRenderer.Initialise();
+
+    m_resourceContainer.AddResource(std::make_shared<Material>(ResourceId("metal0")));
 
     //m_csSorter.Init();
     //m_csTest.Initialise();
     //m_particleManager.Initialise();
 
-    m_instance = std::make_unique<ModelInstance>();
-    m_forwardScene = std::make_unique<Scene>(m_modelRenderer);
+    m_lights = std::make_unique<LightCollection>();
+    m_lights->Initialise();
 
-    m_forwardScene->addModelInstance(*m_instance);
+    m_forwardScene = std::make_unique<Scene>(m_modelRenderer, m_lights.get());
 
+    CLfloat positionOffset = 5.0f;
+    for (auto&& instance : m_instances)
+    {
+        instance = std::make_unique<ModelInstance>();
+        instance->GetTransformMutable() *= ClMatrix4::Translation(positionOffset, 0.0f, 0.0f);
+        positionOffset += 1.5f;
+        m_forwardScene->AddModelInstance(*instance);
+    }
 
     const CLfloat width  = (CLfloat)Cloud::Renderer::Settings::Instance().GetRoot()["Resolution"]["Width"].asDouble();
     const CLfloat height = (CLfloat)Cloud::Renderer::Settings::Instance().GetRoot()["Resolution"]["Height"].asDouble();
@@ -142,6 +160,13 @@ void Cloud::Renderer::Renderer::Update(CLdouble totalTime, CLdouble timeStep)
 {
     CL_UNUSED(totalTime);
     CL_UNUSED(timeStep);
+
+    m_imguiRenderer.NewFrame();
+
+    if (s_showDebugMenu)
+    {
+        PopulateDebugMenu();
+    }
     
     static CLfloat rotationX = 0.0f;
     rotationX += 1.0f * (CLfloat)timeStep;
@@ -170,6 +195,9 @@ void Cloud::Renderer::Renderer::Update(CLdouble totalTime, CLdouble timeStep)
     }
 
     m_camera.UpdateView();
+
+    m_lights->Update();
+
     //m_csSorter.Update();
 
    // m_csTest.Update();
@@ -194,6 +222,7 @@ void Cloud::Renderer::Renderer::Render()
     auto& perSceneConstBuffer = renderCore.GetPerSceneConstData();
     perSceneConstBuffer.view = m_camera.GetView();
     perSceneConstBuffer.projection = m_camera.GetProjection();
+    perSceneConstBuffer.viewProj = m_camera.GetProjection() * m_camera.GetView();
     renderCore.GpuUpdatePerSceneConstBuffer();
 
     // render gbuffer
@@ -220,6 +249,39 @@ void Cloud::Renderer::Renderer::Render()
         debugRenderer.RecordCommandList(cl);
     });
 
+    auto&& imguiRenderer = m_imguiRenderer;
+    RenderCore::Instance().QueueRecordCommandListJob(
+        [&imguiRenderer](ID3D12GraphicsCommandList* cl)
+    {
+        imguiRenderer.Render(cl);
+    });
+
+    
+
     RenderCore::Instance().RecordCommandLists();
     RenderCore::Instance().Present();
+}
+
+void Cloud::Renderer::Renderer::PopulateDebugMenu()
+{
+    ImGui::ShowTestWindow();
+
+    ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiSetCond_FirstUseEver);
+    static CLbool s_modelWindowOpen = true;
+
+    ImGuiWindowFlags window_flags = 0;
+    if (ImGui::Begin("Renderer", &s_modelWindowOpen, window_flags))
+    {
+        if (ImGui::CollapsingHeader("Scene"))
+        {
+            m_forwardScene->PopulateDebugMenu();
+        }
+
+        if (ImGui::CollapsingHeader("Lighting"))
+        {
+            m_lights->PopulateDebugMenu();
+        }
+    }    
+
+    ImGui::End();
 }

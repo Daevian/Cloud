@@ -1,0 +1,55 @@
+{
+	"VertexShader" : 
+	{
+		"File" : "data/core/imgui/imgui.fx",
+		"EntryPoint" : "vs"
+	},
+	"PixelShader" : 
+	{
+		"File" : "data/core/imgui/imgui.fx",
+		"EntryPoint" : "ps"
+	},
+	"Input" :
+	[
+		[ "POSITION", 	"R32G32_FLOAT"],
+		[ "TEXCOORD",  	"R32G32_FLOAT"],
+		[ "COLOR",   	"R8G8B8A8_UNORM"]
+	],
+	"BlendState" :
+	{
+		"BlendEnable" 		: true,
+		"SrcBlend" 			: "SRC_ALPHA",
+		"DestBlend" 		: "INV_SRC_ALPHA",
+		"BlendOp" 			: "ADD",
+		"SrcBlendAlpha" 	: "INV_SRC_ALPHA",
+		"DestBlendAlpha" 	: "ZERO",
+		"BlendOpAlpha" 		: "ADD"
+	},
+	"RasterizerState" :
+	{
+		"FillMode"			: "SOLID",
+		"CullMode"			: "NONE",
+		"DepthClipEnable" 	: true
+	},
+	"DepthStencilState" :
+	{
+		"DepthEnable" 		: true,
+		"DepthWriteMask"	: "ALL",
+		"DepthFunc"			: "ALWAYS",
+		"StencilEnable"		: false,
+		"FrontFace" :
+		{
+			"StencilFailOp" 		: "KEEP",
+			"StencilDepthFailOp" 	: "KEEP",
+			"StencilPassOp" 		: "KEEP",
+			"StencilFunc" 			: "ALWAYS"
+		},
+		"BackFace" :
+		{
+			"StencilFailOp" 		: "KEEP",
+			"StencilDepthFailOp" 	: "KEEP",
+			"StencilPassOp" 		: "KEEP",
+			"StencilFunc" 			: "ALWAYS"
+		}
+	}
+}

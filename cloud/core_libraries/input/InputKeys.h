@@ -23,6 +23,8 @@ namespace Input
         Space    = DIK_SPACE,
         Up       = DIK_UP,
         LeftCtrl = DIK_LCONTROL,
+
+        Grave    = DIK_GRAVE,
     };
 
     enum class MouseButton

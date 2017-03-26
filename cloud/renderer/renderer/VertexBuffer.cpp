@@ -56,7 +56,10 @@ CLbool Cloud::Renderer::VertexBuffer::Initialise()
             return false;
         }
 
-        memcpy(m_bufferData, m_vertexData, m_vertexSize * m_vertexCount);
+        if (m_vertexData)
+        {
+            memcpy(m_bufferData, m_vertexData, m_vertexSize * m_vertexCount);
+        }
     }
 
     m_view.BufferLocation = m_buffer->GetGPUVirtualAddress();
@@ -118,4 +121,12 @@ void Cloud::Renderer::VertexBuffer::GPUUpdateVertexBuffer()
         0,
         0);
 #endif
+}
+
+void Cloud::Renderer::VertexBuffer::GPUUpdateVertexBuffer(void* data, CLsize_t size, CLsize_t offset)
+{
+    CL_ASSERT(offset + size <= m_vertexCount * m_vertexSize, "trying to copy outside of the buffer!");
+
+    auto&& dest = static_cast<CLbyte*>(m_bufferData) + offset;
+    memcpy(dest, data, size);
 }

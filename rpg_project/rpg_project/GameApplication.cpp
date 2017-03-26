@@ -3,6 +3,7 @@
 
 #include "renderer/RenderCore.h"
 #include "renderer/Settings.h"
+#include "renderer/ImguiRenderer.h"
 
 #define GAME_WINDOW_STYLE (WS_OVERLAPPED | WS_CAPTION | WS_THICKFRAME |  WS_MINIMIZEBOX |  WS_MAXIMIZEBOX | WS_SYSMENU)
 
@@ -12,6 +13,11 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 {
     PAINTSTRUCT ps;
     HDC hdc;
+
+    if (Cloud::Renderer::ImguiRenderer::WndProcHandler(hWnd, message, wParam, lParam))
+    {
+        return true;
+    }
 
     switch (message) 
     {
@@ -223,6 +229,11 @@ void RPG::Application::Update()
     m_game.Update((CLfloat)m_time.GetTimeStep());
     m_uiManager.Update();
     m_renderer.Update(m_time.GetTotalTime(), m_time.GetTimeStep());
+
+    if (m_inputManager.GetKeyPressed(Cloud::Input::Key::Grave))
+    {
+        Cloud::Renderer::Renderer::s_showDebugMenu = !Cloud::Renderer::Renderer::s_showDebugMenu;
+    }
 
     CLbool enableInputDebug = true;
     if (enableInputDebug)

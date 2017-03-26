@@ -34,6 +34,11 @@ Cloud::Renderer::GfxTexture::UniquePtr Cloud::Renderer::GfxTextureFactory::Creat
         InitDsv(desc, *texture);
     }
 
+    if (!(desc.flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE))
+    {
+        InitSrv(desc, *texture);
+    }
+
 #else
 
     switch (desc.dim)
@@ -81,19 +86,65 @@ void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxT
     dxDesc.SampleDesc.Quality = desc.sampleDesc.Quality;
     dxDesc.Dimension = desc.dim;
 
-    
+    auto hasInitialData = desc.initialData.data != nullptr;
+
+    auto canClear = (dxDesc.Flags & (D3D12_RESOURCE_DIMENSION_BUFFER | D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)) != 0;
 
     auto&& heapProperties = CD3DX12_HEAP_PROPERTIES(desc.heapType);
     if (FAILED(device->CreateCommittedResource(
         &heapProperties,
         D3D12_HEAP_FLAG_NONE,
         &dxDesc,
-        desc.initialState,
-        &desc.clearValue,
+        hasInitialData ? D3D12_RESOURCE_STATE_COPY_DEST : desc.initialState,
+        canClear ? &desc.clearValue : nullptr,
         IID_PPV_ARGS(&texture.m_resource))))
     {
         CL_ASSERT_MSG("Couldn't create texture!");
         return;
+    }
+
+    if (hasInitialData)
+    {
+        // Note: ComPtr's are CPU objects but this resource needs to stay in scope until
+        // the command list that references it has finished executing on the GPU.
+        // We will flush the GPU at the end of this method to ensure the resource is not
+        // prematurely destroyed.
+        ComPtr<ID3D12Resource> textureUploadHeap;
+
+        auto&& uploadHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+        auto&& uploadBuffer = CD3DX12_RESOURCE_DESC::Buffer(desc.initialData.size);
+        if (FAILED(device->CreateCommittedResource(
+            &uploadHeapProperties,
+            D3D12_HEAP_FLAG_NONE,
+            &uploadBuffer,
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            nullptr,
+            IID_PPV_ARGS(&textureUploadHeap))))
+        {
+            CL_ASSERT_MSG("Couldn't create upload buffer!");
+            return;
+        }
+
+        const auto c_texturePixelSize = sizeof(CLuint32);
+
+        D3D12_SUBRESOURCE_DATA textureData = {};
+        textureData.pData = desc.initialData.data;
+        textureData.RowPitch = desc.width * c_texturePixelSize;
+        textureData.SlicePitch = textureData.RowPitch * desc.height;
+        auto&& commandList = RenderCore::Instance().AllocateCommandList();
+        
+        UpdateSubresources(commandList, texture.m_resource.Get(), textureUploadHeap.Get(), 0, 0, 1, &textureData);
+        
+        auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(texture.m_resource.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        commandList->ResourceBarrier(1, &barrier);
+
+        if (FAILED(commandList->Close()))
+        {
+            CL_ASSERT_MSG("Failed to close command list!");
+            return;
+        }
+
+        RenderCore::Instance().Flush();
     }
 
 #else
@@ -170,9 +221,46 @@ void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxT
 #endif
 }
 
-void Cloud::Renderer::GfxTextureFactory::InitSrv(const GfxTextureDesc& /*desc*/, GfxTexture& /*texture*/)
+void Cloud::Renderer::GfxTextureFactory::InitSrv(const GfxTextureDesc& desc, GfxTexture& texture)
 {
 #ifdef USE_DIRECTX12
+    auto&& device = RenderCore::Instance().GetDevice();
+
+    static const auto c_srvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    const auto offset = RenderCore::c_cbvDescCount + RenderCore::Instance().m_srvHeapIndex++;
+    texture.m_srv.InitOffsetted(RenderCore::Instance().GetCbvHeap()->GetCPUDescriptorHandleForHeapStart(), offset, c_srvDescriptorSize);
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC viewDesc = {};
+    viewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+    switch (texture.m_desc.format)
+    {
+        case DXGI_FORMAT_R32_TYPELESS:
+            viewDesc.Format = DXGI_FORMAT_R32_FLOAT;
+            break;
+        default:
+            viewDesc.Format = texture.m_desc.format;
+            break;
+    }
+
+    switch (desc.dim)
+    {
+        case D3D12_RESOURCE_DIMENSION_TEXTURE2D:
+            viewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+            viewDesc.Texture2D.MostDetailedMip = 0;
+            viewDesc.Texture2D.PlaneSlice = 0;
+            viewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+            viewDesc.Texture2D.MipLevels = desc.mipCount;
+            break;
+        default:
+            CL_ASSERT_MSG("dim not supported!");
+            break;
+    }
+
+    CL_ASSERT(!desc.isCubeMap, "need to implement cubmap srvs");
+
+    device->CreateShaderResourceView(texture.m_resource.Get(), &viewDesc, texture.m_srv);
+
 #else
     CL_ASSERT_NULL(texture.m_texture);
     CL_ASSERT(!texture.m_srv, "The srv has already been created!");

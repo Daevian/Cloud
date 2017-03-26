@@ -52,6 +52,7 @@ namespace Cloud
 
             const GfxTextureDesc&       GetDesc() const         { return m_desc; }
 #ifdef USE_DIRECTX12
+            ID3D12Resource*               GetResource() const   { return m_resource.Get(); }
             CD3DX12_CPU_DESCRIPTOR_HANDLE GetSrv() const        { return m_srv; }
             CD3DX12_CPU_DESCRIPTOR_HANDLE GetRtv() const        { return m_rtv; }
             CD3DX12_CPU_DESCRIPTOR_HANDLE GetDsv() const        { return m_dsv; }

@@ -35,6 +35,7 @@ namespace Cloud
             
 
             void GPUUpdateVertexBuffer();
+            void GPUUpdateVertexBuffer(void* data, CLsize_t size, CLsize_t offset = 0);
 
         private:
             CLint m_vertexCount;

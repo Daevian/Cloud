@@ -171,25 +171,55 @@ CLbool Cloud::Renderer::RenderCore::Initialise(const Settings& settings)
             featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
         }
 
+        // init ranges
+        /*std::array<CD3DX12_DESCRIPTOR_RANGE1, 2> ranges;
+        std::array<CD3DX12_ROOT_PARAMETER1, 1> rootParameters;*/
+        std::array<CD3DX12_ROOT_PARAMETER1, 5> rootParameters;
         std::array<CD3DX12_DESCRIPTOR_RANGE1, 1> ranges;
-        std::array<CD3DX12_ROOT_PARAMETER1, 1> rootParameters;
 
-        ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 2, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
-        rootParameters[0].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_ALL);
+        //ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, c_cbvDescCount, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+        //ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, c_srvDescCount, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+        //rootParameters[0].InitAsDescriptorTable(2, ranges.data(), D3D12_SHADER_VISIBILITY_ALL);
+        CLuint rootParam = 0;
+        CLuint cbufferIndex = 0;
+        rootParameters[rootParam++].InitAsConstantBufferView(cbufferIndex++); // per scene
+        rootParameters[rootParam++].InitAsConstantBufferView(cbufferIndex++); // per model
+        rootParameters[rootParam++].InitAsConstantBufferView(cbufferIndex++); // per material
+
+        ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, c_srvDescCount, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+        rootParameters[rootParam++].InitAsDescriptorTable(1, ranges.data(), D3D12_SHADER_VISIBILITY_PIXEL);
+
+        rootParameters[rootParam++].InitAsConstantBufferView(cbufferIndex++); // lighting
+
+        // init samplers
+        D3D12_STATIC_SAMPLER_DESC sampler = {};
+        sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+        sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        sampler.MipLODBias = 0;
+        sampler.MaxAnisotropy = 0;
+        sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+        sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+        sampler.MinLOD = 0.0f;
+        sampler.MaxLOD = D3D12_FLOAT32_MAX;
+        sampler.ShaderRegister = 0;
+        sampler.RegisterSpace = 0;
+        sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
         
+        // init root descriptor
         D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
             D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
             D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
             D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
             D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
-        
         CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
-        desc.Init_1_1(gsl::narrow_cast<CLuint>(rootParameters.size()), rootParameters.data(), 0, nullptr, rootSignatureFlags);
+        desc.Init_1_1(gsl::narrow_cast<CLuint>(rootParameters.size()), rootParameters.data(), 1, &sampler, rootSignatureFlags);
 
         ComPtr<ID3DBlob> signature;
         ComPtr<ID3DBlob> error;
-        if (FAILED(D3DX12SerializeVersionedRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error)))
+        if (FAILED(D3DX12SerializeVersionedRootSignature(&desc, featureData.HighestVersion, &signature, &error)))
         {
             CL_ASSERT_MSG("Failed to create fence event!");
             return false;
@@ -334,7 +364,7 @@ CLbool Cloud::Renderer::RenderCore::InitSwapChain()
 
     {
         D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-        desc.NumDescriptors = 2;
+        desc.NumDescriptors = c_cbvDescCount + c_srvDescCount;
         desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
         desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
         if (FAILED(m_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_cbvHeap))))
@@ -343,6 +373,21 @@ CLbool Cloud::Renderer::RenderCore::InitSwapChain()
             return false;
         }
     }
+
+    /*CD3DX12_CPU_DESCRIPTOR_HANDLE srv = {};
+    static const auto c_srvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    srv.InitOffsetted(RenderCore::Instance().GetCbvHeap()->GetCPUDescriptorHandleForHeapStart(), 1, c_srvDescriptorSize);
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC viewDesc = {};
+    / *viewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    viewDesc.Format = DXGI_FORMAT_UNKNOWN;
+    viewDesc.ViewDimension = D3D12_SRV_DIMENSION_UNKNOWN;
+    viewDesc.Texture2D.MostDetailedMip = 0;
+    viewDesc.Texture2D.PlaneSlice = 0;
+    viewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+    viewDesc.Texture2D.MipLevels = 0;* /
+
+    m_device->CreateShaderResourceView(nullptr, &viewDesc, srv);*/
 
     {
         CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
@@ -358,26 +403,7 @@ CLbool Cloud::Renderer::RenderCore::InitSwapChain()
             m_device->CreateRenderTargetView(m_renderTargets[i].Get(), nullptr, rtvHandle);
             rtvHandle.Offset(1, m_rtvDescriptorSize);
         }
-    }
-
-/*
-    {
-        CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-
-        m_de
-        
-        if (FAILED(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_depthTarget))))
-        {
-            CL_ASSERT_MSG("couldn't get swap chain buffer!");
-            return false;
-        }
-
-        m_device->CreateRenderTargetView(m_renderTargets[i].Get(), nullptr, rtvHandle);
-        rtvHandle.Offset(1, m_rtvDescriptorSize);
-        
-    }*/
-
-    
+    }    
 
     if (FAILED(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator))))
     {
@@ -487,7 +513,7 @@ CLbool Cloud::Renderer::RenderCore::InitDepthBuffer()
     desc.sampleDesc.Quality = 0;
     desc.heapType = D3D12_HEAP_TYPE_DEFAULT;
     desc.initialState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
-    desc.flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+    desc.flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
     desc.clearValue.Format = DXGI_FORMAT_D32_FLOAT;
     desc.clearValue.DepthStencil.Depth = 1.0f;
 #else
@@ -520,11 +546,11 @@ CLbool Cloud::Renderer::RenderCore::InitDepthBuffer()
 CLbool Cloud::Renderer::RenderCore::InitConstantBuffers()
 {
     m_perSceneConstBuffer.SetData(&m_perSceneConstData, sizeof(PerSceneConstBuffer));
-    if (!m_perSceneConstBuffer.Initialise())
+    if (!m_perSceneConstBuffer.Initialise(128))
         return false;
     
     m_perModelConstBuffer.SetData(&m_perModelConstData, sizeof(PerModelConstBuffer));
-    if (!m_perModelConstBuffer.Initialise())
+    if (!m_perModelConstBuffer.Initialise(128))
         return false;
 
     return true;
@@ -610,14 +636,9 @@ void Cloud::Renderer::RenderCore::RecordCommandLists()
     // jobs
     for (auto&& job : m_recordCommandListJobs)
     {
-        auto&& commandList = m_commandLists[m_recordedCommandLists++];
-        // can be reset anytime after ExecuteCommandList(), and always has to be reset before recording
-        if (FAILED(commandList->Reset(GetCommandAllocator(), nullptr)))
-        {
-            CL_ASSERT_MSG("Failed to reset command list!");
-        }
+        auto&& commandList = AllocateCommandList();
 
-        job(commandList.Get());
+        job(commandList);
 
         if (FAILED(commandList->Close()))
         {
@@ -676,10 +697,43 @@ void Cloud::Renderer::RenderCore::Present()
 
     WaitForPreviousFrame();
 
+    m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+    m_perModelConstBuffer.Reset();
+    m_perSceneConstBuffer.Reset();
+
 #else
     const CLbool enableVSync = Cloud::Renderer::Settings::Instance().GetRoot()["Graphics"]["VSync"].asBool();
     m_swapChain->Present(enableVSync ? 1 : 0, 0);
 #endif
+}
+
+void Cloud::Renderer::RenderCore::Flush()
+{
+    std::vector<ID3D12CommandList*> commandLists;
+    for (CLuint i = 0; i < m_recordedCommandLists; i++)
+    {
+        commandLists.emplace_back(m_commandLists[i].Get());
+    }
+
+    m_recordedCommandLists = 0;
+
+    m_commandQueue->ExecuteCommandLists(gsl::narrow_cast<CLuint>(commandLists.size()), commandLists.data());
+
+    // wait for gpu idle
+    WaitForPreviousFrame();
+}
+
+ID3D12GraphicsCommandList* Cloud::Renderer::RenderCore::AllocateCommandList()
+{
+    auto&& commandList = m_commandLists[m_recordedCommandLists++].Get();
+
+    // can be reset anytime after ExecuteCommandList(), and always has to be reset before recording
+    if (FAILED(commandList->Reset(GetCommandAllocator(), nullptr)))
+    {
+        CL_ASSERT_MSG("Failed to reset command list!");
+    }
+
+    return commandList;
 }
 
 void Cloud::Renderer::RenderCore::WaitForPreviousFrame()
@@ -702,8 +756,6 @@ void Cloud::Renderer::RenderCore::WaitForPreviousFrame()
 
         WaitForSingleObject(m_fenceEvent, INFINITE);
     }
-
-    m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 }
 
 CLuint Cloud::Renderer::RenderCore::GetMSAAQuality(CLuint /*samples*/, DXGI_FORMAT /*format*/)

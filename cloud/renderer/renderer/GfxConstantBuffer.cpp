@@ -2,27 +2,24 @@
 #include "GfxConstantBuffer.h"
 
 #include "RenderCore.h"
+#include "utilities/MathUtilities.h"
 
 Cloud::Renderer::GfxConstantBuffer::GfxConstantBuffer()
-    : m_data(0)
-    , m_dataSize(0)
-#ifdef USE_DIRECTX12
-#else
-    , m_constantBuffer(0)
-#endif
 {
 }
 
-CLbool Cloud::Renderer::GfxConstantBuffer::Initialise()
+CLbool Cloud::Renderer::GfxConstantBuffer::Initialise(CLuint versions)
 {
+    m_versions = versions;
+
 #ifdef USE_DIRECTX12
 
     auto&& device = RenderCore::Instance().GetDevice();
 
-    const auto alignedDataSize = CL_ALIGN_TO(m_dataSize, 256); // CB size is required to be 256-byte aligned.
+    const auto alignedDataSize = CL_ALIGN_TO(m_dataSize, c_cbufferAlignment); // CB size is required to be 256-byte aligned.
 
     auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-    auto buffer = CD3DX12_RESOURCE_DESC::Buffer(alignedDataSize);
+    auto buffer = CD3DX12_RESOURCE_DESC::Buffer(alignedDataSize * m_versions);
 
     if (FAILED(device->CreateCommittedResource(
         &heapProperties,
@@ -36,15 +33,15 @@ CLbool Cloud::Renderer::GfxConstantBuffer::Initialise()
         return false;
     }
 
-    static auto s_descriptorIndex = 0;
-    static const auto c_cbvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-    m_handle.InitOffsetted(RenderCore::Instance().GetCbvHeap()->GetCPUDescriptorHandleForHeapStart(), s_descriptorIndex++, c_cbvDescriptorSize);
+    /*static const auto c_cbvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    const auto offset = RenderCore::Instance().m_cbvHeapIndex++;
+    m_handle.InitOffsetted(RenderCore::Instance().GetCbvHeap()->GetCPUDescriptorHandleForHeapStart(), offset, c_cbvDescriptorSize);
     
 
     D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
     desc.BufferLocation = m_constantBuffer->GetGPUVirtualAddress();
     desc.SizeInBytes = alignedDataSize;
-    device->CreateConstantBufferView(&desc, m_handle);
+    device->CreateConstantBufferView(&desc, m_handle);*/
 
     // We don't unmap this until the app closes. Keeping things mapped for the lifetime of the resource is okay.
     CD3DX12_RANGE readRange(0, 0);  // No CPU read
@@ -54,7 +51,10 @@ CLbool Cloud::Renderer::GfxConstantBuffer::Initialise()
         return false;
     }
 
-    ClMemCopy(m_bufferData, m_data, m_dataSize);
+    if (m_data)
+    {
+        UpdateConstantBuffer(m_data);
+    }
 
     return true;
 #else
@@ -76,8 +76,15 @@ CLbool Cloud::Renderer::GfxConstantBuffer::Initialise()
 #endif
 }
 
+CLbool Cloud::Renderer::GfxConstantBuffer::Initialise(CLint dataSize, const void* initialData, CLuint versions)
+{
+    SetData(initialData, dataSize);
+    return Initialise(versions);
+}
+
 void Cloud::Renderer::GfxConstantBuffer::Uninitialise()
 {
+    m_versions = 0;
 #ifdef USE_DIRECTX12
     if (m_constantBuffer)
     {
@@ -92,7 +99,7 @@ void Cloud::Renderer::GfxConstantBuffer::Uninitialise()
 #endif
 }
 
-void Cloud::Renderer::GfxConstantBuffer::SetData(void* data, CLint dataSize)
+void Cloud::Renderer::GfxConstantBuffer::SetData(const void* data, CLint dataSize)
 {
     m_data = data;
     m_dataSize = dataSize;
@@ -101,8 +108,38 @@ void Cloud::Renderer::GfxConstantBuffer::SetData(void* data, CLint dataSize)
 void Cloud::Renderer::GfxConstantBuffer::GPUUpdateConstantBuffer()
 {
 #ifdef USE_DIRECTX12
-    ClMemCopy(m_bufferData, m_data, m_dataSize);
+    if (m_data)
+    {
+        UpdateConstantBuffer(m_data);
+    }
 #else
     RenderCore::Instance().GetContext()->UpdateSubresource(m_constantBuffer, 0, 0, m_data, 0, 0 );
 #endif
+}
+
+D3D12_GPU_VIRTUAL_ADDRESS Cloud::Renderer::GfxConstantBuffer::UpdateConstantBuffer(const void* data)
+{
+    m_currentVersion++;
+    CL_ASSERT(m_currentVersion < static_cast<CLint>(m_versions), "ran out of versions!");
+
+    const auto alignedDataSize = CL_ALIGN_TO(m_dataSize, c_cbufferAlignment);
+    const auto offset = m_currentVersion * alignedDataSize;
+    ClMemCopy(m_bufferData + offset, data, m_dataSize);
+
+    return m_constantBuffer->GetGPUVirtualAddress() + offset;
+}
+
+D3D12_GPU_VIRTUAL_ADDRESS Cloud::Renderer::GfxConstantBuffer::GetCurrentVersionGpuAddress() const
+{
+    const auto alignedDataSize = CL_ALIGN_TO(m_dataSize, c_cbufferAlignment);
+
+    // even if there are no versions, at least get a valid address
+    const auto offset = std::max(m_currentVersion, 0) * alignedDataSize;
+    auto temp = m_constantBuffer->GetGPUVirtualAddress() + offset;
+    return temp;
+}
+
+void Cloud::Renderer::GfxConstantBuffer::Reset()
+{
+    m_currentVersion = -1;
 }

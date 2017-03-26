@@ -42,7 +42,16 @@ CLbool Cloud::Renderer::ShaderEffect::Load(const std::string& effectPath)
     InputLayout::InputLayoutDesc inputLayoutDesc;
     ParseInputLayout(root["Input"], root["InstanceInput"], inputLayoutDesc);
 
-    if (!LoadShaders(inputLayoutDesc))
+    D3D12_BLEND_DESC blendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    ParseBlendState(root["BlendState"], blendState);
+
+    D3D12_RASTERIZER_DESC rasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    ParseRasterizerState(root["RasterizerState"], rasterizerState);
+
+    D3D12_DEPTH_STENCIL_DESC depthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    ParseDepthStencilState(root["DepthStencilState"], depthStencilState);
+
+    if (!LoadShaders(inputLayoutDesc, blendState, rasterizerState, depthStencilState))
         return false;
 
 #ifdef USE_DIRECTX12
@@ -77,7 +86,10 @@ void Cloud::Renderer::ShaderEffect::Unload()
 #endif
 }
 
-CLbool Cloud::Renderer::ShaderEffect::LoadShaders(const InputLayout::InputLayoutDesc& inputLayoutDesc)
+CLbool Cloud::Renderer::ShaderEffect::LoadShaders(const InputLayout::InputLayoutDesc& inputLayoutDesc,
+                                                  const D3D12_BLEND_DESC& blendState,
+                                                  const D3D12_RASTERIZER_DESC& rasterizerState,
+                                                  const D3D12_DEPTH_STENCIL_DESC& depthStencilState)
 {
 #ifdef USE_DIRECTX12
     ComPtr<ID3DBlob> vertexShaderBlob;
@@ -125,13 +137,9 @@ CLbool Cloud::Renderer::ShaderEffect::LoadShaders(const InputLayout::InputLayout
         psoDesc.VS = vertexShaderBlob ? CD3DX12_SHADER_BYTECODE(vertexShaderBlob.Get()) : CD3DX12_SHADER_BYTECODE(nullptr, 0);
         psoDesc.GS = geometryShaderBlob ? CD3DX12_SHADER_BYTECODE(geometryShaderBlob.Get()) : CD3DX12_SHADER_BYTECODE(nullptr, 0);
         psoDesc.PS = pixelShaderBlob ? CD3DX12_SHADER_BYTECODE(pixelShaderBlob.Get()) : CD3DX12_SHADER_BYTECODE(nullptr, 0);
-        psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-        psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-        //psoDesc.DepthStencilState.DepthEnable = FALSE;
-        psoDesc.DepthStencilState.DepthEnable = TRUE;
-        psoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-        psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-        psoDesc.DepthStencilState.StencilEnable = FALSE;
+        psoDesc.RasterizerState = rasterizerState;
+        psoDesc.BlendState = blendState;
+        psoDesc.DepthStencilState = depthStencilState;
         psoDesc.SampleMask = UINT_MAX;
         psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
         psoDesc.NumRenderTargets = 1;
@@ -265,6 +273,214 @@ CLbool Cloud::Renderer::ShaderEffect::ParseInputLayout(const Json::Value& inputL
 
         elementByteOffset += GetFormatSize(inputLayoutDescOutput[targetIndex].format);
     }
+
+    return true;
+}
+
+D3D12_BLEND ToBlend(const std::string& str)
+{
+    if (str == "ZERO")              return D3D12_BLEND_ZERO;
+    if (str == "ONE")               return D3D12_BLEND_ONE;
+    if (str == "SRC_COLOR")         return D3D12_BLEND_SRC_COLOR;
+    if (str == "INV_SRC_COLOR")     return D3D12_BLEND_INV_SRC_COLOR;
+    if (str == "SRC_ALPHA")         return D3D12_BLEND_SRC_ALPHA;
+    if (str == "INV_SRC_ALPHA")     return D3D12_BLEND_INV_SRC_ALPHA;
+    if (str == "DEST_ALPHA")        return D3D12_BLEND_DEST_ALPHA;
+    if (str == "INV_DEST_ALPHA")    return D3D12_BLEND_INV_DEST_ALPHA;
+    if (str == "DEST_COLOR")        return D3D12_BLEND_DEST_COLOR;
+    if (str == "INV_DEST_COLOR")    return D3D12_BLEND_INV_DEST_COLOR;
+    if (str == "SRC_ALPHA_SAT")     return D3D12_BLEND_SRC_ALPHA_SAT;
+    if (str == "BLEND_FACTOR")      return D3D12_BLEND_BLEND_FACTOR;
+    if (str == "INV_BLEND_FACTOR")  return D3D12_BLEND_INV_BLEND_FACTOR;
+    if (str == "SRC1_COLOR")        return D3D12_BLEND_SRC1_COLOR;
+    if (str == "INV_SRC1_COLOR")    return D3D12_BLEND_INV_SRC1_COLOR;
+    if (str == "SRC1_ALPHA")        return D3D12_BLEND_SRC1_ALPHA;
+    if (str == "INV_SRC1_ALPHA")    return D3D12_BLEND_INV_SRC1_ALPHA;
+
+    CL_ASSERT_MSG("unknown value");
+    return D3D12_BLEND_ZERO;
+}
+
+D3D12_BLEND_OP ToBlendOp(const std::string& str)
+{
+    if (str == "ADD")               return D3D12_BLEND_OP_ADD;
+    if (str == "SUBTRACT")          return D3D12_BLEND_OP_SUBTRACT;
+    if (str == "REV_SUBTRACT")      return D3D12_BLEND_OP_REV_SUBTRACT;
+    if (str == "MIN")               return D3D12_BLEND_OP_MIN;
+    if (str == "MAX")               return D3D12_BLEND_OP_MAX;
+
+    CL_ASSERT_MSG("unknown value");
+    return D3D12_BLEND_OP_ADD;
+}
+
+D3D12_FILL_MODE ToFillMode(const std::string& str)
+{
+    if (str == "WIREFRAME")         return D3D12_FILL_MODE_WIREFRAME;
+    if (str == "SOLID")             return D3D12_FILL_MODE_SOLID;
+
+    CL_ASSERT_MSG("unknown value");
+    return D3D12_FILL_MODE_SOLID;
+}
+
+D3D12_CULL_MODE ToCullMode(const std::string& str)
+{
+    if (str == "NONE")              return D3D12_CULL_MODE_NONE;
+    if (str == "FRONT")             return D3D12_CULL_MODE_FRONT;
+    if (str == "BACK")              return D3D12_CULL_MODE_BACK;
+
+    CL_ASSERT_MSG("unknown value");
+    return D3D12_CULL_MODE_NONE;
+}
+
+D3D12_DEPTH_WRITE_MASK ToDepthWriteMask(const std::string& str)
+{
+    if (str == "ZERO")              return D3D12_DEPTH_WRITE_MASK_ZERO;
+    if (str == "ALL")               return D3D12_DEPTH_WRITE_MASK_ALL;
+
+    CL_ASSERT_MSG("unknown value");
+    return D3D12_DEPTH_WRITE_MASK_ZERO;
+}
+
+D3D12_COMPARISON_FUNC ToComparisonFunc(const std::string& str)
+{
+    if (str == "NEVER")             return D3D12_COMPARISON_FUNC_NEVER;
+    if (str == "LESS")              return D3D12_COMPARISON_FUNC_LESS;
+    if (str == "EQUAL")             return D3D12_COMPARISON_FUNC_EQUAL;
+    if (str == "LESS_EQUAL")        return D3D12_COMPARISON_FUNC_LESS_EQUAL;
+    if (str == "GREATER")           return D3D12_COMPARISON_FUNC_GREATER;
+    if (str == "NOT_EQUAL")         return D3D12_COMPARISON_FUNC_NOT_EQUAL;
+    if (str == "GREATER_EQUAL")     return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
+    if (str == "ALWAYS")            return D3D12_COMPARISON_FUNC_ALWAYS;
+
+    CL_ASSERT_MSG("unknown value");
+    return D3D12_COMPARISON_FUNC_NEVER;
+}
+
+D3D12_STENCIL_OP ToStencilOp(const std::string& str)
+{
+    if (str == "KEEP")              return D3D12_STENCIL_OP_KEEP;
+    if (str == "ZERO")              return D3D12_STENCIL_OP_ZERO;
+    if (str == "REPLACE")           return D3D12_STENCIL_OP_REPLACE;
+    if (str == "INCR_SAT")          return D3D12_STENCIL_OP_INCR_SAT;
+    if (str == "DECR_SAT")          return D3D12_STENCIL_OP_DECR_SAT;
+    if (str == "INVERT")            return D3D12_STENCIL_OP_INVERT;
+    if (str == "INCR")              return D3D12_STENCIL_OP_INCR;
+    if (str == "DECR")              return D3D12_STENCIL_OP_DECR;
+
+    CL_ASSERT_MSG("unknown value");
+    return D3D12_STENCIL_OP_KEEP;
+}
+
+CLbool Cloud::Renderer::ShaderEffect::ParseBlendState(const Json::Value& blendState, D3D12_BLEND_DESC& blendStateDesc)
+{
+    if (blendState["BlendEnable"].isBool())
+    {
+        blendStateDesc.RenderTarget[0].BlendEnable = blendState["BlendEnable"].asBool();
+    }
+
+    if (blendState["SrcBlend"].isString())
+    {
+        blendStateDesc.RenderTarget[0].SrcBlend = ToBlend(blendState["SrcBlend"].asString());
+    }
+
+    if (blendState["DestBlend"].isString())
+    {
+        blendStateDesc.RenderTarget[0].DestBlend = ToBlend(blendState["DestBlend"].asString());
+    }
+
+    if (blendState["BlendOp"].isString())
+    {
+        blendStateDesc.RenderTarget[0].BlendOp = ToBlendOp(blendState["BlendOp"].asString());
+    }
+
+    if (blendState["SrcBlendAlpha"].isString())
+    {
+        blendStateDesc.RenderTarget[0].SrcBlendAlpha = ToBlend(blendState["SrcBlendAlpha"].asString());
+    }
+
+    if (blendState["DestBlendAlpha"].isString())
+    {
+        blendStateDesc.RenderTarget[0].DestBlendAlpha = ToBlend(blendState["DestBlendAlpha"].asString());
+    }
+
+    if (blendState["BlendOpAlpha"].isString())
+    {
+        blendStateDesc.RenderTarget[0].BlendOpAlpha = ToBlendOp(blendState["BlendOpAlpha"].asString());
+    }
+    
+    return true;
+}
+
+CLbool Cloud::Renderer::ShaderEffect::ParseRasterizerState(const Json::Value& rasterizerState, D3D12_RASTERIZER_DESC& rasterizerStateDesc)
+{
+    if (rasterizerState["FillMode"].isString())
+    {
+        rasterizerStateDesc.FillMode = ToFillMode(rasterizerState["FillMode"].asString());
+    }
+
+    if (rasterizerState["CullMode"].isString())
+    {
+        rasterizerStateDesc.CullMode = ToCullMode(rasterizerState["CullMode"].asString());
+    }
+
+    if (rasterizerState["DepthClipEnable"].isBool())
+    {
+        rasterizerStateDesc.DepthClipEnable = rasterizerState["DepthClipEnable"].asBool();
+    }
+
+    return true;
+}
+
+CLbool Cloud::Renderer::ShaderEffect::ParseDepthStencilState(const Json::Value& depthStencilState, D3D12_DEPTH_STENCIL_DESC& depthStencilStateDesc)
+{
+    if (depthStencilState["DepthEnable"].isBool())
+    {
+        depthStencilStateDesc.DepthEnable = depthStencilState["DepthEnable"].asBool();
+    }
+
+    if (depthStencilState["DepthWriteMask"].isString())
+    {
+        depthStencilStateDesc.DepthWriteMask = ToDepthWriteMask(depthStencilState["DepthWriteMask"].asString());
+    }
+
+    if (depthStencilState["DepthFunc"].isString())
+    {
+        depthStencilStateDesc.DepthFunc = ToComparisonFunc(depthStencilState["DepthFunc"].asString());
+    }
+
+    if (depthStencilState["StencilEnable"].isBool())
+    {
+        depthStencilStateDesc.StencilEnable = depthStencilState["StencilEnable"].asBool();
+    }
+
+    auto parseStencilStateFace = [](const Json::Value& face, D3D12_DEPTH_STENCILOP_DESC& faceDesc)
+    {
+        if (!face.isNull())
+        {
+            if (face["StencilFailOp"].isString())
+            {
+                faceDesc.StencilFailOp = ToStencilOp(face["StencilFailOp"].asString());
+            }
+
+            if (face["StencilDepthFailOp"].isString())
+            {
+                faceDesc.StencilDepthFailOp = ToStencilOp(face["StencilDepthFailOp"].asString());
+            }
+
+            if (face["StencilPassOp"].isString())
+            {
+                faceDesc.StencilPassOp = ToStencilOp(face["StencilPassOp"].asString());
+            }
+
+            if (face["StencilFunc"].isString())
+            {
+                faceDesc.StencilFunc = ToComparisonFunc(face["StencilFunc"].asString());
+            }
+        }
+    };
+
+    parseStencilStateFace(depthStencilState["FrontFace"], depthStencilStateDesc.FrontFace);
+    parseStencilStateFace(depthStencilState["BackFace"], depthStencilStateDesc.BackFace);
 
     return true;
 }

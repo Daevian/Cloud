@@ -8,6 +8,8 @@
 #include "DebugRenderer.h"
 #include "CsSort.h"
 #include "ModelRenderer.h"
+#include "ImguiRenderer.h"
+#include "ResourceContainer.h"
 
 
 //struct lua_State;
@@ -18,10 +20,12 @@ namespace Renderer
 {
     class GfxTexture;
     class Scene;
+    class LightCollection;
 
     class Renderer
     {
     public:
+        static CLbool s_showDebugMenu;
         Renderer();
         ~Renderer();
 
@@ -36,14 +40,21 @@ namespace Renderer
 
         Camera& GetCamera()                     { return m_camera; }
 
-        DebugRenderer& GetDebugRendererForRenderer()       { return m_debugRenderer; }
-        DebugRenderer& GetDebugRendererForGame()           { return m_debugRenderer; }
+        DebugRenderer& GetDebugRendererForRenderer()        { return m_debugRenderer; }
+        DebugRenderer& GetDebugRendererForGame()            { return m_debugRenderer; }
+
+        static ResourceContainer& GetResourceContainer()    { return *s_resourceContainer; }
+        
     private:
+        void PopulateDebugMenu();
+
+        ResourceContainer m_resourceContainer;
         CSTest m_csTest;
         DebugRenderer m_debugRenderer;
         SpriteManager m_spriteManager;
         ParticleManager m_particleManager;
         ModelRenderer m_modelRenderer;
+        ImguiRenderer m_imguiRenderer;
         CsSorter m_csSorter;
         Camera m_camera;
 
@@ -53,8 +64,12 @@ namespace Renderer
 
         std::unique_ptr<LuaStateEx> m_luaState;
 
-        std::unique_ptr<ModelInstance> m_instance;
+        std::array<std::unique_ptr<ModelInstance>, 10> m_instances;
         std::unique_ptr<Scene> m_forwardScene;
+        std::unique_ptr<Scene> m_imguiScene;
+        std::unique_ptr<LightCollection> m_lights;
+
+        static ResourceContainer* s_resourceContainer;
     };
 }
 }

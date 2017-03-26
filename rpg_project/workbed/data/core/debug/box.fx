@@ -3,6 +3,7 @@ cbuffer PerScene : register( b0 )
 {
     matrix view;
     matrix projection;
+	matrix viewProj;
 }
 
 cbuffer PerModel : register( b1 )

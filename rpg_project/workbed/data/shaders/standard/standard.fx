@@ -3,11 +3,36 @@ cbuffer PerScene : register( b0 )
 {
     matrix view;
     matrix projection;
+	matrix viewProj;
 }
 
 cbuffer PerModel : register( b1 )
 {
     matrix model;
+}
+
+cbuffer PerMaterial : register(b2)
+{
+    float4 f0;
+    float roughness;
+}
+
+cbuffer Lighting : register(b3)
+{
+    struct DirectionalLight
+    {
+        float3  direction;
+        float   intensity;
+    };
+
+    struct PointLight
+    {
+        float3  position;
+        float   intensity;
+    };
+
+    DirectionalLight    dirLight;
+    PointLight          pointLight[1];
 }
 
 struct VSInput
@@ -28,7 +53,7 @@ PSInput vs(VSInput input)
 {
     PSInput output;
     float4 pos = input.pos;
-    //pos = mul(model, pos);
+    pos = mul(model, pos);
     pos = mul(view, pos);
 
     output.viewVS = normalize(-pos.xyz);
@@ -36,9 +61,7 @@ PSInput vs(VSInput input)
     output.pos = mul(projection, pos);
 
     output.norm = input.norm;
-    //output.norm = mul((float3x3)model, input.norm);
-
-    
+    output.norm = mul((float3x3)model, input.norm);
     
     output.col = 1;
     
@@ -47,35 +70,14 @@ PSInput vs(VSInput input)
 
 #define CL_PI 3.14159265359f
 
-static const float3 ambCol = float3(0.4, 0.4, 0.4);
-static const float3 sunCol = float3(1, 1, 1);
-static const float3 sunDir = float3(0.0, 1.0, 0.0);
-static const float sunIntensity = 100000.0f;
-static const float roughness = 0.7;
-
-static const float3 f0 = float3(1.0, 0.71, 0.29); // gold
-//static const float3 f0 = float3(0.95, 0.93, 0.88); // silver
-
-float4 ps(PSInput input) : SV_TARGET
+float3 brdf(float3 vVS, float3 lVS, float3 nVS, float3 hVS)
 {
-    float3 vVS = normalize(input.viewVS);
-    float3 n = normalize(input.norm);
-    float3 nVS = mul((float3x3)view, n);
-    float3 l = normalize(sunDir);
-    float3 lVS = mul((float3x3)view, l);
-    float3 hVS = normalize(vVS + lVS);
-    float cosFactor = saturate(dot(l, n));
-    float intensity = 10;// sunIntensity;
-    //float3 col = input.col.rgb * (ambCol + light * sunCol);
-    //float3 col = input.col.rgb * (ambCol + light * sunCol);
-
-    //brdf
-    float3 diffuse = 0;// f0 / CL_PI;
+    float3 diffuse = 0;// f0.rgb / CL_PI;
 
     // schlick
     //float temp = (1 - dot(lVS, nVS));
     float temp = 1 - dot(lVS, hVS); // MF
-    float3 F = f0 + (1 - f0) * temp * temp * temp * temp * temp;
+    float3 F = f0.rgb + (1 - f0.rgb) * temp * temp * temp * temp * temp;
 
 
     float G = 1;
@@ -91,10 +93,22 @@ float4 ps(PSInput input) : SV_TARGET
     float D = a2 / (CL_PI * temp2 * temp2);
 
     float3 f = (F * G * D) / 4;// (4 * dot(nVS, lVS) * dot(nVS, vVS));
-    float3 L = cosFactor * intensity * (f + diffuse);
+    return f + diffuse;
+}
 
-    //L = cosFactor * (F * G * D);
-    //L = f;
+float4 ps(PSInput input) : SV_TARGET
+{
+    float3 n = normalize(input.norm);
+    float3 l = normalize(dirLight.direction);
 
-    return float4(L, input.col.a);// / 100000;
+    float3 vVS = normalize(input.viewVS);
+    float3 nVS = mul((float3x3)view, n);
+    float3 lVS = mul((float3x3)view, l);
+    float3 hVS = normalize(vVS + lVS);
+    float cosFactor = saturate(dot(l, n));
+    float intensity = dirLight.intensity;
+
+    float3 L = brdf(vVS, lVS, nVS, hVS) * intensity * cosFactor;
+
+    return float4(L, input.col.a);
 }

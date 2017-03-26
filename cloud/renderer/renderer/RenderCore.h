@@ -18,6 +18,7 @@ namespace Cloud
         {
             Math::Matrix4 view;
             Math::Matrix4 projection;
+            Math::Matrix4 viewProj;
         };
 
         struct PerModelConstBuffer
@@ -45,11 +46,16 @@ namespace Cloud
             void QueueRecordCommandListJob(const RecordCommandListJob& func);
             void RecordCommandLists();
             void Present();
+            void Flush();
+
+            ID3D12GraphicsCommandList* AllocateCommandList();
 
             void WaitForPreviousFrame();
 
+            const Settings&         GetSettings() const             { return m_settings; }
+
 #ifdef USE_DIRECTX12
-            ID3D12Device*           GetDevice() { return m_device.Get(); }
+            ID3D12Device*           GetDevice()                     { return m_device.Get(); }
 #else
             ID3D11Device*           GetDevice()                     { return m_device.get(); }
             ID3D11DeviceContext*    GetContext()                    { return m_context.get(); }
@@ -63,11 +69,21 @@ namespace Cloud
 
             PerSceneConstBuffer&    GetPerSceneConstData()          { return m_perSceneConstData; }
             PerModelConstBuffer&    GetPerModelConstData()          { return m_perModelConstData; }
+
+            GfxConstantBuffer&      GetPerSceneConstBuffer()        { return m_perSceneConstBuffer; }
+            GfxConstantBuffer&      GetPerModelConstBuffer()        { return m_perModelConstBuffer; }
+
 #ifdef USE_DIRECTX12
             ID3D12RootSignature*    GetRootSignature() { return m_rootSignature.Get(); }
             ID3D12CommandAllocator* GetCommandAllocator() { return m_commandAllocator.Get(); }
             ID3D12DescriptorHeap*   GetCbvHeap() { return m_cbvHeap.Get(); }
             ID3D12DescriptorHeap*   GetDsvHeap() { return m_dsvHeap.Get(); }
+            //ID3D12DescriptorHeap*   GetSrvHeap() { return m_cbvHeap.Get(); }
+            static const CLuint c_cbvDescCount = 2;
+            static const CLuint c_srvDescCount = 1;
+            CLuint m_cbvHeapIndex = 0;
+            CLuint m_srvHeapIndex = 0;
+            CLuint m_dsvHeapIndex = 0;
             CD3DX12_VIEWPORT&       GetViewPort() { return m_viewPort; }
             CD3DX12_RECT&           GetScissorRect() { return m_scissorRect; }
             CD3DX12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBuffer();
@@ -131,6 +147,7 @@ namespace Cloud
             ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
             ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
             ComPtr<ID3D12DescriptorHeap> m_cbvHeap;
+            //ComPtr<ID3D12DescriptorHeap> m_srvHeap;
             ComPtr<ID3D12CommandAllocator> m_commandAllocator;
             std::array<ComPtr<ID3D12Resource>, c_frameBufferCount> m_renderTargets;
 

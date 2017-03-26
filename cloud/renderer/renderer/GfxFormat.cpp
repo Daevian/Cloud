@@ -7,7 +7,9 @@ Cloud::Renderer::GfxFormat Cloud::Renderer::GetFormat(const std::string& formatN
     if (formatName == "R32G32_FLOAT")           return GfxFormat::R32G32_FLOAT;
     if (formatName == "R32G32B32_FLOAT")        return GfxFormat::R32G32B32_FLOAT;
     if (formatName == "R32G32B32A32_FLOAT")     return GfxFormat::R32G32B32A32_FLOAT;
+    if (formatName == "R8G8B8A8_UNORM")         return GfxFormat::R8G8B8A8_UNORM;
     
+    CL_ASSERT_MSG("unknown format");
     return GfxFormat::UNKNOWN;
 }
 
@@ -21,9 +23,14 @@ CLuint Cloud::Renderer::GetFormatSize(GfxFormat format)
             return 12;
         case GfxFormat::R32G32B32A32_FLOAT:
             return 16;
+        case GfxFormat::R8G8B8A8_UNORM:
+            return 4;
         case GfxFormat::UNKNOWN:
         default:
+        {
+            CL_ASSERT_MSG("unknown format size");
             return 0;
+        }
     }
 }
 

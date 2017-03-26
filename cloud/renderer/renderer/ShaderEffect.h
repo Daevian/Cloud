@@ -32,10 +32,15 @@ namespace Cloud
             const ClString&         GetPath() const             { return m_effectPath; }
 
         private:
-            CLbool LoadShaders(const InputLayout::InputLayoutDesc& inputLayoutDesc);
+            CLbool LoadShaders(const InputLayout::InputLayoutDesc& inputLayoutDesc,
+                               const D3D12_BLEND_DESC& blendState,
+                               const D3D12_RASTERIZER_DESC& rasterizerState,
+                               const D3D12_DEPTH_STENCIL_DESC& depthStencilState);
 
             CLbool ParseInputLayout(const Json::Value& inputLayout, const Json::Value& instanceInputLayout, InputLayout::InputLayoutDesc& inputLayoutDescOutput);
-
+            CLbool ParseBlendState(const Json::Value& blendState, D3D12_BLEND_DESC& blendStateDesc);
+            CLbool ParseRasterizerState(const Json::Value& rasterizerState, D3D12_RASTERIZER_DESC& rasterizerStateDesc);
+            CLbool ParseDepthStencilState(const Json::Value& depthStencilState, D3D12_DEPTH_STENCIL_DESC& depthStencilStateDesc);
 #ifdef USE_DIRECTX12
             ComPtr<ID3DBlob> CompileShader(const ClString& shaderPath, const ClString& entryPoint, const ClString& shaderModel);
 #else

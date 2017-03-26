@@ -3,9 +3,9 @@
 
 #include "RenderCore.h"
 
-Cloud::Renderer::IndexBuffer::IndexBuffer()
+Cloud::Renderer::IndexBuffer::IndexBuffer(CLint indexSize)
     : m_indexCount(0)
-    , m_indexSize(sizeof(CLuint32))
+    , m_indexSize(indexSize)
     , m_indexData(0)
 {
 }
@@ -46,20 +46,21 @@ CLbool Cloud::Renderer::IndexBuffer::Initialise()
 
     // copy initial index data
     {
-        UINT8* dataBegin;
         CD3DX12_RANGE readRange(0, 0); // no CPU read
-        if (FAILED(m_buffer->Map(0, &readRange, reinterpret_cast<void**>(&dataBegin))))
+        if (FAILED(m_buffer->Map(0, &readRange, &m_bufferData)))
         {
             CL_ASSERT_MSG("Couldn't map index buffer!");
             return false;
         }
 
-        memcpy(dataBegin, m_indexData, m_indexSize * m_indexCount);
-        m_buffer->Unmap(0, nullptr);
+        if (m_indexData)
+        {
+            memcpy(m_bufferData, m_indexData, m_indexSize * m_indexCount);
+        }
     }
 
     m_view.BufferLocation = m_buffer->GetGPUVirtualAddress();
-    m_view.Format = DXGI_FORMAT_R32_UINT;
+    m_view.Format = m_indexSize == sizeof(CLuint32) ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
     m_view.SizeInBytes = m_indexSize * m_indexCount;
 
     return true;
@@ -93,6 +94,10 @@ CLbool Cloud::Renderer::IndexBuffer::Initialise()
 void Cloud::Renderer::IndexBuffer::Uninitialise()
 {
 #ifdef USE_DIRECTX12
+    if (m_buffer)
+    {
+        m_buffer->Unmap(0, nullptr);
+    }
 #else
     CL_ASSERT(m_indexBuffer != 0, "Can't unload uninitialised effect!");
 
@@ -103,6 +108,7 @@ void Cloud::Renderer::IndexBuffer::Uninitialise()
 void Cloud::Renderer::IndexBuffer::GPUUpdateIndexBuffer()
 {
 #ifdef USE_DIRECTX12
+    memcpy(m_bufferData, m_indexData, m_indexSize * m_indexCount);
 #else
     RenderCore::Instance().GetContext()->UpdateSubresource(
         m_indexBuffer.get(),
@@ -112,4 +118,12 @@ void Cloud::Renderer::IndexBuffer::GPUUpdateIndexBuffer()
         0,
         0);
 #endif
+}
+
+void Cloud::Renderer::IndexBuffer::GPUUpdateIndexBuffer(void* data, CLsize_t size, CLsize_t offset)
+{
+    CL_ASSERT(offset + size <= m_indexCount * m_indexSize, "trying to copy outside of the buffer!");
+
+    auto&& dest = static_cast<CLbyte*>(m_bufferData) + offset;
+    memcpy(dest, data, size);
 }
