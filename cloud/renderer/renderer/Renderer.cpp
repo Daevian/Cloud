@@ -221,6 +221,7 @@ void Cloud::Renderer::Renderer::Render()
 
     auto& perSceneConstBuffer = renderCore.GetPerSceneConstData();
     perSceneConstBuffer.view = m_camera.GetView();
+    perSceneConstBuffer.invView = Math::Matrix4::Inverse(m_camera.GetView());
     perSceneConstBuffer.projection = m_camera.GetProjection();
     perSceneConstBuffer.viewProj = m_camera.GetProjection() * m_camera.GetView();
     renderCore.GpuUpdatePerSceneConstBuffer();
@@ -264,7 +265,7 @@ void Cloud::Renderer::Renderer::Render()
 
 void Cloud::Renderer::Renderer::PopulateDebugMenu()
 {
-    ImGui::ShowTestWindow();
+    //ImGui::ShowTestWindow();
 
     ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiSetCond_FirstUseEver);
     static CLbool s_modelWindowOpen = true;

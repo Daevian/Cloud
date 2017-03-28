@@ -19,6 +19,7 @@ namespace Cloud
             Math::Matrix4 view;
             Math::Matrix4 projection;
             Math::Matrix4 viewProj;
+            Math::Matrix4 invView;
         };
 
         struct PerModelConstBuffer

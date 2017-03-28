@@ -159,6 +159,7 @@ void Cloud::Renderer::ImguiRenderer::RenderDrawLists(ID3D12GraphicsCommandList* 
     auto& renderCore = RenderCore::Instance();
     auto& perSceneConstBuffer = renderCore.GetPerSceneConstData();
     perSceneConstBuffer.view = Math::Matrix4::Identity();
+    perSceneConstBuffer.invView = Math::Matrix4::Identity();
     perSceneConstBuffer.projection = Math::Matrix4::Identity();
     perSceneConstBuffer.viewProj = Math::Matrix4(
         Math::Float4(2.0f / (R - L), 0.0f, 0.0f, 0.0f),
