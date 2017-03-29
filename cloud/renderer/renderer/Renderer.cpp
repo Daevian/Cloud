@@ -6,6 +6,7 @@
 #include "Scene.h"
 #include "LightCollection.h"
 #include "Material.h"
+#include "Mesh.h"
 
 CLbool Cloud::Renderer::Renderer::s_showDebugMenu = false;
 Cloud::Renderer::ResourceContainer* Cloud::Renderer::Renderer::s_resourceContainer = nullptr;
@@ -53,10 +54,20 @@ CLbool Cloud::Renderer::Renderer::Initialise()
 
     m_forwardScene = std::make_unique<Scene>(m_modelRenderer, m_lights.get());
 
+    auto planeMesh = Mesh::CreatePlane();
+    m_groundInstance = std::make_unique<ModelInstance>(planeMesh);
+    m_forwardScene->AddModelInstance(*m_groundInstance);
+    {
+        auto&& transform = m_groundInstance->GetTransformMutable();
+        transform *= ClMatrix4::Scale(ClFloat4(1000.0f, 0.01f, 1000.0f, 0.0f));
+        transform *= ClMatrix4::Translation(0.0f, -10.0f, 0.0f);
+    }
+
+    auto sphereMesh = Mesh::CreateSphere(100, 100);
     CLfloat positionOffset = 5.0f;
     for (auto&& instance : m_instances)
     {
-        instance = std::make_unique<ModelInstance>();
+        instance = std::make_unique<ModelInstance>(sphereMesh);
         instance->GetTransformMutable() *= ClMatrix4::Translation(positionOffset, 0.0f, 0.0f);
         positionOffset += 1.5f;
         m_forwardScene->AddModelInstance(*instance);

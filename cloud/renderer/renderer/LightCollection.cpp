@@ -7,7 +7,7 @@ Cloud::Renderer::LightCollection::LightCollection()
 
 void Cloud::Renderer::LightCollection::Initialise()
 {
-    m_lightCBufferData.dirLight.direction = { 0.0f, 1.0f, 0.0f };
+    m_lightCBufferData.dirLight.direction = { 0.0f, 1.0f, 1.0f };
     m_lightCBufferData.dirLight.intensity = 1.0f;
 
     m_lightCBufferData.pointLights[0].intensity = 1.0f;

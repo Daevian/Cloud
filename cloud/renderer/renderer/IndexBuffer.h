@@ -16,7 +16,7 @@ namespace Cloud
             void Uninitialise();
 
             CLint GetIndexCount() const                     { return m_indexCount; }
-            void* GetIndexData()  const                     { return m_indexData; }
+            const void* GetIndexData()  const               { return m_indexData; }
 #ifdef USE_DIRECTX12
             const D3D12_INDEX_BUFFER_VIEW& GetView() const  { return m_view; }
 #else
@@ -24,7 +24,7 @@ namespace Cloud
 #endif
 
             void SetIndexCount(CLint indexCount)            { m_indexCount = indexCount; }
-            void SetIndexData(void* indexData)              { m_indexData = indexData; }
+            void SetIndexData(const void* indexData)        { m_indexData = indexData; }
 
             void GPUUpdateIndexBuffer();
             void GPUUpdateIndexBuffer(void* data, CLsize_t size, CLsize_t offset = 0);
@@ -32,7 +32,7 @@ namespace Cloud
         private:
             CLint m_indexCount;
             CLint m_indexSize;
-            void* m_indexData;
+            const void* m_indexData;
 #ifdef USE_DIRECTX12
             ComPtr<ID3D12Resource> m_buffer;
             D3D12_INDEX_BUFFER_VIEW m_view;

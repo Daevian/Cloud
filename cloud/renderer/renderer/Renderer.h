@@ -64,6 +64,7 @@ namespace Renderer
 
         std::unique_ptr<LuaStateEx> m_luaState;
 
+        std::unique_ptr<ModelInstance> m_groundInstance;
         std::array<std::unique_ptr<ModelInstance>, 10> m_instances;
         std::unique_ptr<Scene> m_forwardScene;
         std::unique_ptr<Scene> m_imguiScene;

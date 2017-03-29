@@ -206,6 +206,7 @@
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="LightCollection.cpp" />
     <ClCompile Include="Material.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ModelRenderer.cpp" />
     <ClCompile Include="ParticleManager.cpp" />
     <ClCompile Include="PostBlur.cpp" />
@@ -254,6 +255,7 @@
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="LightCollection.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="ModelRenderer.h" />
     <ClInclude Include="ParticleManager.h" />
     <ClInclude Include="PostBlur.h" />

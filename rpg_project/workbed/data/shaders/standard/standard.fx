@@ -78,13 +78,12 @@ PSInput vs(VSInput input)
 
 float3 brdf(float3 v, float3 l, float3 n, float3 h)
 {
-    float3 diffuse = 0;// f0.rgb / CL_PI;
+    float3 diffuse = f0.rgb / CL_PI;
 
     // schlick
     //float temp = (1 - saturate(dot(l, n)));
     float temp = 1 - saturate(dot(l, h)); // MF
     float3 F = f0.rgb + (1 - f0.rgb) * temp * temp * temp * temp * temp;
-
     float G = 1;
 
     float nm = saturate(dot(n, h));
@@ -98,7 +97,10 @@ float3 brdf(float3 v, float3 l, float3 n, float3 h)
     float D = a2 / (CL_PI * temp2 * temp2);
 
     float3 f = (F * G * D) / 4;// (4 * dot(n, l) * dot(n, v));
-    return f + diffuse;
+
+    return f; // metal
+    //return diffuse;
+    //return lerp(diffuse, f.rrr, F); // dialectric
 }
 
 float4 ps(PSInput input) : SV_TARGET
@@ -110,7 +112,7 @@ float4 ps(PSInput input) : SV_TARGET
     float cosFactor = saturate(dot(l, n));
     float intensity = dirLight.intensity;
 
-    float3 L = brdf(v, l, n, h) *intensity * cosFactor;
+    float3 L = brdf(v, l, n, h) * intensity * cosFactor;
 
     return float4(L, input.col.a);
 }

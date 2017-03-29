@@ -20,7 +20,7 @@ namespace Cloud
 
             CLint   GetVertexCount()                const { return m_vertexCount; }
             CLint   GetVertexSize()                 const { return m_vertexSize; }
-            void*   GetVertexData()                 const { return m_vertexData; }
+            const void*   GetVertexData()           const { return m_vertexData; }
 #ifdef USE_DIRECTX12
             const D3D12_VERTEX_BUFFER_VIEW& GetView() const { return m_view; }
 #else
@@ -31,7 +31,7 @@ namespace Cloud
 
             void SetVertexCount(CLint vertexCount)              { m_vertexCount = vertexCount; }
             void SetVertexSize(CLint vertexSize)                { m_vertexSize = vertexSize; }
-            void SetVertexData(void* vertexData)              { m_vertexData = vertexData; }
+            void SetVertexData(const void* vertexData)          { m_vertexData = vertexData; }
             
 
             void GPUUpdateVertexBuffer();
@@ -40,7 +40,7 @@ namespace Cloud
         private:
             CLint m_vertexCount;
             CLint m_vertexSize;
-            void* m_vertexData;
+            const void* m_vertexData;
 #ifdef USE_DIRECTX12
             ComPtr<ID3D12Resource> m_buffer;
             D3D12_VERTEX_BUFFER_VIEW m_view;

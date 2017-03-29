@@ -1,31 +1,16 @@
 #pragma once
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "GfxConstantBuffer.h"
 
 namespace Cloud
 {
     namespace Renderer
     {
         class Material;
-
-        class Mesh
-        {
-        public:
-            Mesh();
-
-            const VertexBuffer& GetVertexBuffer() const { return *m_vb; }
-            const IndexBuffer& GetIndexBuffer() const { return *m_ib; }
-
-        private:
-            std::unique_ptr<VertexBuffer> m_vb;
-            std::unique_ptr<IndexBuffer> m_ib;
-        };
+        class Mesh;
 
         class ModelInstance
         {
         public:
-            ModelInstance();
+            ModelInstance(std::shared_ptr<Mesh>& mesh);
 
             const ClMatrix4& GetTransform() const   { return m_transform; }
             ClMatrix4& GetTransformMutable()        { return m_transform; }

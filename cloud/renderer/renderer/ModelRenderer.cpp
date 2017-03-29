@@ -4,89 +4,14 @@
 #include "ShaderEffect.h"
 #include "Material.h"
 #include "Renderer.h"
+#include "Mesh.h"
 
 Cloud::Renderer::ModelRenderer* Cloud::Renderer::ModelRenderer::s_instance = nullptr;
 
-struct Vertex
-{
-    ClFloat4 pos;
-    ClFloat3 norm;
-};
-
-void GenerateSphereIbVb(std::vector<Vertex>& vertices, std::vector<CLuint32>& indices, CLint latBands, CLint longBands)
-{
-    const CLfloat c_radius = 0.5f;
-    for (CLint latNumber = 0; latNumber <= latBands; latNumber++)
-    {
-        CLfloat theta = latNumber * CL_PI / static_cast<CLfloat>(latBands);
-        CLfloat sinTheta = std::sin(theta);
-        CLfloat cosTheta = std::cos(theta);
-
-        for (CLint longNumber = 0; longNumber <= longBands; longNumber++)
-        {
-            CLfloat phi = longNumber * 2 * CL_PI / static_cast<CLfloat>(longBands);
-            CLfloat sinPhi = std::sin(phi);
-            CLfloat cosPhi = std::cos(phi);
-
-            Vertex vertex = {};
-            vertex.norm = ClFloat3
-            {
-                cosPhi * sinTheta,
-                cosTheta,
-                sinPhi * sinTheta,
-            };
-
-            vertex.pos = ClFloat4(vertex.norm * c_radius, 1.0f);
-
-            //vs.Texcoord[0] = 1 - (longNumber / static_cast<CLfloat>(longBands));
-            //vs.Texcoord[1] = 1 - (latNumber / static_cast<CLfloat>(latBands));
-
-            vertices.emplace_back(vertex);
-        }
-    }
-
-    for (CLint latNumber = 0; latNumber < latBands; latNumber++)
-    {
-        for (CLint longNumber = 0; longNumber < longBands; longNumber++)
-        {
-            CLint first = (latNumber * (longBands + 1)) + longNumber;
-            CLint second = first + longBands + 1;
-
-            indices.emplace_back(first);
-            indices.emplace_back(first + 1);
-            indices.emplace_back(second);
-            
-            indices.emplace_back(second);
-            indices.emplace_back(first + 1);
-            indices.emplace_back(second + 1);
-        }
-    }
-}
-
-Cloud::Renderer::Mesh::Mesh()
-{
-    std::vector<Vertex> vertices;
-    std::vector<CLuint32> indices;
-
-    GenerateSphereIbVb(vertices, indices, 100, 100);
-
-    m_vb = std::make_unique<VertexBuffer>();
-    m_ib = std::make_unique<IndexBuffer>();
-
-    m_vb->SetVertexData(vertices.data());
-    m_vb->SetVertexCount(static_cast<CLint>(vertices.size()));
-    m_vb->SetVertexSize(sizeof(Vertex));
-    m_vb->Initialise();
-
-    m_ib->SetIndexData(indices.data());
-    m_ib->SetIndexCount(static_cast<CLint>(indices.size()));
-    m_ib->Initialise();
-}
-
-Cloud::Renderer::ModelInstance::ModelInstance()
+Cloud::Renderer::ModelInstance::ModelInstance(std::shared_ptr<Mesh>& mesh)
+    : m_mesh(mesh)
 {
     m_material = Renderer::GetResourceContainer().FindResource<Material>(ResourceId("metal0"));
-    m_mesh = std::make_shared<Mesh>();
 }
 
 void Cloud::Renderer::ModelInstance::PopulateDebugMenu()
