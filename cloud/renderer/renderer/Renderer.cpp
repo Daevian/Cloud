@@ -7,6 +7,7 @@
 #include "LightCollection.h"
 #include "Material.h"
 #include "Mesh.h"
+#include "ModelLoader.h"
 
 CLbool Cloud::Renderer::Renderer::s_showDebugMenu = false;
 Cloud::Renderer::ResourceContainer* Cloud::Renderer::Renderer::s_resourceContainer = nullptr;
@@ -49,10 +50,15 @@ CLbool Cloud::Renderer::Renderer::Initialise()
     //m_csTest.Initialise();
     //m_particleManager.Initialise();
 
+    m_modelLoader = std::make_unique<ModelLoader>();
+
     m_lights = std::make_unique<LightCollection>();
     m_lights->Initialise();
 
     m_forwardScene = std::make_unique<Scene>(m_modelRenderer, m_lights.get());
+
+    m_testmodel = m_modelLoader->LoadModel("data/models/sphere.dae");
+    m_forwardScene->AddModelInstance(*m_testmodel);
 
     auto planeMesh = Mesh::CreatePlane();
     m_groundInstance = std::make_unique<ModelInstance>(planeMesh);

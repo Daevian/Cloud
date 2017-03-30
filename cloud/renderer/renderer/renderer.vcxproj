@@ -135,15 +135,15 @@
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\..\core_libraries;..\..\externals;..\..\externals\lua;..\..\externals\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\core_libraries;..\..\externals;..\..\externals\lua;..\..\externals\imgui;..\..\externals\assimp-3.3.1\include</AdditionalIncludeDirectories>
       <EnablePREfast>false</EnablePREfast>
       <AdditionalOptions>/analyze:stacksize1048576 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>jsoncpp.lib</AdditionalDependencies>
+      <AdditionalDependencies>jsoncpp.lib;assimp-vc140-mt.lib</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>..\..\externals\jsoncpp-src-0.5.0\project\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\externals\jsoncpp-src-0.5.0\project\x64\Debug;..\..\externals\assimp-3.3.1\x64\Debug_Static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -175,16 +175,16 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\..\core_libraries;..\..\externals;..\..\externals\lua;..\..\externals\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\core_libraries;..\..\externals;..\..\externals\lua;..\..\externals\imgui;..\..\externals\assimp-3.3.1\include</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <EnablePREfast>false</EnablePREfast>
       <AdditionalOptions>/analyze:stacksize1048576 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>jsoncpp.lib</AdditionalDependencies>
+      <AdditionalDependencies>jsoncpp.lib;assimp-vc140-mt.lib</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>..\..\externals\jsoncpp-src-0.5.0\project\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\externals\jsoncpp-src-0.5.0\project\x64\Release;..\..\externals\assimp-3.3.1\x64\Release_Static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -207,6 +207,7 @@
     <ClCompile Include="LightCollection.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="ModelRenderer.cpp" />
     <ClCompile Include="ParticleManager.cpp" />
     <ClCompile Include="PostBlur.cpp" />
@@ -256,6 +257,7 @@
     <ClInclude Include="LightCollection.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="ModelRenderer.h" />
     <ClInclude Include="ParticleManager.h" />
     <ClInclude Include="PostBlur.h" />

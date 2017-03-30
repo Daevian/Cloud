@@ -21,6 +21,7 @@ namespace Renderer
     class GfxTexture;
     class Scene;
     class LightCollection;
+    class ModelLoader;
 
     class Renderer
     {
@@ -65,10 +66,13 @@ namespace Renderer
         std::unique_ptr<LuaStateEx> m_luaState;
 
         std::unique_ptr<ModelInstance> m_groundInstance;
+        std::unique_ptr<ModelInstance> m_testmodel;
         std::array<std::unique_ptr<ModelInstance>, 10> m_instances;
         std::unique_ptr<Scene> m_forwardScene;
         std::unique_ptr<Scene> m_imguiScene;
         std::unique_ptr<LightCollection> m_lights;
+
+        std::unique_ptr<ModelLoader> m_modelLoader;
 
         static ResourceContainer* s_resourceContainer;
     };
