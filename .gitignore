@@ -18,3 +18,5 @@
 *.nativecodeanalysis.xml
 *.res
 *.pchast
+*.ilk
+*.exe
