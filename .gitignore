@@ -16,3 +16,5 @@
 *.tlog
 *.pch
 *.nativecodeanalysis.xml
+*.res
+*.pchast

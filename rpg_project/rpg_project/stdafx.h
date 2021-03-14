@@ -31,7 +31,7 @@
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <wrl.h>
-#include "DirectX-Graphics-Samples/Libraries/D3DX12/d3dx12.h"
+#include "DirectX-Headers/include/directx/d3dx12.h"
 #else
 #include <d3d11_1.h>
 #endif
