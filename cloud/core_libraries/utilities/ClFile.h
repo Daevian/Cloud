@@ -24,9 +24,9 @@ namespace Cloud
             typedef public std::unique_ptr<void, ScopedHandleCloser> ScopedHandle;
             inline HANDLE SafeHandle(HANDLE handle) { return (handle == INVALID_HANDLE_VALUE) ? 0 : handle; }
 
-            ScopedHandle    LoadFile(const ClString& fileName);
-            CLbool          Read(const ScopedHandle& handle, std::unique_ptr<CLuint8[]>& buffer, CLuint readSize);
-            CLint64         GetFileSize(const ScopedHandle& handle);
+            ScopedHandle    LoadFile(const Cloud::String& fileName);
+            bool          Read(const ScopedHandle& handle, std::unique_ptr<uint8[]>& buffer, uint readSize);
+            int64         GetFileSize(const ScopedHandle& handle);
         }
     }
 }

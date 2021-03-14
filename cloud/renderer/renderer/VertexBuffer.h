@@ -15,11 +15,11 @@ namespace Cloud
             VertexBuffer(VertexBuffer&& vertexBuffer);
 
 
-            CLbool Initialise();
+            bool Initialise();
             void Uninitialise();
 
-            CLint   GetVertexCount()                const { return m_vertexCount; }
-            CLint   GetVertexSize()                 const { return m_vertexSize; }
+            int   GetVertexCount()                const { return m_vertexCount; }
+            int   GetVertexSize()                 const { return m_vertexSize; }
             const void*   GetVertexData()           const { return m_vertexData; }
 #ifdef USE_DIRECTX12
             const D3D12_VERTEX_BUFFER_VIEW& GetView() const { return m_view; }
@@ -29,17 +29,17 @@ namespace Cloud
             void SetTopology(GfxPrimitiveTopology topology) { m_topology = topology; }
 #endif
 
-            void SetVertexCount(CLint vertexCount)              { m_vertexCount = vertexCount; }
-            void SetVertexSize(CLint vertexSize)                { m_vertexSize = vertexSize; }
+            void SetVertexCount(int vertexCount)              { m_vertexCount = vertexCount; }
+            void SetVertexSize(int vertexSize)                { m_vertexSize = vertexSize; }
             void SetVertexData(const void* vertexData)          { m_vertexData = vertexData; }
             
 
             void GPUUpdateVertexBuffer();
-            void GPUUpdateVertexBuffer(void* data, CLsize_t size, CLsize_t offset = 0);
+            void GPUUpdateVertexBuffer(void* data, size_t size, size_t offset = 0);
 
         private:
-            CLint m_vertexCount;
-            CLint m_vertexSize;
+            int m_vertexCount;
+            int m_vertexSize;
             const void* m_vertexData;
 #ifdef USE_DIRECTX12
             ComPtr<ID3D12Resource> m_buffer;

@@ -3,9 +3,12 @@
 
 #include <string>
 
-typedef std::string ClString;
-typedef std::wstring ClWString;
+namespace Cloud
+{
+	using String = std::string;
+	using WString = std::wstring;
 
-typedef ClString ClDebugName;
+	using DebugName = String;
+}
 
 #endif // CLOUD_UTILITIES_STRING_HEADER

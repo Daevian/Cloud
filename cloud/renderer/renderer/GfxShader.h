@@ -14,7 +14,7 @@ namespace Cloud
 
         struct GfxComputerShaderDesc
         {
-            ClDebugName     name;
+            Cloud::DebugName     name;
             GfxShaderBlob   shaderBlob;
         };
 
@@ -46,7 +46,7 @@ namespace Cloud
         class GfxShaderFactory
         {
         public:
-            static CLbool CompileShader(const ClString& shaderPath, const ClString& entryPoint, const ClString& shaderModel, GfxShaderBlob& shaderBlobOutput);
+            static bool CompileShader(const Cloud::String& shaderPath, const Cloud::String& entryPoint, const Cloud::String& shaderModel, GfxShaderBlob& shaderBlobOutput);
             
             GfxComputeShader::UniquePtr Create(const GfxComputerShaderDesc& desc);
 

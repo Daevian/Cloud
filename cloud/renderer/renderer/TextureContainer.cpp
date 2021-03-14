@@ -10,7 +10,7 @@ Cloud::Renderer::TextureContainer::TextureContainer()
 
 Cloud::Renderer::TextureContainer::~TextureContainer()
 {
-    for (CLint i = 0; i < m_textures.Count(); ++i)
+    for (int i = 0; i < m_textures.Count(); ++i)
     {
         m_textures[i]->Unload();
         delete m_textures[i];
@@ -21,7 +21,7 @@ Cloud::Renderer::TextureContainer::~TextureContainer()
 
 Cloud::Renderer::Texture* Cloud::Renderer::TextureContainer::GetTexture(const std::string& texturePath)
 {
-    for (CLint i = 0; i < m_textures.Count(); ++i)
+    for (int i = 0; i < m_textures.Count(); ++i)
     {
         if (m_textures[i]->GetPath() == texturePath)
         {

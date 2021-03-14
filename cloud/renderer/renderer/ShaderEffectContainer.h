@@ -21,7 +21,7 @@ namespace Cloud
         private:
             ShaderEffect* LoadEffect(const std::string& effectPath);
 
-            std::unordered_map<ClString, std::weak_ptr<ShaderEffect>> m_effects;
+            std::unordered_map<Cloud::String, std::weak_ptr<ShaderEffect>> m_effects;
             std::mutex m_cacheLock;
 
         };

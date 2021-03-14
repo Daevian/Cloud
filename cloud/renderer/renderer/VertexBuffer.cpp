@@ -24,7 +24,7 @@ Cloud::Renderer::VertexBuffer::VertexBuffer(VertexBuffer&& vertexBuffer)
     CL_ASSERT_MSG("move constructor needs updating!");
 }
 
-CLbool Cloud::Renderer::VertexBuffer::Initialise()
+bool Cloud::Renderer::VertexBuffer::Initialise()
  {
 #ifdef USE_DIRECTX12
 
@@ -123,10 +123,10 @@ void Cloud::Renderer::VertexBuffer::GPUUpdateVertexBuffer()
 #endif
 }
 
-void Cloud::Renderer::VertexBuffer::GPUUpdateVertexBuffer(void* data, CLsize_t size, CLsize_t offset)
+void Cloud::Renderer::VertexBuffer::GPUUpdateVertexBuffer(void* data, size_t size, size_t offset)
 {
     CL_ASSERT(offset + size <= m_vertexCount * m_vertexSize, "trying to copy outside of the buffer!");
 
-    auto&& dest = static_cast<CLbyte*>(m_bufferData) + offset;
+    auto&& dest = static_cast<byte*>(m_bufferData) + offset;
     memcpy(dest, data, size);
 }

@@ -15,7 +15,7 @@ namespace Cloud
         virtual ~LuaStateEx() override {};
 
         template <typename _Return, typename... _Args>
-        void RegisterFunction(const CLchar* funcName, const std::function<_Return(_Args...)>& func)
+        void RegisterFunction(const t_char* funcName, const std::function<_Return(_Args...)>& func)
         {
             LuaStackSentry sentry(*this);
 
@@ -24,7 +24,7 @@ namespace Cloud
         }
 
         template <typename _Return>
-        void RegisterFunction(const CLchar* funcName, const std::function<_Return()>& func)
+        void RegisterFunction(const t_char* funcName, const std::function<_Return()>& func)
         {
             LuaStackSentry sentry(*this);
 
@@ -36,14 +36,14 @@ namespace Cloud
         struct ReadbackTypeTrait
         {
             template <typename _T>
-            static auto Readback(const LuaStateEx& state, const CLint stackIndex)
+            static auto Readback(const LuaStateEx& state, const int stackIndex)
             {
                 auto value = std::make_tuple(state.To<_T>(stackIndex));
                 return value;
             }
 
             template <typename _T0, typename _T1, typename... _Rest>
-            static auto Readback(const LuaStateEx& state, const CLint stackIndex)
+            static auto Readback(const LuaStateEx& state, const int stackIndex)
             {
                 auto first = std::make_tuple(state.To<_T0>(stackIndex));
                 return std::tuple_cat(first, Readback<_T1, _Rest...>(state, stackIndex + 1));
@@ -51,7 +51,7 @@ namespace Cloud
 
             static auto Apply(LuaStateEx& state)
             {
-                constexpr CLint elementCount = static_cast<CLint>(sizeof...(_Types));
+                constexpr int elementCount = static_cast<int>(sizeof...(_Types));
                 auto value = Readback<_Types...>(state, -elementCount);
                 state.Pop(sizeof...(_Types));
                 return value;
@@ -82,7 +82,7 @@ namespace Cloud
         }
 
         template<typename... _ReturnArgs, typename... _Args>
-        auto Call(const CLchar* functionName, _Args&&... args)
+        auto Call(const t_char* functionName, _Args&&... args)
         {
             LuaStackSentry sentry(*this);
 
@@ -129,7 +129,7 @@ namespace Cloud
         }
 
         template <class TYPE>
-        static TYPE* ToUserDataChecked(CLint index)
+        static TYPE* ToUserDataChecked(int index)
         {
             const auto castTypeId = getUniqueTypeId<TYPE>();
 

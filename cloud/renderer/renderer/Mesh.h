@@ -12,16 +12,16 @@ namespace Cloud
         public:
             struct Vertex
             {
-                ClFloat4 pos;
-                ClFloat3 norm;
+                float4 pos;
+                float3 norm;
             };
 
-            Mesh(const std::vector<Vertex>& vertices, const std::vector<CLuint32>& indices);
+            Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32>& indices);
 
             const VertexBuffer& GetVertexBuffer() const { return *m_vb; }
             const IndexBuffer& GetIndexBuffer() const { return *m_ib; }
 
-            static std::shared_ptr<Mesh> CreateSphere(CLuint latBands, CLuint longBands);
+            static std::shared_ptr<Mesh> CreateSphere(uint latBands, uint longBands);
             static std::shared_ptr<Mesh> CreatePlane();
 
         private:

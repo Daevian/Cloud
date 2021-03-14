@@ -8,19 +8,19 @@ Cloud::Renderer::SpriteFactory::SpriteFactory()
 {
 }
 
-CLbool Cloud::Renderer::SpriteFactory::CreateSprite(const std::string& spriteName, Sprite& spriteOutput)
+bool Cloud::Renderer::SpriteFactory::CreateSprite(const std::string& spriteName, Sprite& spriteOutput)
 {
     return ParseSprite(spriteName, spriteOutput);
 }
 
-CLbool Cloud::Renderer::SpriteFactory::ParseSprite(const std::string& spriteName, Sprite& spriteOutput)
+bool Cloud::Renderer::SpriteFactory::ParseSprite(const std::string& spriteName, Sprite& spriteOutput)
 {
     Json::Value root;
     auto spritePath = "data/assets/sprites/" + spriteName + ".sprite";
     std::ifstream jsonFile(spritePath.c_str());
     Json::Reader reader;
 
-    CLbool parseSuccessful = reader.parse(jsonFile, root);
+    bool parseSuccessful = reader.parse(jsonFile, root);
     if (!parseSuccessful)
     {
         std::stringstream assertMessage;

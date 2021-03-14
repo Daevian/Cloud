@@ -5,9 +5,9 @@
 
 Cloud::Renderer::CsSorter::CsSorter()
 {
-    for (CLuint i = 0; i < c_elementCount; ++i)
+    for (uint i = 0; i < c_elementCount; ++i)
     {
-        m_buffer0[i].f = static_cast<CLfloat>(c_elementCount - i);
+        m_buffer0[i].f = static_cast<float>(c_elementCount - i);
     }
 }
 
@@ -102,9 +102,9 @@ void Cloud::Renderer::CsSorter::Uninit()
 
 void Cloud::Renderer::CsSorter::Update()
 {
-    for (CLuint i = 0; i < c_elementCount; ++i)
+    for (uint i = 0; i < c_elementCount; ++i)
     {
-        m_buffer0[i].f = static_cast<CLfloat>(rand() % c_elementCount);
+        m_buffer0[i].f = static_cast<float>(rand() % c_elementCount);
     }
 
 #ifdef USE_DIRECTX12
@@ -119,9 +119,9 @@ void Cloud::Renderer::CsSorter::Dispatch()
 #else
     auto& device = GfxCore::Instance().GetRenderingDevice();
 
-    const CLuint c_matrixWidth = c_bitonicBlockSize;
-    const CLuint c_matrixHeight = c_elementCount / c_matrixWidth;
-    const CLuint c_transposeBlockSize = 16;
+    const uint c_matrixWidth = c_bitonicBlockSize;
+    const uint c_matrixHeight = c_elementCount / c_matrixWidth;
+    const uint c_transposeBlockSize = 16;
 
     // DISPATCH
     
@@ -130,7 +130,7 @@ void Cloud::Renderer::CsSorter::Dispatch()
     device.SetUnorderedAccessView(m_outputBuffer.get(), 0);
 
     // normal bitonic sort up to block size
-    for (CLuint level = 2; level <= c_bitonicBlockSize; level *= 2)
+    for (uint level = 2; level <= c_bitonicBlockSize; level *= 2)
     {
         //MainTest(m_buffer0, level, level);
         UpdateBitonicSortConstBuffer(level, level);
@@ -198,7 +198,7 @@ void Cloud::Renderer::CsSorter::Dispatch()
 #endif
 }
 
-void Cloud::Renderer::CsSorter::UpdateBitonicSortConstBuffer(CLuint /*level*/, CLuint /*levelMask*/)
+void Cloud::Renderer::CsSorter::UpdateBitonicSortConstBuffer(uint /*level*/, uint /*levelMask*/)
 {
 #ifdef USE_DIRECTX12
 #else
@@ -207,7 +207,7 @@ void Cloud::Renderer::CsSorter::UpdateBitonicSortConstBuffer(CLuint /*level*/, C
 #endif
 }
 
-void Cloud::Renderer::CsSorter::UpdateTransposeConstBuffer(CLuint /*width*/, CLuint /*height*/)
+void Cloud::Renderer::CsSorter::UpdateTransposeConstBuffer(uint /*width*/, uint /*height*/)
 {
 #ifdef USE_DIRECTX12
 #else

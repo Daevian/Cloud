@@ -11,14 +11,14 @@ Cloud::Renderer::GfxComputeShader::~GfxComputeShader()
 {
 }
 
-CLbool Cloud::Renderer::GfxShaderFactory::CompileShader(const ClString& /*shaderPath*/, const ClString& /*entryPoint*/, const ClString& /*shaderModel*/, GfxShaderBlob& /*shaderBlobOutput*/)
+bool Cloud::Renderer::GfxShaderFactory::CompileShader(const Cloud::String& /*shaderPath*/, const Cloud::String& /*entryPoint*/, const Cloud::String& /*shaderModel*/, GfxShaderBlob& /*shaderBlobOutput*/)
 {
 #ifdef USE_DIRECTX12
     return false;
 #else
     shaderBlobOutput.blob = nullptr;
 
-    CLdword shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+    dword shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 #if defined( DEBUG ) || defined( _DEBUG )
     shaderFlags |= D3DCOMPILE_DEBUG;
     shaderFlags |= D3DCOMPILE_PREFER_FLOW_CONTROL;
@@ -27,7 +27,7 @@ CLbool Cloud::Renderer::GfxShaderFactory::CompileShader(const ClString& /*shader
 
     ID3DBlob* errorBlob = 0;
     HRESULT result = D3DCompileFromFile(
-        ClWString(shaderPath.begin(), shaderPath.end()).c_str(),
+        Cloud::WString(shaderPath.begin(), shaderPath.end()).c_str(),
         nullptr,
         nullptr,
         entryPoint.c_str(),
@@ -46,7 +46,7 @@ CLbool Cloud::Renderer::GfxShaderFactory::CompileShader(const ClString& /*shader
 
         if (errorBlob)
         {
-            CLchar* error = static_cast<CLchar*>(errorBlob->GetBufferPointer());
+            t_char* error = static_cast<t_char*>(errorBlob->GetBufferPointer());
             CL_TRACE_CHANNEL("ERROR", error);
             errorBlob->Release();
         }

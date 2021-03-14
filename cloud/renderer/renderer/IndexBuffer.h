@@ -8,14 +8,14 @@ namespace Cloud
         class IndexBuffer
         {
         public:
-            IndexBuffer(CLint indexSize = sizeof(CLuint32));
+            IndexBuffer(int indexSize = sizeof(uint32));
             IndexBuffer(const IndexBuffer& vertexBuffer) = delete;
             IndexBuffer(IndexBuffer&& vertexBuffer);
 
-            CLbool Initialise();
+            bool Initialise();
             void Uninitialise();
 
-            CLint GetIndexCount() const                     { return m_indexCount; }
+            int GetIndexCount() const                     { return m_indexCount; }
             const void* GetIndexData()  const               { return m_indexData; }
 #ifdef USE_DIRECTX12
             const D3D12_INDEX_BUFFER_VIEW& GetView() const  { return m_view; }
@@ -23,15 +23,15 @@ namespace Cloud
             ID3D11Buffer* GetBuffer() const                 { return m_indexBuffer.get(); }
 #endif
 
-            void SetIndexCount(CLint indexCount)            { m_indexCount = indexCount; }
+            void SetIndexCount(int indexCount)            { m_indexCount = indexCount; }
             void SetIndexData(const void* indexData)        { m_indexData = indexData; }
 
             void GPUUpdateIndexBuffer();
-            void GPUUpdateIndexBuffer(void* data, CLsize_t size, CLsize_t offset = 0);
+            void GPUUpdateIndexBuffer(void* data, size_t size, size_t offset = 0);
 
         private:
-            CLint m_indexCount;
-            CLint m_indexSize;
+            int m_indexCount;
+            int m_indexSize;
             const void* m_indexData;
 #ifdef USE_DIRECTX12
             ComPtr<ID3D12Resource> m_buffer;

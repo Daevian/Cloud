@@ -10,7 +10,7 @@ Cloud::Event<SENDER>::Event()
 template <class SENDER>
 Cloud::Event<SENDER>::~Event()
 {
-    for (CLint i = 0; i < m_subscribers.Count(); ++i)
+    for (int i = 0; i < m_subscribers.Count(); ++i)
     {
         if (m_subscribers[i] != 0)
         {
@@ -34,7 +34,7 @@ void Cloud::Event<SENDER>::operator-=(const BaseDelegate<SENDER>* handler)
 template <class SENDER>
 void Cloud::Event<SENDER>::Call(const SENDER* sender, void* parameter)
 {
-    for (CLint i = 0; i < m_subscribers.Count(); ++i)
+    for (int i = 0; i < m_subscribers.Count(); ++i)
     {
         m_subscribers[i]->Call(sender, parameter);
     }
@@ -45,7 +45,7 @@ void Cloud::Event<SENDER>::Register(const BaseDelegate<SENDER>* handler)
 {
     CL_ASSERT(handler != 0, "Can't register handler in event.");
 
-    for (CLint i = 0; i < m_subscribers.Count(); ++i)
+    for (int i = 0; i < m_subscribers.Count(); ++i)
     {
         if (m_subscribers[i]->Equals(handler))
         {
@@ -61,7 +61,7 @@ void Cloud::Event<SENDER>::Unregister(const BaseDelegate<SENDER>* handler)
 {
     CL_ASSERT(handler != 0, "Can't unregister handler in event.");
 
-    for (CLint i = 0; i < m_subscribers.Count(); ++i)
+    for (int i = 0; i < m_subscribers.Count(); ++i)
     {
         if (m_subscribers[i]->Equals(handler))
         {

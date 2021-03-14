@@ -24,7 +24,7 @@ void Cloud::Renderer::Scene::RecordCommandList(ID3D12GraphicsCommandList* comman
 
 
     std::array<ID3D12DescriptorHeap*, 1> heaps = { renderCore.GetCbvHeap() };
-    commandList->SetDescriptorHeaps(static_cast<CLuint>(heaps.size()), heaps.data());
+    commandList->SetDescriptorHeaps(static_cast<uint>(heaps.size()), heaps.data());
 
     commandList->SetGraphicsRootSignature(renderCore.GetRootSignature());
     commandList->SetGraphicsRootConstantBufferView(0, renderCore.GetPerSceneConstBuffer().GetCurrentVersionGpuAddress());
@@ -42,10 +42,10 @@ void Cloud::Renderer::Scene::RecordCommandList(ID3D12GraphicsCommandList* comman
 
 void Cloud::Renderer::Scene::PopulateDebugMenu()
 {
-    CLuint index = 0;
+    uint index = 0;
     for (auto&& modelInstance : m_instances)
     {
-        std::array<CLchar, 16> name = { 0 };
+        std::array<t_char, 16> name = { 0 };
         sprintf_s(name.data(), name.size(), "Model %u", index++);
         if (ImGui::TreeNode(name.data()))
         {

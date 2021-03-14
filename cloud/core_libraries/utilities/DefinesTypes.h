@@ -3,35 +3,26 @@
 
 #include <time.h>
 
-typedef bool                CLbool;
-typedef char                CLchar;
-typedef unsigned char       CLuchar;
-typedef short               CLshort;
-typedef unsigned short      CLushort;
+using t_char = char;
+using t_uchar = unsigned char;
 
-typedef int                 CLint;
-typedef signed char         CLint8;
-typedef short               CLint16;
-typedef int                 CLint32;
-typedef long long           CLint64;
+using ushort = unsigned short;
+using uint = unsigned int;
+using ulong = unsigned long;
 
-typedef unsigned int        CLuint;
-typedef unsigned char       CLuint8;
-typedef unsigned short      CLuint16;
-typedef unsigned int        CLuint32;
-typedef unsigned long long  CLuint64;
+using int8 = char;
+using int16 = short;
+using int32 = int;
+using int64 = long long;
 
-typedef long                CLlong;
-typedef unsigned long       CLulong;
-typedef float               CLfloat;
-typedef double              CLdouble;
 
-typedef unsigned short      CLword;
-typedef unsigned long       CLdword;
-typedef unsigned char       CLbyte;
+using uint8 = unsigned char;
+using uint16 = unsigned short;
+using uint32 = unsigned int;
+using uint64 = unsigned long long;
 
-typedef size_t              CLsize_t;
-typedef time_t              CLtime_t;
-typedef ptrdiff_t           CLptrdiff_t;
+using byte = unsigned char;
+using word = unsigned short;
+using dword = unsigned long;
 
 #endif // CLOUD_DEFINES_TYPES_HEADER

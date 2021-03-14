@@ -11,7 +11,7 @@ namespace Math
 {
     typedef __m128 Vector4;
 
-    inline Vector4 VectorSet(CLfloat value0, CLfloat value1, CLfloat value2, CLfloat value3);
+    inline Vector4 VectorSet(float value0, float value1, float value2, float value3);
 
     inline Vector4 VectorAdd(const Vector4& vec1, const Vector4& vec2);
     inline Vector4 VectorMul(const Vector4& vec1, const Vector4& vec2);

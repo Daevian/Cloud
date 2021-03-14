@@ -38,10 +38,10 @@ void Cloud::Utils::Timer::Update()
     QueryPerformanceCounter(&frameEnd);
     m_clockStarted.QuadPart += m_callOverhead.QuadPart;
 
-    CLdouble lastFrameTime = m_totalTime;
+    double lastFrameTime = m_totalTime;
 
 #pragma warning(suppress: 26491)
-    m_totalTime = static_cast<CLdouble>((frameEnd.QuadPart - m_clockStarted.QuadPart)) / static_cast<CLdouble>(m_performanceTimercalibrationData.QuadPart);
+    m_totalTime = static_cast<double>((frameEnd.QuadPart - m_clockStarted.QuadPart)) / static_cast<double>(m_performanceTimercalibrationData.QuadPart);
     m_timeStep = m_totalTime - lastFrameTime;
     
     QueryPerformanceCounter(&m_frameStarted);

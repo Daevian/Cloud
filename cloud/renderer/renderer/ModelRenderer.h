@@ -14,7 +14,7 @@ namespace Cloud
 
             const ClMatrix4& GetTransform() const   { return m_transform; }
             ClMatrix4& GetTransformMutable()        { return m_transform; }
-            CLbool GetVisible() const               { return m_visible;}
+            bool GetVisible() const               { return m_visible;}
 
             const Material& GetMaterial() const     { return *m_material; }
             const Mesh& GetMesh() const             { return *m_mesh; }
@@ -27,7 +27,7 @@ namespace Cloud
             std::shared_ptr<Mesh>     m_mesh;
             
             ClMatrix4       m_transform = ClMatrix4::Identity();
-            CLbool          m_visible = true;
+            bool          m_visible = true;
         };
 
         class ModelRenderer

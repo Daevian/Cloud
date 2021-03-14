@@ -14,7 +14,7 @@ Cloud::Renderer::DebugRenderer::DebugRenderer()
 {
 }
 
-CLbool Cloud::Renderer::DebugRenderer::Initialise()
+bool Cloud::Renderer::DebugRenderer::Initialise()
 {
     if (!InitialiseLine2D())
         return false;
@@ -37,7 +37,7 @@ void Cloud::Renderer::DebugRenderer::Uninitialise()
     m_line2DVB.Uninitialise();
 }
 
-CLbool Cloud::Renderer::DebugRenderer::InitialiseLine2D()
+bool Cloud::Renderer::DebugRenderer::InitialiseLine2D()
 {
     // shader
     //m_line2DEffect = RenderCore::Instance().GetEffectContainer().GetEffect("data/core/debug/line2d.eff");
@@ -55,9 +55,9 @@ CLbool Cloud::Renderer::DebugRenderer::InitialiseLine2D()
     return true;
 }
 
-CLbool Cloud::Renderer::DebugRenderer::InitialiseQuad()
+bool Cloud::Renderer::DebugRenderer::InitialiseQuad()
 {
-    AddQuad(ClFloat2(-0.5f, -0.5f), ClFloat2(0.5f, 0.5f), ClFloat4(1.0f, 0.0f, 0.0f, 1.0f));
+    AddQuad(float2(-0.5f, -0.5f), float2(0.5f, 0.5f), float4(1.0f, 0.0f, 0.0f, 1.0f));
 
     // shader
     m_quadEffect = RenderCore::Instance().GetEffectContainer().GetEffect("data/core/debug/quad.eff");
@@ -73,7 +73,7 @@ CLbool Cloud::Renderer::DebugRenderer::InitialiseQuad()
         return false;
 
     // index buffer
-    Utils::StaticArray<CLuint32, Quad::c_indexCount> indices;
+    Utils::StaticArray<uint32, Quad::c_indexCount> indices;
     for (int i = 0; i < Quad::c_maxCount; ++i)
     {
         indices[i * 6]     = i * 4 + 0;
@@ -92,7 +92,7 @@ CLbool Cloud::Renderer::DebugRenderer::InitialiseQuad()
     return true;
 }
 
-CLbool Cloud::Renderer::DebugRenderer::InitialiseBox()
+bool Cloud::Renderer::DebugRenderer::InitialiseBox()
 {
     // shader
     m_boxEffect = RenderCore::Instance().GetEffectContainer().GetEffect("data/core/debug/box.eff");
@@ -101,25 +101,25 @@ CLbool Cloud::Renderer::DebugRenderer::InitialiseBox()
 
     // vertices and indices
     Utils::StaticArray<Box::Vertex, 8> vertices;
-    vertices[0].pos = ClFloat4( -1.0f, -1.0f,  1.0f, 1.0f);
-    vertices[1].pos = ClFloat4(  1.0f, -1.0f,  1.0f, 1.0f);
-    vertices[2].pos = ClFloat4(  1.0f,  1.0f,  1.0f, 1.0f);
-    vertices[3].pos = ClFloat4( -1.0f,  1.0f,  1.0f, 1.0f);
-    vertices[4].pos = ClFloat4( -1.0f, -1.0f, -1.0f, 1.0f);
-    vertices[5].pos = ClFloat4(  1.0f, -1.0f, -1.0f, 1.0f);
-    vertices[6].pos = ClFloat4(  1.0f,  1.0f, -1.0f, 1.0f);
-    vertices[7].pos = ClFloat4( -1.0f,  1.0f, -1.0f, 1.0f);
+    vertices[0].pos = float4( -1.0f, -1.0f,  1.0f, 1.0f);
+    vertices[1].pos = float4(  1.0f, -1.0f,  1.0f, 1.0f);
+    vertices[2].pos = float4(  1.0f,  1.0f,  1.0f, 1.0f);
+    vertices[3].pos = float4( -1.0f,  1.0f,  1.0f, 1.0f);
+    vertices[4].pos = float4( -1.0f, -1.0f, -1.0f, 1.0f);
+    vertices[5].pos = float4(  1.0f, -1.0f, -1.0f, 1.0f);
+    vertices[6].pos = float4(  1.0f,  1.0f, -1.0f, 1.0f);
+    vertices[7].pos = float4( -1.0f,  1.0f, -1.0f, 1.0f);
 
-    vertices[0].norm = ClFloat3( -1.0f, -1.0f,  1.0f);
-    vertices[1].norm = ClFloat3(  1.0f, -1.0f,  1.0f);
-    vertices[2].norm = ClFloat3(  1.0f,  1.0f,  1.0f);
-    vertices[3].norm = ClFloat3( -1.0f,  1.0f,  1.0f);
-    vertices[4].norm = ClFloat3( -1.0f, -1.0f, -1.0f);
-    vertices[5].norm = ClFloat3(  1.0f, -1.0f, -1.0f);
-    vertices[6].norm = ClFloat3(  1.0f,  1.0f, -1.0f);
-    vertices[7].norm = ClFloat3( -1.0f,  1.0f, -1.0f);
+    vertices[0].norm = float3( -1.0f, -1.0f,  1.0f);
+    vertices[1].norm = float3(  1.0f, -1.0f,  1.0f);
+    vertices[2].norm = float3(  1.0f,  1.0f,  1.0f);
+    vertices[3].norm = float3( -1.0f,  1.0f,  1.0f);
+    vertices[4].norm = float3( -1.0f, -1.0f, -1.0f);
+    vertices[5].norm = float3(  1.0f, -1.0f, -1.0f);
+    vertices[6].norm = float3(  1.0f,  1.0f, -1.0f);
+    vertices[7].norm = float3( -1.0f,  1.0f, -1.0f);
 
-    Utils::StaticArray<CLint32, 36> indices;
+    Utils::StaticArray<int32, 36> indices;
     indices[0]  = 0; indices[1]  = 1; indices[2]  = 2; indices[3]  = 2; indices[4]  = 3; indices[5]  = 0;
     indices[6]  = 3; indices[7]  = 2; indices[8]  = 6; indices[9]  = 6; indices[10] = 7; indices[11] = 3;
     indices[12] = 7; indices[13] = 6; indices[14] = 5; indices[15] = 5; indices[16] = 4; indices[17] = 7;
@@ -128,7 +128,7 @@ CLbool Cloud::Renderer::DebugRenderer::InitialiseBox()
     indices[30] = 1; indices[31] = 5; indices[32] = 6; indices[33] = 6; indices[34] = 2; indices[35] = 1;
 
     // vertex buffer
-    m_boxVB.SetVertexData((CLchar*)vertices.GetBuffer());
+    m_boxVB.SetVertexData((t_char*)vertices.GetBuffer());
     m_boxVB.SetVertexCount(vertices.Count());
     m_boxVB.SetVertexSize(sizeof(Box::Vertex));
     //m_boxVB.SetTopology(GfxPrimitiveTopology::Trianglelist);
@@ -136,7 +136,7 @@ CLbool Cloud::Renderer::DebugRenderer::InitialiseBox()
         return false;
 
     // index buffer
-    m_boxIB.SetIndexData((CLchar*)indices.GetBuffer());
+    m_boxIB.SetIndexData((t_char*)indices.GetBuffer());
     m_boxIB.SetIndexCount(indices.Count());
     if (!m_boxIB.Initialise())
         return false;
@@ -151,24 +151,24 @@ CLbool Cloud::Renderer::DebugRenderer::InitialiseBox()
     return true;
 }
 
-void Cloud::Renderer::DebugRenderer::AddLine2D(const ClFloat2& start, const ClFloat2& end, const ClFloat4& colour)
+void Cloud::Renderer::DebugRenderer::AddLine2D(const float2& start, const float2& end, const float4& colour)
 {
     auto& startVertex = m_line2DVertices[m_line2DsToRender * 2];
-    startVertex.position = ClFloat4(start, 0.0, 1.0);
+    startVertex.position = float4(start, 0.0, 1.0);
     startVertex.colour = colour;
 
     auto& endVertex = m_line2DVertices[m_line2DsToRender * 2 + 1];
-    endVertex.position = ClFloat4(end, 0.0, 1.0);
+    endVertex.position = float4(end, 0.0, 1.0);
     endVertex.colour = colour;
 
     ++m_line2DsToRender;
 }
 
-void Cloud::Renderer::DebugRenderer::AddBar(const ClFloat2& position, const ClFloat2& size, const ClFloat4& colour, CLfloat value, BarDirection direction)
+void Cloud::Renderer::DebugRenderer::AddBar(const float2& position, const float2& size, const float4& colour, float value, BarDirection direction)
 {
-    const CLfloat c_minValue = 0.01f;
-    ClFloat2 topLeft(0.0f, 0.0f);
-    ClFloat2 bottomRight(0.0f, 0.0f);
+    const float c_minValue = 0.01f;
+    float2 topLeft(0.0f, 0.0f);
+    float2 bottomRight(0.0f, 0.0f);
 
     switch (direction)
     {
@@ -178,7 +178,7 @@ void Cloud::Renderer::DebugRenderer::AddBar(const ClFloat2& position, const ClFl
             bottomRight.Set(position.x + size.x, position.y + size.y);
 
             value = Cloud::Math::Max(value, c_minValue);
-            CLfloat length = topLeft.y - bottomRight.y;
+            float length = topLeft.y - bottomRight.y;
             topLeft.y = bottomRight.y + length * value;
             
         } break;
@@ -189,35 +189,35 @@ void Cloud::Renderer::DebugRenderer::AddBar(const ClFloat2& position, const ClFl
     AddQuad(topLeft, bottomRight, colour);
 }
 
-void Cloud::Renderer::DebugRenderer::AddQuad(const ClFloat2& topLeft, const ClFloat2& bottomRight, const ClFloat4& colour)
+void Cloud::Renderer::DebugRenderer::AddQuad(const float2& topLeft, const float2& bottomRight, const float4& colour)
 {
-    m_quadVertices[m_quadsToRender * 4].position = ClFloat4(topLeft.x, topLeft.y, 0.0f, 1.0f);
+    m_quadVertices[m_quadsToRender * 4].position = float4(topLeft.x, topLeft.y, 0.0f, 1.0f);
     m_quadVertices[m_quadsToRender * 4].colour   = colour;
 
-    m_quadVertices[m_quadsToRender * 4 + 1].position = ClFloat4(bottomRight.x, topLeft.y, 0.0f, 1.0f);
+    m_quadVertices[m_quadsToRender * 4 + 1].position = float4(bottomRight.x, topLeft.y, 0.0f, 1.0f);
     m_quadVertices[m_quadsToRender * 4 + 1].colour   = colour;
 
-    m_quadVertices[m_quadsToRender * 4 + 2].position = ClFloat4(topLeft.x, bottomRight.y, 0.0f, 1.0f);
+    m_quadVertices[m_quadsToRender * 4 + 2].position = float4(topLeft.x, bottomRight.y, 0.0f, 1.0f);
     m_quadVertices[m_quadsToRender * 4 + 2].colour   = colour;
 
-    m_quadVertices[m_quadsToRender * 4 + 3].position = ClFloat4(bottomRight.x, bottomRight.y, 0.0f, 1.0f);
+    m_quadVertices[m_quadsToRender * 4 + 3].position = float4(bottomRight.x, bottomRight.y, 0.0f, 1.0f);
     m_quadVertices[m_quadsToRender * 4 + 3].colour   = colour;
 
     ++m_quadsToRender;
 }
 
-void Cloud::Renderer::DebugRenderer::AddBox(const ClFloat3& position, const ClFloat3& rotation, const ClFloat3& scale, const ClFloat4& colour)
+void Cloud::Renderer::DebugRenderer::AddBox(const float3& position, const float3& rotation, const float3& scale, const float4& colour)
 {
     ClMatrix4 matrix = ClMatrix4::Identity();
-    matrix *= ClMatrix4::Scale(ClFloat4(scale, 0));
-    matrix *= ClMatrix4::Rotation(ClFloat4(rotation, 0));
+    matrix *= ClMatrix4::Scale(float4(scale, 0));
+    matrix *= ClMatrix4::Rotation(float4(rotation, 0));
     
-    matrix.SetCol3(ClFloat4(position, 1.0f));
+    matrix.SetCol3(float4(position, 1.0f));
 
     AddBox(matrix, colour);
 }
 
-void Cloud::Renderer::DebugRenderer::AddBox(const ClMatrix4& matrix, const ClFloat4& colour)
+void Cloud::Renderer::DebugRenderer::AddBox(const ClMatrix4& matrix, const float4& colour)
 {    
     m_boxInstances[m_boxesToRender].model = matrix;
     m_boxInstances[m_boxesToRender].colour = colour;
@@ -230,7 +230,7 @@ void Cloud::Renderer::DebugRenderer::RecordCommandList(ID3D12GraphicsCommandList
     auto& renderCore = RenderCore::Instance();
 
     std::array<ID3D12DescriptorHeap*, 1> heaps = { renderCore.GetCbvHeap() };
-    commandList->SetDescriptorHeaps(static_cast<CLuint>(heaps.size()), heaps.data());
+    commandList->SetDescriptorHeaps(static_cast<uint>(heaps.size()), heaps.data());
 
     commandList->SetGraphicsRootSignature(renderCore.GetRootSignature());
 
@@ -310,7 +310,7 @@ void Cloud::Renderer::DebugRenderer::RenderBoxes(ID3D12GraphicsCommandList* comm
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     std::array<D3D12_VERTEX_BUFFER_VIEW,2> vbs = { m_boxVB.GetView(), m_boxInstanceBuffer.GetView() };
-    commandList->IASetVertexBuffers(0, static_cast<CLuint>(vbs.size()), vbs.data());
+    commandList->IASetVertexBuffers(0, static_cast<uint>(vbs.size()), vbs.data());
 
     commandList->IASetIndexBuffer(&m_boxIB.GetView());
     commandList->DrawIndexedInstanced(36, m_boxesToRender, 0, 0, 0);

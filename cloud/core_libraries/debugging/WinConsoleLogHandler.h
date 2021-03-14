@@ -10,7 +10,7 @@ namespace Cloud
         class WinConsoleLogHandler : public BaseLogHandler
         {
         public:
-            virtual void HandleTrace(const CLchar* output) const;
+            virtual void HandleTrace(const t_char* output) const;
         };
     }
 }

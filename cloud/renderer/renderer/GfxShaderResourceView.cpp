@@ -9,7 +9,7 @@ Cloud::Renderer::GfxShaderResourceView::GfxShaderResourceView()
 {
 }
 
-CLbool Cloud::Renderer::GfxShaderResourceView::Init(const GfxBuffer& buffer)
+bool Cloud::Renderer::GfxShaderResourceView::Init(const GfxBuffer& buffer)
 {
     D3D11_SHADER_RESOURCE_VIEW_DESC desc;
     ClMemZero(&desc, sizeof(desc));

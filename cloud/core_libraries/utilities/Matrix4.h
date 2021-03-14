@@ -35,15 +35,15 @@ namespace Cloud
 
             inline static Matrix4 Identity();
             inline static Matrix4 Multiply(const Matrix4& matrix1, const Matrix4& matrix2);
-            inline static Matrix4 Orthographic(CLfloat width, CLfloat height, CLfloat nearClip, CLfloat farClip);
-            inline static Matrix4 Perspective(CLfloat fovY, CLfloat aspectRatio, CLfloat nearClip, CLfloat farClip);
+            inline static Matrix4 Orthographic(float width, float height, float nearClip, float farClip);
+            inline static Matrix4 Perspective(float fovY, float aspectRatio, float nearClip, float farClip);
             inline static Matrix4 Inverse(const Matrix4& matrix);
-            inline static Matrix4 Translation(CLfloat x, CLfloat y, CLfloat z);
+            inline static Matrix4 Translation(float x, float y, float z);
             inline static Matrix4 Translation(const Float4& translation);
             inline static Matrix4 Transpose(const Matrix4& matrix);
-            inline static Matrix4 Rotation(CLfloat x, CLfloat y, CLfloat z);
+            inline static Matrix4 Rotation(float x, float y, float z);
             inline static Matrix4 Rotation(const Float4& rotation);
-            inline static Matrix4 Scale(CLfloat x, CLfloat y, CLfloat z);
+            inline static Matrix4 Scale(float x, float y, float z);
             inline static Matrix4 Scale(const Float4& rotation);
             inline static Matrix4 LookTo(const Float4& eyePosition, const Float4& direction, const Float4& up);
 

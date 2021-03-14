@@ -3,7 +3,7 @@
 
 #include "RenderCore.h"
 
-Cloud::Renderer::IndexBuffer::IndexBuffer(CLint indexSize)
+Cloud::Renderer::IndexBuffer::IndexBuffer(int indexSize)
     : m_indexCount(0)
     , m_indexSize(indexSize)
     , m_indexData(0)
@@ -22,7 +22,7 @@ Cloud::Renderer::IndexBuffer::IndexBuffer(IndexBuffer&& indexBuffer)
     CL_ASSERT_MSG("move constructor needs updating!");
 }
 
-CLbool Cloud::Renderer::IndexBuffer::Initialise()
+bool Cloud::Renderer::IndexBuffer::Initialise()
 {
 #ifdef USE_DIRECTX12
     // Note: using upload heaps to transfer static data like vert buffers is not 
@@ -60,7 +60,7 @@ CLbool Cloud::Renderer::IndexBuffer::Initialise()
     }
 
     m_view.BufferLocation = m_buffer->GetGPUVirtualAddress();
-    m_view.Format = m_indexSize == sizeof(CLuint32) ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
+    m_view.Format = m_indexSize == sizeof(uint32) ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
     m_view.SizeInBytes = m_indexSize * m_indexCount;
 
     return true;
@@ -120,10 +120,10 @@ void Cloud::Renderer::IndexBuffer::GPUUpdateIndexBuffer()
 #endif
 }
 
-void Cloud::Renderer::IndexBuffer::GPUUpdateIndexBuffer(void* data, CLsize_t size, CLsize_t offset)
+void Cloud::Renderer::IndexBuffer::GPUUpdateIndexBuffer(void* data, size_t size, size_t offset)
 {
     CL_ASSERT(offset + size <= m_indexCount * m_indexSize, "trying to copy outside of the buffer!");
 
-    auto&& dest = static_cast<CLbyte*>(m_bufferData) + offset;
+    auto&& dest = static_cast<byte*>(m_bufferData) + offset;
     memcpy(dest, data, size);
 }

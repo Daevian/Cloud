@@ -9,7 +9,7 @@ Cloud::Renderer::GfxShaderResource::GfxShaderResource()
 
 
 /*
-CLbool Cloud::Renderer::GfxShaderResource::Init(void* initialData)
+bool Cloud::Renderer::GfxShaderResource::Init(void* initialData)
 {
     D3D11_SUBRESOURCE_DATA* initialSRData = 0;
     if (initialData)

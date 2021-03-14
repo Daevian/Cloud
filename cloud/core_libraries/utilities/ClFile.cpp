@@ -3,11 +3,11 @@
 
 using namespace Cloud::Utils::File;
 
-ScopedHandle Cloud::Utils::File::LoadFile(const ClString& fileName)
+ScopedHandle Cloud::Utils::File::LoadFile(const Cloud::String& fileName)
 {
 #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
     ScopedHandle hFile(SafeHandle(CreateFile2(
-        ClWString(fileName.begin(), fileName.end()).c_str(),
+        Cloud::WString(fileName.begin(), fileName.end()).c_str(),
         GENERIC_READ,
         FILE_SHARE_READ,
         OPEN_EXISTING,
@@ -32,7 +32,7 @@ ScopedHandle Cloud::Utils::File::LoadFile(const ClString& fileName)
     return hFile;
 }
 
-CLbool Cloud::Utils::File::Read(const ScopedHandle& handle, std::unique_ptr<CLuint8[]>& buffer, CLuint readSize)
+bool Cloud::Utils::File::Read(const ScopedHandle& handle, std::unique_ptr<uint8[]>& buffer, uint readSize)
 {
     DWORD bytesRead = 0;
     if (!ReadFile(
@@ -54,7 +54,7 @@ CLbool Cloud::Utils::File::Read(const ScopedHandle& handle, std::unique_ptr<CLui
     return true;
 }
 
-CLint64 Cloud::Utils::File::GetFileSize(const ScopedHandle& handle)
+int64 Cloud::Utils::File::GetFileSize(const ScopedHandle& handle)
 {
     LARGE_INTEGER fileSize = { 0 };
 

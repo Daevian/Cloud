@@ -12,20 +12,20 @@ namespace Renderer
 
         //ID3D11Buffer* GetBuffer() const   { return m_buffer; }
         //
-        //CLuint GetElementSize() const   { return m_elementSize; }
-        //CLuint GetElementCount() const  { return m_elementCount; }
+        //uint GetElementSize() const   { return m_elementSize; }
+        //uint GetElementCount() const  { return m_elementCount; }
         //
-        //void SetElementSize(CLuint elementSize)     { m_elementSize = elementSize; }
-        //void SetElementCount(CLuint elementCount)   { m_elementCount = elementCount; }
+        //void SetElementSize(uint elementSize)     { m_elementSize = elementSize; }
+        //void SetElementCount(uint elementCount)   { m_elementCount = elementCount; }
         //
-        //CLbool  Init(void* initialData = 0);
+        //bool  Init(void* initialData = 0);
         //void    Uninit();
 
     private:
         //ID3D11Buffer* m_buffer;
 
-        //CLuint m_elementSize;
-        //CLuint m_elementCount;
+        //uint m_elementSize;
+        //uint m_elementCount;
     };
 }
 }

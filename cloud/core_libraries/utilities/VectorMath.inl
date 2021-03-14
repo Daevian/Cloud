@@ -1,7 +1,7 @@
 #ifndef CLOUD_MATH_VECTOR_MATH_INLINE
 #define CLOUD_MATH_VECTOR_MATH_INLINE
 
-inline Cloud::Math::Vector4 Cloud::Math::VectorSet(CLfloat value0, CLfloat value1, CLfloat value2, CLfloat value3)
+inline Cloud::Math::Vector4 Cloud::Math::VectorSet(float value0, float value1, float value2, float value3)
 {
     return _mm_set_ps(value0, value1, value2, value3);
 }

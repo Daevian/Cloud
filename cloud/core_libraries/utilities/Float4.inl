@@ -3,7 +3,7 @@
 
 #include <math.h>
 
-inline Cloud::Math::Float4::Float4(CLfloat value)
+inline Cloud::Math::Float4::Float4(float value)
 :x(value)
 ,y(value)
 ,z(value)
@@ -11,7 +11,7 @@ inline Cloud::Math::Float4::Float4(CLfloat value)
 {
 }
 
-inline Cloud::Math::Float4::Float4(CLfloat xValue, CLfloat yValue, CLfloat zValue, CLfloat wValue)
+inline Cloud::Math::Float4::Float4(float xValue, float yValue, float zValue, float wValue)
 :x(xValue)
 ,y(yValue)
 ,z(zValue)
@@ -24,7 +24,7 @@ inline Cloud::Math::Float4::Float4(const Float4& float4)
     v = float4.v;
 }
 
-inline Cloud::Math::Float4::Float4(const Float3& float3, CLfloat valW)
+inline Cloud::Math::Float4::Float4(const Float3& float3, float valW)
 {
     x = float3.x;
     y = float3.y;
@@ -32,7 +32,7 @@ inline Cloud::Math::Float4::Float4(const Float3& float3, CLfloat valW)
     w = valW;
 }
 
-inline Cloud::Math::Float4::Float4(const Float2& float2, CLfloat valZ, CLfloat valW)
+inline Cloud::Math::Float4::Float4(const Float2& float2, float valZ, float valW)
 {
     x = float2.x;
     y = float2.y;
@@ -45,7 +45,7 @@ inline Cloud::Math::Float4::Float4(const Vector4& vector4)
     v = vector4;
 }
 
-inline void Cloud::Math::Float4::Set(CLfloat xValue, CLfloat yValue, CLfloat zValue, CLfloat wValue)
+inline void Cloud::Math::Float4::Set(float xValue, float yValue, float zValue, float wValue)
 {
     x = xValue;
     y = yValue;
@@ -86,48 +86,48 @@ inline Cloud::Math::Float4& Cloud::Math::Float4::operator*=(const Float4& float4
     return *this;
 }
 
-inline Cloud::Math::Float4 Cloud::Math::Float4::operator+(const CLfloat& scalar) const
+inline Cloud::Math::Float4 Cloud::Math::Float4::operator+(const float& scalar) const
 {
     return Float4(*this) += scalar;
 }
 
-inline Cloud::Math::Float4 Cloud::Math::Float4::operator-(const CLfloat& scalar) const
+inline Cloud::Math::Float4 Cloud::Math::Float4::operator-(const float& scalar) const
 {
     return Float4(*this) -= scalar;
 }
 
-inline Cloud::Math::Float4 Cloud::Math::Float4::operator*(const CLfloat& scalar) const
+inline Cloud::Math::Float4 Cloud::Math::Float4::operator*(const float& scalar) const
 {
     return Float4(*this) *= scalar;
 }
 
-inline Cloud::Math::Float4 Cloud::Math::Float4::operator/(const CLfloat& scalar) const
+inline Cloud::Math::Float4 Cloud::Math::Float4::operator/(const float& scalar) const
 {
     return Float4(*this) /= scalar;
 }
 
-inline Cloud::Math::Float4& Cloud::Math::Float4::operator+=(const CLfloat& scalar)
+inline Cloud::Math::Float4& Cloud::Math::Float4::operator+=(const float& scalar)
 {
     SSE::Scalar sseScalar(scalar);
     this->v = _mm_add_ps(this->v, sseScalar.m_scalar);
     return *this;
 }
 
-inline Cloud::Math::Float4& Cloud::Math::Float4::operator-=(const CLfloat& scalar)
+inline Cloud::Math::Float4& Cloud::Math::Float4::operator-=(const float& scalar)
 {
     SSE::Scalar sseScalar(scalar);
     this->v = _mm_sub_ps(this->v, sseScalar.m_scalar);
     return *this;
 }
 
-inline Cloud::Math::Float4& Cloud::Math::Float4::operator*=(const CLfloat& scalar)
+inline Cloud::Math::Float4& Cloud::Math::Float4::operator*=(const float& scalar)
 {
     SSE::Scalar sseScalar(scalar);
     this->v = _mm_mul_ps(this->v, sseScalar.m_scalar);
     return *this;
 }
 
-inline Cloud::Math::Float4& Cloud::Math::Float4::operator/=(const CLfloat& scalar)
+inline Cloud::Math::Float4& Cloud::Math::Float4::operator/=(const float& scalar)
 {
     SSE::Scalar sseScalar(scalar);
     this->v = _mm_div_ps(this->v, sseScalar.m_scalar);
@@ -143,7 +143,7 @@ inline Cloud::Math::Float4& Cloud::Math::Float4::operator=(const Float4& float4)
     return *this;
 }
 
-inline CLbool Cloud::Math::Float4::operator==(const Float4& float4) const
+inline bool Cloud::Math::Float4::operator==(const Float4& float4) const
 {
     if (this->x != float4.x) return false;
     if (this->y != float4.y) return false;
@@ -162,9 +162,9 @@ Cloud::Math::Float4 Cloud::Math::Float4::Cross(const Float4& float4) const
     return result;
 }
 
-CLfloat Cloud::Math::Float4::Dot(const Float4& float4) const
+float Cloud::Math::Float4::Dot(const Float4& float4) const
 {
-    CLfloat result = 0.0f;
+    float result = 0.0f;
     result += this->x * float4.x;
     result += this->y * float4.y;
     result += this->z * float4.z;
@@ -172,22 +172,22 @@ CLfloat Cloud::Math::Float4::Dot(const Float4& float4) const
     return result;
 }
 
-CLfloat Cloud::Math::Float4::Length() const
+float Cloud::Math::Float4::Length() const
 {
     return sqrtf(Length2());
 }
 
-CLfloat Cloud::Math::Float4::Length2() const
+float Cloud::Math::Float4::Length2() const
 {
     return (x * x) + (y * y) + (z * z) + (w * w);
 }
 
 Cloud::Math::Float4& Cloud::Math::Float4::Normalize()
 {
-    CLfloat length = Length();
+    float length = Length();
     if(length != 0.0f)
     {
-        CLfloat inverseLength = 1.0f / length;
+        float inverseLength = 1.0f / length;
         *this *= inverseLength;
     }
 
@@ -199,9 +199,9 @@ const DirectX::XMVECTOR& Cloud::Math::Float4::GetDxVector() const
     return m_dxVector;
 }
 
-ClFloat3 Cloud::Math::Float4::GetXYZ() const
+float3 Cloud::Math::Float4::GetXYZ() const
 {
-    return ClFloat3(x, y, z);;
+    return float3(x, y, z);;
 }
 
 #endif // CLOUD_MATH_FLOAT4_INLINE

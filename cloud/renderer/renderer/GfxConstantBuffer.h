@@ -9,11 +9,11 @@ namespace Renderer
     {
     public:
         GfxConstantBuffer();
-        CLbool Initialise(CLint dataSize, const void* initialData, CLuint versions = 1);
-        CLbool Initialise(CLuint versions = 1);
+        bool Initialise(int dataSize, const void* initialData, uint versions = 1);
+        bool Initialise(uint versions = 1);
         void Uninitialise();
 
-        void SetData(const void* data, CLint dataSize);
+        void SetData(const void* data, int dataSize);
 
         void GPUUpdateConstantBuffer();
 
@@ -30,18 +30,18 @@ namespace Renderer
 
     private:
         const void*   m_data = nullptr;
-        CLint   m_dataSize = 0;
-        CLuint  m_versions = 0;
-        CLint  m_currentVersion = -1;
+        int   m_dataSize = 0;
+        uint  m_versions = 0;
+        int  m_currentVersion = -1;
 #ifdef USE_DIRECTX12
         ComPtr<ID3D12Resource> m_constantBuffer;
         CD3DX12_CPU_DESCRIPTOR_HANDLE m_handle;
-        CLbyte* m_bufferData;
+        byte* m_bufferData;
 #else
         ID3D11Buffer* m_constantBuffer;
 #endif
 
-        static const CLuint c_cbufferAlignment = 256;
+        static const uint c_cbufferAlignment = 256;
     };
 }
 }

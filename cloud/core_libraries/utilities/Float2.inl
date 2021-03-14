@@ -8,7 +8,7 @@ inline Cloud::Math::Float2::Float2()
 {
 }
 
-inline Cloud::Math::Float2::Float2(CLfloat xValue, CLfloat yValue)
+inline Cloud::Math::Float2::Float2(float xValue, float yValue)
     : a{xValue, yValue}
 {
 }
@@ -18,7 +18,7 @@ inline Cloud::Math::Float2::Float2(const Float2& float2)
 {
 }
 
-inline void Cloud::Math::Float2::Set(CLfloat xValue, CLfloat yValue)
+inline void Cloud::Math::Float2::Set(float xValue, float yValue)
 {
     x = xValue;
     y = yValue;
@@ -72,48 +72,48 @@ inline Cloud::Math::Float2& Cloud::Math::Float2::operator/=(const Cloud::Math::F
     return(*this);
 }
 
-inline Cloud::Math::Float2 Cloud::Math::Float2::operator+(const CLfloat& scalar) const
+inline Cloud::Math::Float2 Cloud::Math::Float2::operator+(const float& scalar) const
 {
     return Float2(*this) += scalar;
 }
 
-inline Cloud::Math::Float2 Cloud::Math::Float2::operator-(const CLfloat& scalar) const
+inline Cloud::Math::Float2 Cloud::Math::Float2::operator-(const float& scalar) const
 {
     return Float2(*this) -= scalar;
 }
 
-inline Cloud::Math::Float2 Cloud::Math::Float2::operator*(const CLfloat& scalar) const
+inline Cloud::Math::Float2 Cloud::Math::Float2::operator*(const float& scalar) const
 {
     return Float2(*this) *= scalar;
 }
 
-inline Cloud::Math::Float2 Cloud::Math::Float2::operator/(const CLfloat& scalar) const
+inline Cloud::Math::Float2 Cloud::Math::Float2::operator/(const float& scalar) const
 {
     return Float2(*this) /= scalar;
 }
 
-inline Cloud::Math::Float2& Cloud::Math::Float2::operator+=(const CLfloat& scalar)
+inline Cloud::Math::Float2& Cloud::Math::Float2::operator+=(const float& scalar)
 {
     this->x += scalar;
     this->y += scalar;
     return(*this);
 }
 
-inline Cloud::Math::Float2& Cloud::Math::Float2::operator-=(const CLfloat& scalar)
+inline Cloud::Math::Float2& Cloud::Math::Float2::operator-=(const float& scalar)
 {
     this->x -= scalar;
     this->y -= scalar;
     return(*this);
 }
 
-inline Cloud::Math::Float2& Cloud::Math::Float2::operator*=(const CLfloat& scalar)
+inline Cloud::Math::Float2& Cloud::Math::Float2::operator*=(const float& scalar)
 {
     this->x *= scalar;
     this->y *= scalar;
     return(*this);
 }
 
-inline Cloud::Math::Float2& Cloud::Math::Float2::operator/=(const CLfloat& scalar)
+inline Cloud::Math::Float2& Cloud::Math::Float2::operator/=(const float& scalar)
 {
     this->x /= scalar;
     this->y /= scalar;
@@ -127,37 +127,37 @@ inline Cloud::Math::Float2& Cloud::Math::Float2::operator=(const Cloud::Math::Fl
     return(*this);
 }
 
-inline CLbool Cloud::Math::Float2::operator==(const Cloud::Math::Float2& float2) const
+inline bool Cloud::Math::Float2::operator==(const Cloud::Math::Float2& float2) const
 {
     if (this->x != float2.x) return false;
     if (this->y != float2.y) return false;
     return true;
 }
 
-inline CLfloat Cloud::Math::Float2::Dot(const Cloud::Math::Float2& float2) const
+inline float Cloud::Math::Float2::Dot(const Cloud::Math::Float2& float2) const
 {
-    CLfloat result = 0.0f;
+    float result = 0.0f;
     result += this->x * float2.x;
     result += this->y * float2.y;
     return result;
 }
 
-inline CLfloat Cloud::Math::Float2::Length() const
+inline float Cloud::Math::Float2::Length() const
 {
     return sqrtf(Length2());
 }
 
-inline CLfloat Cloud::Math::Float2::Length2() const
+inline float Cloud::Math::Float2::Length2() const
 {
     return (x * x) + (y * y);
 }
 
 inline Cloud::Math::Float2& Cloud::Math::Float2::Normalize()
 {
-    CLfloat length = Length();
+    float length = Length();
     if(length != 0.0f)
     {
-        CLfloat inverseLength = 1.0f / length;
+        float inverseLength = 1.0f / length;
         x *= inverseLength;
         y *= inverseLength;
     }

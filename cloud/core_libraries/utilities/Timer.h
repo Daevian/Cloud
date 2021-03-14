@@ -16,12 +16,12 @@ namespace Utils
         void Initialise();
         void Update();
 
-        CLdouble GetTotalTime() const       { return m_totalTime; }
-        CLdouble GetTimeStep() const        { return m_timeStep; }
+        double GetTotalTime() const       { return m_totalTime; }
+        double GetTimeStep() const        { return m_timeStep; }
 
     private:
-        CLdouble m_totalTime;
-        CLdouble m_timeStep;
+        double m_totalTime;
+        double m_timeStep;
 
         LARGE_INTEGER m_performanceTimercalibrationData;
         LARGE_INTEGER m_clockStarted;

@@ -16,7 +16,7 @@ namespace Cloud
             Texture(const std::string& texturePath);
             ~Texture();
 
-            CLbool Load();
+            bool Load();
             void Unload();
 
             const std::string& GetPath() const { return m_texturePath; };
@@ -29,10 +29,10 @@ namespace Cloud
 
         private:
 
-            CLbool LoadResource();
-            CLbool LoadSampler();
-            void ReadTextureDataFromFile(const ClString& fileName, std::unique_ptr<uint8_t[]>& ddsData, DdsHeader*& header, DdsHeaderDXT10*& dxt10Header, CLuint8*& imageData, CLsize_t& imageDataSize);
-            CLbool IsDds(const std::unique_ptr<uint8_t[]>& ddsData);
+            bool LoadResource();
+            bool LoadSampler();
+            void ReadTextureDataFromFile(const Cloud::String& fileName, std::unique_ptr<uint8_t[]>& ddsData, DdsHeader*& header, DdsHeaderDXT10*& dxt10Header, uint8*& imageData, size_t& imageDataSize);
+            bool IsDds(const std::unique_ptr<uint8_t[]>& ddsData);
 
             GfxTexture::UniquePtr m_texture;
 #ifdef USE_DIRECTX12

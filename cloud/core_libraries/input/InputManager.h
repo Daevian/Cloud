@@ -20,7 +20,7 @@ namespace Input
         {
             XINPUT_STATE m_currentState;
             XINPUT_STATE m_previousState;
-            CLbool       m_connected;
+            bool       m_connected;
         };
 
     public:
@@ -37,29 +37,29 @@ namespace Input
 
         InputManager();
 
-        CLbool Initialise(const Settings& settings);
+        bool Initialise(const Settings& settings);
         void Shutdown();
 
         void Update();
 
-        CLbool GetKeyUp(Key key);
-        CLbool GetKeyDown(Key key);
-        CLbool GetKeyPressed(Key key);
-        CLbool GetKeyReleased(Key key);
+        bool GetKeyUp(Key key);
+        bool GetKeyDown(Key key);
+        bool GetKeyPressed(Key key);
+        bool GetKeyReleased(Key key);
 
-        CLbool GetMouseUp(CLuchar key);
-        CLbool GetMouseDown(CLuchar key);
-        CLbool GetMousePressed(CLuchar key);
-        CLbool GetMouseReleased(CLuchar key);
+        bool GetMouseUp(t_uchar key);
+        bool GetMouseDown(t_uchar key);
+        bool GetMousePressed(t_uchar key);
+        bool GetMouseReleased(t_uchar key);
 
-        ClFloat2 GetPadLeftStick(CLuint controllerId);
-        ClFloat2 GetPadRightStick(CLuint controllerId);
-        CLfloat  GetPadLeftTrigger(CLuint controllerId);
-        CLfloat  GetPadRightTrigger(CLuint controllerId);
-        CLbool   GetPadButtonUp(CLuint controllerId, PadButton button);
-        CLbool   GetPadButtonDown(CLuint controllerId, PadButton button);
-        CLbool   GetPadButtonPressed(CLuint controllerId, PadButton button);
-        CLbool   GetPadButtonReleased(CLuint controllerId, PadButton button);
+        float2 GetPadLeftStick(uint controllerId);
+        float2 GetPadRightStick(uint controllerId);
+        float  GetPadLeftTrigger(uint controllerId);
+        float  GetPadRightTrigger(uint controllerId);
+        bool   GetPadButtonUp(uint controllerId, PadButton button);
+        bool   GetPadButtonDown(uint controllerId, PadButton button);
+        bool   GetPadButtonPressed(uint controllerId, PadButton button);
+        bool   GetPadButtonReleased(uint controllerId, PadButton button);
 
     private:
         void UpdateKeyboard();
@@ -70,16 +70,16 @@ namespace Input
         IDirectInputDevice8* m_directInputKeyboard;
         IDirectInputDevice8* m_directInputMouse;
 
-        Utils::StaticArray<CLbyte, 256> m_currentKeystate;
-        Utils::StaticArray<CLbyte, 256> m_previousKeyState;
+        Utils::StaticArray<byte, 256> m_currentKeystate;
+        Utils::StaticArray<byte, 256> m_previousKeyState;
 
         DIMOUSESTATE2 m_currectMouseState;
         DIMOUSESTATE2 m_previousMouseState;
-        static const CLint c_mouseKeyCount = 8; // Matching up with the amount of mouse buttons in DIMOUSESTATE2.
+        static const int c_mouseKeyCount = 8; // Matching up with the amount of mouse buttons in DIMOUSESTATE2.
 
-        static const CLuint c_maxControllers = 4;
+        static const uint c_maxControllers = 4;
         Utils::StaticArray<ControllerState, c_maxControllers> m_controllers;
-        CLfloat m_controllerInputDeadzone;
+        float m_controllerInputDeadzone;
 
         Settings m_settings;
     };

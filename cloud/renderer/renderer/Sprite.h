@@ -26,7 +26,7 @@ namespace Cloud
             Sprite(const Sprite& sprite) = delete;
             Sprite(Sprite&& sprite);
 
-            CLbool Init(Texture* texture);
+            bool Init(Texture* texture);
             void Unload();
 
             void Render();
@@ -35,9 +35,9 @@ namespace Cloud
 
             void SetPosition(const Math::Float2& position)      { m_vertex.pos = position; }
             void SetScale(const Math::Float2& scale)            { m_vertex.scale = scale; }
-            void SetVisible(CLbool visible)                     { m_visible = visible; }
+            void SetVisible(bool visible)                     { m_visible = visible; }
 
-            CLbool GetVisible() const                           { return m_visible; }
+            bool GetVisible() const                           { return m_visible; }
 
         private:
             VertexBuffer m_vertexBuffer;
@@ -47,7 +47,7 @@ namespace Cloud
 
             SpriteVertex m_vertex;
 
-            CLbool m_visible;
+            bool m_visible;
         };
     }
 }

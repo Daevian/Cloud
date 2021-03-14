@@ -13,29 +13,29 @@ Cloud::Renderer::ParticleManager::~ParticleManager()
 {
 }
 
-CLbool Cloud::Renderer::ParticleManager::Initialise()
+bool Cloud::Renderer::ParticleManager::Initialise()
 {
     m_effect = RenderCore::Instance().GetEffectContainer().GetEffect("data/effects/pfx.effect");
     m_texture = RenderCore::Instance().GetTextureContainer().GetTexture("data/textures/main_menu_cursor.dds");
 
     m_vertexBuffer.SetVertexCount(m_particles.Count());
     m_vertexBuffer.SetVertexSize(sizeof(ParticleVertex));
-    m_vertexBuffer.SetVertexData((CLchar*)&m_particleVertexData);
+    m_vertexBuffer.SetVertexData((t_char*)&m_particleVertexData);
 //    m_vertexBuffer.SetTopology(GfxPrimitiveTopology::Pointlist);
 
     if (!m_vertexBuffer.Initialise()) return false;
 
-    for (CLuint i = 0; i < m_particles.Count(); i++)
+    for (uint i = 0; i < m_particles.Count(); i++)
     {
-        CLfloat velX = (ClRandFloat() - 0.5f) * 0.05f;
-        CLfloat velY = (ClRandFloat() - 0.5f) * 0.05f;
-        CLfloat velZ = (ClRandFloat() - 0.5f) * 0.05f;
+        float velX = (ClRandFloat() - 0.5f) * 0.05f;
+        float velY = (ClRandFloat() - 0.5f) * 0.05f;
+        float velZ = (ClRandFloat() - 0.5f) * 0.05f;
 
-        m_particles[i].position = ClFloat4(0.0f, 0.0f, 0.0f, 1.0f);
-        m_particles[i].velocity = ClFloat4(velX, velY, velZ, 0.0f);
+        m_particles[i].position = float4(0.0f, 0.0f, 0.0f, 1.0f);
+        m_particles[i].velocity = float4(velX, velY, velZ, 0.0f);
 
-        m_gpuParticles[i].position = ClFloat4(0.0f, 0.0f, 0.0f, 1.0f);
-        m_gpuParticles[i].velocity = ClFloat4(velX, velY, velZ, 0.0f);
+        m_gpuParticles[i].position = float4(0.0f, 0.0f, 0.0f, 1.0f);
+        m_gpuParticles[i].velocity = float4(velX, velY, velZ, 0.0f);
     }
 
 #ifdef USE_DIRECTX12
@@ -198,7 +198,7 @@ CLbool Cloud::Renderer::ParticleManager::Initialise()
 
             if (errorBlob)
             {
-                CLchar* error = static_cast<CLchar*>(errorBlob->GetBufferPointer());
+                t_char* error = static_cast<t_char*>(errorBlob->GetBufferPointer());
                 CL_TRACE_CHANNEL("ERROR", error);
             }
 
@@ -239,7 +239,7 @@ CLbool Cloud::Renderer::ParticleManager::Initialise()
 
             if (errorBlob)
             {
-                CLchar* error = static_cast<CLchar*>(errorBlob->GetBufferPointer());
+                t_char* error = static_cast<t_char*>(errorBlob->GetBufferPointer());
                 CL_TRACE_CHANNEL("ERROR", error);
             }
 
@@ -263,11 +263,11 @@ void Cloud::Renderer::ParticleManager::Uninitialise()
     m_vertexBuffer.Uninitialise();
 }
 
-void Cloud::Renderer::ParticleManager::Update(CLfloat timeStep)
+void Cloud::Renderer::ParticleManager::Update(float timeStep)
 {
-    ClFloat4 timeStepVector(timeStep);
+    float4 timeStepVector(timeStep);
 
-    for (CLuint particleIndex = 0, count = m_particles.Count(); particleIndex < count; ++particleIndex)
+    for (uint particleIndex = 0, count = m_particles.Count(); particleIndex < count; ++particleIndex)
     {
         Particle& particle = m_particles[particleIndex];
         particle.position += particle.velocity * timeStepVector;
@@ -313,7 +313,7 @@ void Cloud::Renderer::ParticleManager::Update(CLfloat timeStep)
 
 void Cloud::Renderer::ParticleManager::Fill()
 {
-    for (CLuint i = 0; i < m_particles.Count(); i++)
+    for (uint i = 0; i < m_particles.Count(); i++)
     {
         Particle& particle = m_particles[i];
         ParticleVertex& vertex = m_particleVertexData[i];

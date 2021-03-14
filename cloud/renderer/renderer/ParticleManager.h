@@ -12,14 +12,14 @@ namespace Renderer
 
     struct Particle
     {
-        ClFloat4 position;
-        ClFloat4 velocity;
+        float4 position;
+        float4 velocity;
     };
 
     struct GpuParticle
     {
-        ClFloat4 position;
-        ClFloat4 velocity;
+        float4 position;
+        float4 velocity;
     };
 
     struct ParticleVertex
@@ -34,15 +34,15 @@ namespace Renderer
         ParticleManager();
         ~ParticleManager();
 
-        CLbool Initialise();
+        bool Initialise();
         void Uninitialise();
 
-        void Update(CLfloat timeStep);
+        void Update(float timeStep);
         void Fill();
         void Render();
 
     private:
-        static const CLuint c_maxParticles = 256;
+        static const uint c_maxParticles = 256;
         Utils::StaticArray<Particle, c_maxParticles> m_particles;
 
         Utils::StaticArray<GpuParticle, c_maxParticles> m_gpuParticles;

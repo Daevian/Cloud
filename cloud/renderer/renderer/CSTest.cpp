@@ -13,7 +13,7 @@ Cloud::Renderer::CSTest::~CSTest()
 {
 }
 
-CLbool Cloud::Renderer::CSTest::Initialise()
+bool Cloud::Renderer::CSTest::Initialise()
 {
 #ifdef USE_DIRECTX12
 #else
@@ -22,8 +22,8 @@ CLbool Cloud::Renderer::CSTest::Initialise()
 
     // TEXTURE
     {
-        std::array<CLuint32, 16> pixels = { 0 };
-        for (CLuint i = 0; i < 16; i += 8)
+        std::array<uint32, 16> pixels = { 0 };
+        for (uint i = 0; i < 16; i += 8)
         {
             pixels[i + 0] = 0xFFFF0000;
             pixels[i + 1] = 0xFF00FF00;
@@ -37,7 +37,7 @@ CLbool Cloud::Renderer::CSTest::Initialise()
 
         D3D11_SUBRESOURCE_DATA data;
         ClMemZero(&data, sizeof(data));
-        data.SysMemPitch = 4 * sizeof(CLuint32);
+        data.SysMemPitch = 4 * sizeof(uint32);
         data.pSysMem = &pixels[0];
 
         D3D11_TEXTURE2D_DESC desc;
@@ -140,7 +140,7 @@ CLbool Cloud::Renderer::CSTest::Initialise()
         ID3D10Blob* blob = 0;
         ID3D10Blob* errorBlob = 0;
 
-        CLdword shaderFlags = 0;//D3DCOMPILE_ENABLE_STRICTNESS;
+        dword shaderFlags = 0;//D3DCOMPILE_ENABLE_STRICTNESS;
 #if defined( DEBUG ) || defined( _DEBUG )
         shaderFlags |= D3DCOMPILE_DEBUG;
         shaderFlags |= D3DCOMPILE_PREFER_FLOW_CONTROL;
@@ -167,7 +167,7 @@ CLbool Cloud::Renderer::CSTest::Initialise()
 
             if (errorBlob)
             {
-                CLchar* error = static_cast<CLchar*>(errorBlob->GetBufferPointer());
+                t_char* error = static_cast<t_char*>(errorBlob->GetBufferPointer());
                 CL_TRACE_CHANNEL("ERROR", error);
             }
 
@@ -185,7 +185,7 @@ CLbool Cloud::Renderer::CSTest::Initialise()
     return true;
 }
 
-CLbool Cloud::Renderer::CSTest::InitVBIB()
+bool Cloud::Renderer::CSTest::InitVBIB()
 {
     m_effect = RenderCore::Instance().GetEffectContainer().GetEffect("data/effects/cstest.effect");
     //m_texture = RenderCore::Instance().GetTextureContainer().GetTexture("data/textures/main_menu_cursor.dds");
@@ -208,13 +208,13 @@ CLbool Cloud::Renderer::CSTest::InitVBIB()
 
     m_vertexBuffer.SetVertexCount(m_vertexData.Count());
     m_vertexBuffer.SetVertexSize(sizeof(Vertex));
-    m_vertexBuffer.SetVertexData((CLchar*)&m_vertexData);
+    m_vertexBuffer.SetVertexData((t_char*)&m_vertexData);
     //m_vertexBuffer.SetTopology(GfxPrimitiveTopology::Trianglelist);
     if (!m_vertexBuffer.Initialise())
         return false;
 
     m_indexBuffer.SetIndexCount(m_indexData.Count());
-    m_indexBuffer.SetIndexData((CLchar*)&m_indexData);
+    m_indexBuffer.SetIndexData((t_char*)&m_indexData);
     if (!m_indexBuffer.Initialise())
         return false;
 

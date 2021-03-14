@@ -17,7 +17,7 @@ RPG::UIManager::~UIManager()
 {
 }
 
-CLbool RPG::UIManager::Initialise(Cloud::Renderer::Renderer& renderer)
+bool RPG::UIManager::Initialise(Cloud::Renderer::Renderer& renderer)
 {
     m_renderer = &renderer;
 /*

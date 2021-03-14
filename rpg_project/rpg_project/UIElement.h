@@ -17,7 +17,7 @@ namespace RPG
         UIElement();
         ~UIElement() {};
 
-        CLbool Initialise(Cloud::Renderer::Sprite* sprite);
+        bool Initialise(Cloud::Renderer::Sprite* sprite);
 
         void SetPosition(const Cloud::Math::Float2& position);
         void SetScale(const Cloud::Math::Float2& scale);

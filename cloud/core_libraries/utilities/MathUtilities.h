@@ -16,12 +16,12 @@ namespace Cloud
 {
 namespace Math
 {
-    inline CLfloat ToRadians(const CLfloat degrees)
+    inline float ToRadians(const float degrees)
     {
         return DirectX::XMConvertToRadians(degrees);
     }
 
-    inline CLfloat ToDegrees(const CLfloat radians)
+    inline float ToDegrees(const float radians)
     {
         return DirectX::XMConvertToDegrees(radians);
     }
@@ -60,13 +60,13 @@ namespace Math
         return abs(a);
     };
 
-    inline CLbool IsPowerOfTwo(CLuint value)
+    inline bool IsPowerOfTwo(uint value)
     {
         return (value != 0) && ((value & (value - 1)) == 0);
     }
 
-    template <CLuint BOUNDRARY>
-    inline CLuint RoundNearest(CLuint value)
+    template <uint BOUNDRARY>
+    inline uint RoundNearest(uint value)
     {
         CL_ASSERT(IsPowerOfTwo(BOUNDRARY), "Boundrary has to be power of two!");
         return (value + BOUNDRARY - 1) & ~(BOUNDRARY - 1);

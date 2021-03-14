@@ -11,7 +11,7 @@ Cloud::Renderer::Settings::~Settings()
 {
 }
 
-CLbool Cloud::Renderer::Settings::Create()
+bool Cloud::Renderer::Settings::Create()
 {
     CL_ASSERT(s_instance == 0, "Settings already created. Can't re-create!");
 
@@ -35,13 +35,13 @@ void Cloud::Renderer::Settings::Destroy()
     }
 }
 
-CLbool Cloud::Renderer::Settings::Initialise()
+bool Cloud::Renderer::Settings::Initialise()
 {
     std::ifstream jsonFile("data/config/settings.txt");
     
     Json::Reader reader;
 
-    CLbool parseSuccessful = reader.parse(jsonFile, m_root);
+    bool parseSuccessful = reader.parse(jsonFile, m_root);
     if (!parseSuccessful)
     {
         std::stringstream assertMessage;

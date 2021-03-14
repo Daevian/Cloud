@@ -11,7 +11,7 @@ namespace Cloud
         public:
 
 
-            std::unique_ptr<ModelInstance> LoadModel(const CLchar* modelPath);
+            std::unique_ptr<ModelInstance> LoadModel(const t_char* modelPath);
 
 
         private:

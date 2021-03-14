@@ -125,7 +125,7 @@ void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxT
             return;
         }
 
-        const auto c_texturePixelSize = sizeof(CLuint32);
+        const auto c_texturePixelSize = sizeof(uint32);
 
         D3D12_SUBRESOURCE_DATA textureData = {};
         textureData.pData = desc.initialData.data;
@@ -185,10 +185,10 @@ void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxT
 
     if (desc.initialData.data)
     {
-        CLuint skipMip = 0;
-        CLuint tWidth = 0;
-        CLuint tHeight = 0;
-        CLuint tDepth = 0;
+        uint skipMip = 0;
+        uint tWidth = 0;
+        uint tHeight = 0;
+        uint tDepth = 0;
 
         FillInitialData(
             desc.width,
@@ -197,7 +197,7 @@ void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxT
             desc.mipCount,
             desc.arraySize,
             desc.format,
-            (CLuint8*)desc.initialData.data,
+            (uint8*)desc.initialData.data,
             desc.initialData.size,
             tWidth,
             tHeight,
@@ -417,7 +417,7 @@ void Cloud::Renderer::GfxTextureFactory::InitDsv(const GfxTextureDesc& desc, Gfx
 
 #ifdef USE_DIRECTX12
 #else
-void Cloud::Renderer::GfxTextureFactory::FillInitialData(CLuint width, CLuint height, CLuint depth, CLuint mipCount, CLuint arraySize, DXGI_FORMAT format, const CLuint8* imageData, CLsize_t imageDataSize, CLuint& tWidth, CLuint& tHeight, CLuint& tDepth, CLuint& skipMip, D3D11_SUBRESOURCE_DATA* initData)
+void Cloud::Renderer::GfxTextureFactory::FillInitialData(uint width, uint height, uint depth, uint mipCount, uint arraySize, DXGI_FORMAT format, const uint8* imageData, size_t imageDataSize, uint& tWidth, uint& tHeight, uint& tDepth, uint& skipMip, D3D11_SUBRESOURCE_DATA* initData)
 {
     CL_ASSERT_NULL(imageData);
     CL_ASSERT_NULL(initData);
@@ -427,20 +427,20 @@ void Cloud::Renderer::GfxTextureFactory::FillInitialData(CLuint width, CLuint he
     tHeight = 0;
     tDepth = 0;
 
-    CLuint NumBytes = 0;
-    CLuint RowBytes = 0;
-    CLuint NumRows = 0;
-    const CLuint8* pSrcBits = imageData;
-    const CLuint8* pEndBits = imageData + imageDataSize;
+    uint NumBytes = 0;
+    uint RowBytes = 0;
+    uint NumRows = 0;
+    const uint8* pSrcBits = imageData;
+    const uint8* pEndBits = imageData + imageDataSize;
 
-    CLuint index = 0;
+    uint index = 0;
 
-    for (CLuint j = 0; j < arraySize; ++j)
+    for (uint j = 0; j < arraySize; ++j)
     {
-        CLuint w = width;
-        CLuint h = height;
-        CLuint d = depth;
-        for (CLuint i = 0; i < mipCount; ++i)
+        uint w = width;
+        uint h = height;
+        uint d = depth;
+        for (uint i = 0; i < mipCount; ++i)
         {
             GetSurfaceInfo(
                 w,

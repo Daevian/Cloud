@@ -9,16 +9,16 @@ namespace Cloud
     {
         struct GfxBufferDesc
         {
-            ClDebugName name;
-            CLuint      elementSize;
-            CLuint      elementCount;
+            Cloud::DebugName name;
+            uint      elementSize;
+            uint      elementCount;
 #ifdef USE_DIRECTX12
 #else
             D3D11_USAGE usage;
 #endif
-            CLuint      bindFlags;
-            CLuint      cpuAccessFlags;
-            CLuint      miscFlags;
+            uint      bindFlags;
+            uint      cpuAccessFlags;
+            uint      miscFlags;
             void*       initialData;
         };
 
@@ -61,7 +61,7 @@ namespace Cloud
             void InitSrv(const GfxBufferDesc& desc, GfxBuffer& buffer);
             void InitUav(const GfxBufferDesc& desc, GfxBuffer& buffer);
 
-            CLbool VerifySetup(const GfxBufferDesc& desc);
+            bool VerifySetup(const GfxBufferDesc& desc);
 
         };
     }

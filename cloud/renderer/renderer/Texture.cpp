@@ -13,7 +13,7 @@ Cloud::Renderer::Texture::~Texture()
 {
 }
 
-CLbool Cloud::Renderer::Texture::Load()
+bool Cloud::Renderer::Texture::Load()
 {
     if (!LoadResource()) return false;
     if (!LoadSampler()) return false;
@@ -32,7 +32,7 @@ void Cloud::Renderer::Texture::Unload()
 #endif
 }
 
-CLbool Cloud::Renderer::Texture::LoadResource()
+bool Cloud::Renderer::Texture::LoadResource()
 {
 #ifdef USE_DIRECTX12
     return false;
@@ -40,11 +40,11 @@ CLbool Cloud::Renderer::Texture::LoadResource()
     CL_ASSERT(!m_texture, (m_texturePath + " already loaded!").c_str());
 
     //load file
-    std::unique_ptr<CLuint8[]> ddsData;
+    std::unique_ptr<uint8[]> ddsData;
     DdsHeader* header;
     DdsHeaderDXT10* dxt10Header;
-    CLuint8* imageData;
-    CLsize_t imageDataSize;
+    uint8* imageData;
+    size_t imageDataSize;
 
     ReadTextureDataFromFile(m_texturePath, ddsData, header, dxt10Header, imageData, imageDataSize);
     CL_ASSERT(header && imageData && imageDataSize, "Didn't get valid data from the texture file");
@@ -122,7 +122,7 @@ CLbool Cloud::Renderer::Texture::LoadResource()
 #endif
 }
 
-CLbool Cloud::Renderer::Texture::LoadSampler()
+bool Cloud::Renderer::Texture::LoadSampler()
 {
 #ifdef USE_DIRECTX12
     return false;
@@ -156,7 +156,7 @@ CLbool Cloud::Renderer::Texture::LoadSampler()
 #endif
 }
 
-void Cloud::Renderer::Texture::ReadTextureDataFromFile(const ClString& fileName, std::unique_ptr<CLuint8[]>& ddsData, DdsHeader*& header, DdsHeaderDXT10*& dxt10Header, CLuint8*& imageData, CLsize_t& imageDataSize)
+void Cloud::Renderer::Texture::ReadTextureDataFromFile(const Cloud::String& fileName, std::unique_ptr<uint8[]>& ddsData, DdsHeader*& header, DdsHeaderDXT10*& dxt10Header, uint8*& imageData, size_t& imageDataSize)
 {
     header = nullptr;
     dxt10Header = nullptr;
@@ -175,10 +175,10 @@ void Cloud::Renderer::Texture::ReadTextureDataFromFile(const ClString& fileName,
         return;
     }
 
-    ddsData.reset(new CLuint8[fileSize]);
+    ddsData.reset(new uint8[fileSize]);
     CL_ASSERT_NULL(ddsData);
 
-    Utils::File::Read(handle, ddsData, static_cast<CLuint>(fileSize));
+    Utils::File::Read(handle, ddsData, static_cast<uint>(fileSize));
 
     CL_ASSERT(IsDds(ddsData), "Only DDS is supported at the moment");
     
@@ -197,7 +197,7 @@ void Cloud::Renderer::Texture::ReadTextureDataFromFile(const ClString& fileName,
         }
     }
 
-    CLptrdiff_t dataOffset =
+    ptrdiff_t dataOffset =
         sizeof(DDS_MAGIC) +
         sizeof(DdsHeader) +
         (dxt10Header ? sizeof(DdsHeaderDXT10) : 0);
@@ -206,8 +206,8 @@ void Cloud::Renderer::Texture::ReadTextureDataFromFile(const ClString& fileName,
     imageDataSize = fileSize - dataOffset;
 }
 
-CLbool Cloud::Renderer::Texture::IsDds(const std::unique_ptr<uint8_t[]>& ddsData)
+bool Cloud::Renderer::Texture::IsDds(const std::unique_ptr<uint8_t[]>& ddsData)
 {
-    CLuint32 magicNumber = *(const CLuint32*)(ddsData.get());
+    uint32 magicNumber = *(const uint32*)(ddsData.get());
     return magicNumber == DDS_MAGIC;
 }

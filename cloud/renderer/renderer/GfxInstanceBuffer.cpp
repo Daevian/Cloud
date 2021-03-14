@@ -14,7 +14,7 @@ Cloud::Renderer::GfxInstanceBuffer::GfxInstanceBuffer()
 {
 }
 
-CLbool Cloud::Renderer::GfxInstanceBuffer::Initialise()
+bool Cloud::Renderer::GfxInstanceBuffer::Initialise()
 {
 #ifdef USE_DIRECTX12
     return false;
@@ -60,8 +60,8 @@ void Cloud::Renderer::GfxInstanceBuffer::GpuSetInstanceBuffer()
 {
 #ifdef USE_DIRECTX12
 #else
-    CLuint stride = m_instanceSize;
-    CLuint offset = 0;
+    uint stride = m_instanceSize;
+    uint offset = 0;
     RenderCore::Instance().GetContext()->IASetVertexBuffers(0, 1, &m_instanceBuffer, &stride, &offset);
 #endif
 }

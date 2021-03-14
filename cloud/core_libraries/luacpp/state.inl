@@ -4,25 +4,25 @@
 namespace Cloud
 {
     template <>
-    inline CLbool Cloud::LuaState::To(CLint stackIndex) const
+    inline bool Cloud::LuaState::To(int stackIndex) const
     {
         return lua_toboolean(GetState(), stackIndex) != 0 ? true : false;
     }
 
     template <>
-    inline CLint Cloud::LuaState::To(CLint stackIndex) const
+    inline int Cloud::LuaState::To(int stackIndex) const
     {
-        return static_cast<CLint>(lua_tointeger(GetState(), stackIndex));
+        return static_cast<int>(lua_tointeger(GetState(), stackIndex));
     }
 
     template <>
-    inline CLfloat Cloud::LuaState::To(CLint stackIndex) const
+    inline float Cloud::LuaState::To(int stackIndex) const
     {
-        return static_cast<CLfloat>(lua_tonumber(GetState(), stackIndex));
+        return static_cast<float>(lua_tonumber(GetState(), stackIndex));
     }
 
     template <>
-    inline const CLchar* Cloud::LuaState::To(CLint stackIndex) const
+    inline const t_char* Cloud::LuaState::To(int stackIndex) const
     {
         // TODO: might change stack value to str, so not const or thread-safe
         return lua_tostring(GetState(), stackIndex);

@@ -12,38 +12,38 @@ namespace Cloud
         {
         public:
             DynamicArray();
-            DynamicArray(const CLint& startSize, const CLint& growSize);
+            DynamicArray(const int& startSize, const int& growSize);
             DynamicArray(const DynamicArray& dynamicArray);
             ~DynamicArray();
 
             DynamicArray<Type>& operator=(const DynamicArray<Type>& dynamicArray);
-            inline Type&        operator[](const CLint& index);
-            inline const Type&  operator[](const CLint& index) const;
+            inline Type&        operator[](const int& index);
+            inline const Type&  operator[](const int& index) const;
 
-            void Init(const CLint& startSize, const CLint& growSize);
+            void Init(const int& startSize, const int& growSize);
 
             inline void Add(const Type& item);
             inline void Add(Type&& item);
-            inline void Insert(const CLint& index, const Type& item);
+            inline void Insert(const int& index, const Type& item);
 
             inline void Remove(const Type& item);
-            inline void RemoveAtIndex(const CLint& index);
+            inline void RemoveAtIndex(const int& index);
             inline void RemoveCyclic(const Type& item);
-            inline void RemoveCyclicAtIndex(const CLint& index);
+            inline void RemoveCyclicAtIndex(const int& index);
 
             inline void RemoveAll();
 
-            __forceinline CLint Count() const;
+            __forceinline int Count() const;
             inline Type* Last() const;
 
         protected:
-            void Resize(CLint newSize);
+            void Resize(int newSize);
 
             std::unique_ptr<Type[]> m_items;
             Type* m_last;
-            CLint m_count;
-            CLint m_maxCount;
-            CLint m_growSize;
+            int m_count;
+            int m_maxCount;
+            int m_growSize;
         };
     }
 }

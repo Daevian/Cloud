@@ -8,7 +8,7 @@ Cloud::Debug::DebugLog* Cloud::Debug::DebugLog::s_instance = 0;
 
 Cloud::Debug::DebugLog::DebugLog()
 {
-    for (CLint i = 0; i < MAX_HANDLERS; ++i)
+    for (int i = 0; i < MAX_HANDLERS; ++i)
     {
         m_logHandlers[i] = 0;
     }    
@@ -16,7 +16,7 @@ Cloud::Debug::DebugLog::DebugLog()
 
 Cloud::Debug::DebugLog::~DebugLog()
 {
-    for (CLint i = 0; i < MAX_HANDLERS; ++i)
+    for (int i = 0; i < MAX_HANDLERS; ++i)
     {
         if (m_logHandlers[i] != 0)
         {
@@ -25,7 +25,7 @@ Cloud::Debug::DebugLog::~DebugLog()
     }
 }
 
-CLbool Cloud::Debug::DebugLog::Create()
+bool Cloud::Debug::DebugLog::Create()
 {
     CL_ASSERT(s_instance == 0, "DebugLog already created. Can't re-create!");
 
@@ -49,7 +49,7 @@ void Cloud::Debug::DebugLog::Destroy()
     }
 }
 
-CLbool Cloud::Debug::DebugLog::Initialise()
+bool Cloud::Debug::DebugLog::Initialise()
 {
     AddLogHandler(new Cloud::Debug::WinConsoleLogHandler());
 
@@ -61,7 +61,7 @@ void Cloud::Debug::DebugLog::Shutdown()
 {
 }
 
-void Cloud::Debug::DebugLog::Trace(const CLchar* output, ...)
+void Cloud::Debug::DebugLog::Trace(const t_char* output, ...)
 {
     va_list argList;
     va_start(argList, output);
@@ -71,7 +71,7 @@ void Cloud::Debug::DebugLog::Trace(const CLchar* output, ...)
     va_end(argList);    
 }
 
-void Cloud::Debug::DebugLog::TraceChannel(const CLchar* channel, const CLchar* output, ...)
+void Cloud::Debug::DebugLog::TraceChannel(const t_char* channel, const t_char* output, ...)
 {
     va_list argList;
     va_start(argList, output);
@@ -81,9 +81,9 @@ void Cloud::Debug::DebugLog::TraceChannel(const CLchar* channel, const CLchar* o
     va_end(argList);
 }
 
-void Cloud::Debug::DebugLog::WriteToChannel(const CLchar* channel, const CLchar* output, va_list args)
+void Cloud::Debug::DebugLog::WriteToChannel(const t_char* channel, const t_char* output, va_list args)
 {
-    std::array<CLchar, MAX_CHARS> buffer;
+    std::array<t_char, MAX_CHARS> buffer;
     WriteToBuffer(buffer, output, args);
 
     ChannelIterator i = m_channelList.find(channel);
@@ -100,15 +100,15 @@ void Cloud::Debug::DebugLog::WriteToChannel(const CLchar* channel, const CLchar*
     }
 }
 
-void Cloud::Debug::DebugLog::WriteToBuffer(std::array<CLchar, MAX_CHARS>& buffer, const CLchar* output, va_list args)
+void Cloud::Debug::DebugLog::WriteToBuffer(std::array<t_char, MAX_CHARS>& buffer, const t_char* output, va_list args)
 {
     vsnprintf_s(&buffer[0], MAX_CHARS, MAX_CHARS, output, args);
     buffer[MAX_CHARS - 1] = '\0';
 }
 
-void Cloud::Debug::DebugLog::PushBufferToHandlers(const CLchar* buffer)
+void Cloud::Debug::DebugLog::PushBufferToHandlers(const t_char* buffer)
 {
-    for (CLint i = 0; i < MAX_HANDLERS; ++i)
+    for (int i = 0; i < MAX_HANDLERS; ++i)
     {
         if (m_logHandlers[i] != 0)
         {
@@ -119,7 +119,7 @@ void Cloud::Debug::DebugLog::PushBufferToHandlers(const CLchar* buffer)
 
 void Cloud::Debug::DebugLog::AddLogHandler(BaseLogHandler* log)
 {
-    for (CLint i = 0; i < MAX_HANDLERS; ++i)
+    for (int i = 0; i < MAX_HANDLERS; ++i)
     {
         if (m_logHandlers[i] == 0)
         {

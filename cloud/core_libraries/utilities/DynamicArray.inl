@@ -16,7 +16,7 @@ Cloud::Utils::DynamicArray<Type>::DynamicArray()
 }
 
 template <class Type>
-Cloud::Utils::DynamicArray<Type>::DynamicArray(const CLint& startSize, const CLint& growSize)
+Cloud::Utils::DynamicArray<Type>::DynamicArray(const int& startSize, const int& growSize)
     : m_last(nullptr)
     , m_count(0)
     , m_maxCount(startSize)
@@ -42,7 +42,7 @@ Cloud::Utils::DynamicArray<Type>& Cloud::Utils::DynamicArray<Type>::operator=(co
 {
     Init(dynamicArray.m_maxCount, dynamicArray.m_growSize);
 
-    for (CLint i = 0; i < dynamicArray.m_count; ++i)
+    for (int i = 0; i < dynamicArray.m_count; ++i)
     {
         m_items[i] = dynamicArray.m_items[i];
     }
@@ -54,7 +54,7 @@ Cloud::Utils::DynamicArray<Type>& Cloud::Utils::DynamicArray<Type>::operator=(co
 }
 
 template <class Type>
-inline Type& Cloud::Utils::DynamicArray<Type>::operator[](const CLint& index)
+inline Type& Cloud::Utils::DynamicArray<Type>::operator[](const int& index)
 {
     CL_ASSERT(index >= 0 && index < m_count, "Index is out of bounds!");
 #pragma warning(suppress: 26481)
@@ -62,7 +62,7 @@ inline Type& Cloud::Utils::DynamicArray<Type>::operator[](const CLint& index)
 }
 
 template <class Type>
-inline const Type& Cloud::Utils::DynamicArray<Type>::operator[](const CLint& index) const
+inline const Type& Cloud::Utils::DynamicArray<Type>::operator[](const int& index) const
 {
     CL_ASSERT(index >= 0 && index < m_count, "Index is out of bounds!");
 #pragma warning(suppress: 26481)
@@ -70,7 +70,7 @@ inline const Type& Cloud::Utils::DynamicArray<Type>::operator[](const CLint& ind
 }
 
 template <class Type>
-void Cloud::Utils::DynamicArray<Type>::Init(const CLint& startSize, const CLint& growSize)
+void Cloud::Utils::DynamicArray<Type>::Init(const int& startSize, const int& growSize)
 {
     CL_ASSERT(growSize > 0, "Grow size can't be 0 or less!");
 
@@ -113,7 +113,7 @@ inline void Cloud::Utils::DynamicArray<Type>::Add(Type&& item)
 }
 
 template <class Type>
-inline void Cloud::Utils::DynamicArray<Type>::Insert(const CLint& index, const Type& item)
+inline void Cloud::Utils::DynamicArray<Type>::Insert(const int& index, const Type& item)
 {
     CL_ASSERT(index < m_count && index >= 0, "");
 
@@ -122,7 +122,7 @@ inline void Cloud::Utils::DynamicArray<Type>::Insert(const CLint& index, const T
         Resize(m_count + m_growSize);
     }
 
-    for (CLint i = m_count; i >= index; --i)
+    for (int i = m_count; i >= index; --i)
     {
         m_items[i] = m_items[i - 1];
     }
@@ -135,7 +135,7 @@ inline void Cloud::Utils::DynamicArray<Type>::Insert(const CLint& index, const T
 template <class Type>
 inline void Cloud::Utils::DynamicArray<Type>::Remove(const Type& item)
 {
-    for (CLint i = 0; i < m_count; ++i)
+    for (int i = 0; i < m_count; ++i)
     {
         if (m_items[i] == item)
         {
@@ -145,11 +145,11 @@ inline void Cloud::Utils::DynamicArray<Type>::Remove(const Type& item)
 }
 
 template <class Type>
-inline void Cloud::Utils::DynamicArray<Type>::RemoveAtIndex(const CLint& index)
+inline void Cloud::Utils::DynamicArray<Type>::RemoveAtIndex(const int& index)
 {
     CL_ASSERT(index >= 0 && index < m_count, "Removing out of bounds!");
 
-    for (CLint i = index; i < m_count; ++i)
+    for (int i = index; i < m_count; ++i)
     {
         m_items[i] = m_items[i + 1];
     }
@@ -161,7 +161,7 @@ inline void Cloud::Utils::DynamicArray<Type>::RemoveAtIndex(const CLint& index)
 template <class Type>
 inline void Cloud::Utils::DynamicArray<Type>::RemoveCyclic(const Type& item)
 {
-    for (CLint i = 0; i < m_count; ++i)
+    for (int i = 0; i < m_count; ++i)
     {
         if (m_items[i] == item)
         {
@@ -171,7 +171,7 @@ inline void Cloud::Utils::DynamicArray<Type>::RemoveCyclic(const Type& item)
 }
 
 template <class Type>
-inline void Cloud::Utils::DynamicArray<Type>::RemoveCyclicAtIndex(const CLint& index)
+inline void Cloud::Utils::DynamicArray<Type>::RemoveCyclicAtIndex(const int& index)
 {
     CL_ASSERT(index > 0 && index <= m_count, "Removing out of bounds!");
 
@@ -189,7 +189,7 @@ inline void Cloud::Utils::DynamicArray<Type>::RemoveAll()
 }
 
 template <class Type>
-void Cloud::Utils::DynamicArray<Type>::Resize(CLint newSize)
+void Cloud::Utils::DynamicArray<Type>::Resize(int newSize)
 {
     CL_ASSERT(newSize > 0, "New size can't be 0 or less!");
     CL_ASSERT(m_items.get() != 0, "Trying to resize an uninitialised DynamicArray!");
@@ -198,7 +198,7 @@ void Cloud::Utils::DynamicArray<Type>::Resize(CLint newSize)
 
     m_items = std::make_unique<Type[]>(newSize);
 
-    for (CLint i = 0, count = ClMax(m_count, newSize); i < count; ++i)
+    for (int i = 0, count = ClMax(m_count, newSize); i < count; ++i)
     {
         m_items[i] = std::move(oldList[i]);
     }
@@ -208,7 +208,7 @@ void Cloud::Utils::DynamicArray<Type>::Resize(CLint newSize)
 }
 
 template <class Type>
-__forceinline CLint Cloud::Utils::DynamicArray<Type>::Count() const
+__forceinline int Cloud::Utils::DynamicArray<Type>::Count() const
 {
     return m_count;
 }

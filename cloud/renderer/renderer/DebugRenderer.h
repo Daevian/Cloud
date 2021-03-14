@@ -24,63 +24,63 @@ namespace Renderer
 
         DebugRenderer();
 
-        CLbool Initialise();
+        bool Initialise();
         void Uninitialise();
 
-        void AddLine2D(const ClFloat2& start, const ClFloat2& end, const ClFloat4& colour);
-        void AddBar(const ClFloat2& position, const ClFloat2& size, const ClFloat4& colour, CLfloat value, BarDirection direction = BarDirection::Up);
-        void AddQuad(const ClFloat2& topLeft, const ClFloat2& bottomRight, const ClFloat4& colour);
-        void AddBox(const ClFloat3& position, const ClFloat3& rotation, const ClFloat3& scale, const ClFloat4& colour);
-        void AddBox(const ClMatrix4& matrix, const ClFloat4& colour);
+        void AddLine2D(const float2& start, const float2& end, const float4& colour);
+        void AddBar(const float2& position, const float2& size, const float4& colour, float value, BarDirection direction = BarDirection::Up);
+        void AddQuad(const float2& topLeft, const float2& bottomRight, const float4& colour);
+        void AddBox(const float3& position, const float3& rotation, const float3& scale, const float4& colour);
+        void AddBox(const ClMatrix4& matrix, const float4& colour);
         void RecordCommandList(ID3D12GraphicsCommandList* commandList);
 
     private:
-        CLbool InitialiseLine2D();
-        CLbool InitialiseQuad();
-        CLbool InitialiseBox();
+        bool InitialiseLine2D();
+        bool InitialiseQuad();
+        bool InitialiseBox();
         void RenderLine2D();
         void RenderQuads(ID3D12GraphicsCommandList* commandList);
         void RenderBoxes(ID3D12GraphicsCommandList* commandList);
 
         struct Line2D
         {
-            static const CLuint c_maxCount = 1024;
-            static const CLuint c_vertexCount = c_maxCount * 2;
+            static const uint c_maxCount = 1024;
+            static const uint c_vertexCount = c_maxCount * 2;
 
             struct Vertex
             {
-                ClFloat4 position;
-                ClFloat4 colour;
+                float4 position;
+                float4 colour;
             };
         };
 
         struct Quad
         {
-            static const CLuint c_maxCount = 1024;
-            static const CLuint c_vertexCount = c_maxCount * 4;
-            static const CLuint c_indexCount = c_maxCount * 6;
+            static const uint c_maxCount = 1024;
+            static const uint c_vertexCount = c_maxCount * 4;
+            static const uint c_indexCount = c_maxCount * 6;
 
             struct Vertex
             {
-                ClFloat4 position;
-                ClFloat4 colour;
+                float4 position;
+                float4 colour;
             };
         };
 
         struct Box
         {
-            static const CLuint c_maxCount = 1024;
+            static const uint c_maxCount = 1024;
 
             struct Vertex
             {
-                ClFloat4 pos;
-                ClFloat3 norm;
+                float4 pos;
+                float3 norm;
             };
 
             struct Instance
             {
                 ClMatrix4 model;
-                ClFloat4  colour;
+                float4  colour;
             };
 
             struct InstanceBuffer
@@ -109,9 +109,9 @@ namespace Renderer
         //GfxInstanceBuffer m_boxInstanceBuffer;
         ShaderEffect* m_boxEffect;
 
-        CLuint m_line2DsToRender;
-        CLuint m_quadsToRender;
-        CLuint m_boxesToRender;
+        uint m_line2DsToRender;
+        uint m_quadsToRender;
+        uint m_boxesToRender;
 
         
     };

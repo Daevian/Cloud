@@ -18,7 +18,7 @@ namespace Renderer
     public:
         struct Structure
         {
-            ClFloat4 position;
+            float4 position;
         };
 
         struct Vertex
@@ -30,16 +30,16 @@ namespace Renderer
         CSTest();
         ~CSTest();
 
-        CLbool Initialise();
+        bool Initialise();
         void Uninitialise();
 
         void Update();
         void Render();
 
     private:
-        CLbool InitVBIB();
+        bool InitVBIB();
         Utils::StaticArray<Vertex, 4> m_vertexData;
-        Utils::StaticArray<CLuint32, 6> m_indexData;
+        Utils::StaticArray<uint32, 6> m_indexData;
         VertexBuffer m_vertexBuffer;
         IndexBuffer m_indexBuffer;
 

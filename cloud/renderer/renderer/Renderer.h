@@ -26,14 +26,14 @@ namespace Renderer
     class Renderer
     {
     public:
-        static CLbool s_showDebugMenu;
+        static bool s_showDebugMenu;
         Renderer();
         ~Renderer();
 
-        CLbool Initialise();
+        bool Initialise();
         void Shutdown();
 
-        void Update(CLdouble totalTime, CLdouble timeStep);
+        void Update(double totalTime, double timeStep);
         void Render();
 
         SpriteManager& GetSpriteManager()       { return m_spriteManager; }
@@ -59,9 +59,9 @@ namespace Renderer
         CsSorter m_csSorter;
         Camera m_camera;
 
-        static const CLuint c_boxes = 800;
-        std::array<ClFloat3, c_boxes> m_randomRotations;
-        std::array<CLfloat, c_boxes> m_randomScales;
+        static const uint c_boxes = 800;
+        std::array<float3, c_boxes> m_randomRotations;
+        std::array<float, c_boxes> m_randomScales;
 
         std::unique_ptr<LuaStateEx> m_luaState;
 

@@ -20,7 +20,7 @@ Cloud::Input::InputManager::InputManager()
     ClMemZero(m_controllers.GetBuffer(), m_controllers.SizeOf());
 }
 
-CLbool Cloud::Input::InputManager::Initialise(const Settings& settings)
+bool Cloud::Input::InputManager::Initialise(const Settings& settings)
 {
     m_settings = settings;
 
@@ -59,7 +59,7 @@ CLbool Cloud::Input::InputManager::Initialise(const Settings& settings)
     m_directInputMouse->Acquire();
 
 
-    m_controllerInputDeadzone = 0.24f * CLfloat(0x7FFF); // Default to 24% of the +/- 32767 range.
+    m_controllerInputDeadzone = 0.24f * float(0x7FFF); // Default to 24% of the +/- 32767 range.
 
     return true;
 }
@@ -94,125 +94,125 @@ void Cloud::Input::InputManager::Update()
     UpdateControllers();
 }
 
-CLbool Cloud::Input::InputManager::GetKeyUp(Key key)
+bool Cloud::Input::InputManager::GetKeyUp(Key key)
 {
-    return (m_currentKeystate[(CLuint)key] & 0x80) == 0;
+    return (m_currentKeystate[(uint)key] & 0x80) == 0;
 }
 
-CLbool Cloud::Input::InputManager::GetKeyDown(Key key)
+bool Cloud::Input::InputManager::GetKeyDown(Key key)
 {
-    return (m_currentKeystate[(CLuint)key] & 0x80) != 0;
+    return (m_currentKeystate[(uint)key] & 0x80) != 0;
 }
 
-CLbool Cloud::Input::InputManager::GetKeyPressed(Key key)
+bool Cloud::Input::InputManager::GetKeyPressed(Key key)
 {
-    return (m_currentKeystate[(CLuint)key] & 0x80) && !(m_previousKeyState[(CLuint)key] & 0x80);
+    return (m_currentKeystate[(uint)key] & 0x80) && !(m_previousKeyState[(uint)key] & 0x80);
 }
 
-CLbool Cloud::Input::InputManager::GetKeyReleased(Key key)
+bool Cloud::Input::InputManager::GetKeyReleased(Key key)
 {
-    return !(m_currentKeystate[(CLuint)key] & 0x80) && (m_previousKeyState[(CLuint)key] & 0x80);
+    return !(m_currentKeystate[(uint)key] & 0x80) && (m_previousKeyState[(uint)key] & 0x80);
 }
 
-CLbool Cloud::Input::InputManager::GetMouseUp(CLuchar key)
+bool Cloud::Input::InputManager::GetMouseUp(t_uchar key)
 {
     //auto buttons = std::as_span(m_currectMouseState.rgbButtons);
     //return (buttons[key] & 0x80) == 0;
     return (m_currectMouseState.rgbButtons[key] & 0x80) == 0;
 }
 
-CLbool Cloud::Input::InputManager::GetMouseDown(CLuchar key)
+bool Cloud::Input::InputManager::GetMouseDown(t_uchar key)
 {
     return (m_currectMouseState.rgbButtons[key] & 0x80) != 0;
 }
 
-CLbool Cloud::Input::InputManager::GetMousePressed(CLuchar key)
+bool Cloud::Input::InputManager::GetMousePressed(t_uchar key)
 {
     return (m_currectMouseState.rgbButtons[key] & 0x80) && !(m_previousMouseState.rgbButtons[key] & 0x80);
 }
 
-CLbool Cloud::Input::InputManager::GetMouseReleased(CLuchar key)
+bool Cloud::Input::InputManager::GetMouseReleased(t_uchar key)
 {
     return !(m_currectMouseState.rgbButtons[key] & 0x80) && (m_previousMouseState.rgbButtons[key] & 0x80);
 }
 
-ClFloat2 Cloud::Input::InputManager::GetPadLeftStick(CLuint controllerId)
+float2 Cloud::Input::InputManager::GetPadLeftStick(uint controllerId)
 {
     auto& controller = m_controllers[controllerId];
     if (controller.m_connected)
     {
         const auto& gamepadState = controller.m_currentState.Gamepad;
-        ClFloat2 state( (CLfloat)gamepadState.sThumbLX / 32768.0f,
-                        (CLfloat)gamepadState.sThumbLY / 32768.0f);
+        float2 state( (float)gamepadState.sThumbLX / 32768.0f,
+                        (float)gamepadState.sThumbLY / 32768.0f);
         
         return state;
     }
 
-    return ClFloat2(0.0f, 0.0f);
+    return float2(0.0f, 0.0f);
 }
 
-ClFloat2 Cloud::Input::InputManager::GetPadRightStick(CLuint controllerId)
+float2 Cloud::Input::InputManager::GetPadRightStick(uint controllerId)
 {
     auto& controller = m_controllers[controllerId];
     if (controller.m_connected)
     {
         const auto& gamepadState = controller.m_currentState.Gamepad;
-        ClFloat2 state( (CLfloat)gamepadState.sThumbRX / 32768.0f,
-                        (CLfloat)gamepadState.sThumbRY / 32768.0f);
+        float2 state( (float)gamepadState.sThumbRX / 32768.0f,
+                        (float)gamepadState.sThumbRY / 32768.0f);
         
         return state;
     }
 
-    return ClFloat2(0.0f, 0.0f);
+    return float2(0.0f, 0.0f);
 }
 
-CLfloat Cloud::Input::InputManager::GetPadLeftTrigger(CLuint controllerId)
+float Cloud::Input::InputManager::GetPadLeftTrigger(uint controllerId)
 {
     auto& controller = m_controllers[controllerId];
     if (controller.m_connected)
     {
         const auto& gamepadState = controller.m_currentState.Gamepad;        
-        return (CLfloat)gamepadState.bLeftTrigger / 255.0f;
+        return (float)gamepadState.bLeftTrigger / 255.0f;
     }
 
     return 0.0f;
 }
 
-CLfloat Cloud::Input::InputManager::GetPadRightTrigger(CLuint controllerId)
+float Cloud::Input::InputManager::GetPadRightTrigger(uint controllerId)
 {
     auto& controller = m_controllers[controllerId];
     if (controller.m_connected)
     {
         const auto& gamepadState = controller.m_currentState.Gamepad;
-        return (CLfloat)gamepadState.bRightTrigger / 255.0f;
+        return (float)gamepadState.bRightTrigger / 255.0f;
     }
 
     return 0.0f;
 }
 
-CLbool Cloud::Input::InputManager::GetPadButtonUp(CLuint controllerId, PadButton button)
+bool Cloud::Input::InputManager::GetPadButtonUp(uint controllerId, PadButton button)
 {
-    CLbool state = (m_controllers[controllerId].m_currentState.Gamepad.wButtons & (CLuint)button) != 0;
+    bool state = (m_controllers[controllerId].m_currentState.Gamepad.wButtons & (uint)button) != 0;
     return !state;
 }
 
-CLbool Cloud::Input::InputManager::GetPadButtonDown(CLuint controllerId, PadButton button)
+bool Cloud::Input::InputManager::GetPadButtonDown(uint controllerId, PadButton button)
 {
-    CLbool state = (m_controllers[controllerId].m_currentState.Gamepad.wButtons & (CLuint)button) != 0;
+    bool state = (m_controllers[controllerId].m_currentState.Gamepad.wButtons & (uint)button) != 0;
     return state;
 }
 
-CLbool Cloud::Input::InputManager::GetPadButtonPressed(CLuint controllerId, PadButton button)
+bool Cloud::Input::InputManager::GetPadButtonPressed(uint controllerId, PadButton button)
 {
-    CLbool currentState  = (m_controllers[controllerId].m_currentState.Gamepad.wButtons  & (CLuint)button) != 0;
-    CLbool previousState = (m_controllers[controllerId].m_previousState.Gamepad.wButtons & (CLuint)button) != 0;
+    bool currentState  = (m_controllers[controllerId].m_currentState.Gamepad.wButtons  & (uint)button) != 0;
+    bool previousState = (m_controllers[controllerId].m_previousState.Gamepad.wButtons & (uint)button) != 0;
     return currentState && !previousState;
 }
 
-CLbool Cloud::Input::InputManager::GetPadButtonReleased(CLuint controllerId, PadButton button)
+bool Cloud::Input::InputManager::GetPadButtonReleased(uint controllerId, PadButton button)
 {
-    CLbool currentState  = (m_controllers[controllerId].m_currentState.Gamepad.wButtons  & (CLuint)button) != 0;
-    CLbool previousState = (m_controllers[controllerId].m_previousState.Gamepad.wButtons & (CLuint)button) != 0;
+    bool currentState  = (m_controllers[controllerId].m_currentState.Gamepad.wButtons  & (uint)button) != 0;
+    bool previousState = (m_controllers[controllerId].m_previousState.Gamepad.wButtons & (uint)button) != 0;
     return !currentState && previousState;
 }
 

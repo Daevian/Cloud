@@ -81,8 +81,8 @@ inline void Cloud::Math::Matrix4::SetCol3(const Float4& col)
 
 inline void Cloud::Math::Matrix4::SetUpper3x3(const Matrix4& matrix)
 {
-    CLfloat* source = (CLfloat*)&matrix.m_dxMatrix;
-    CLfloat* target = (CLfloat*)&m_dxMatrix;
+    float* source = (float*)&matrix.m_dxMatrix;
+    float* target = (float*)&m_dxMatrix;
 
     target[0] = source[0];
     target[1] = source[1];
@@ -105,12 +105,12 @@ inline Cloud::Math::Matrix4 Cloud::Math::Matrix4::Multiply(const Matrix4& matrix
     return DirectX::XMMatrixMultiply(matrix1.m_dxMatrix, matrix2.m_dxMatrix);
 }
 
-inline Cloud::Math::Matrix4 Cloud::Math::Matrix4::Orthographic(CLfloat width, CLfloat height, CLfloat nearClip, CLfloat farClip)
+inline Cloud::Math::Matrix4 Cloud::Math::Matrix4::Orthographic(float width, float height, float nearClip, float farClip)
 {
     return DirectX::XMMatrixOrthographicLH(width, height, nearClip, farClip);
 }
 
-inline Cloud::Math::Matrix4 Cloud::Math::Matrix4::Perspective(CLfloat fovY, CLfloat aspectRatio, CLfloat nearClip, CLfloat farClip)
+inline Cloud::Math::Matrix4 Cloud::Math::Matrix4::Perspective(float fovY, float aspectRatio, float nearClip, float farClip)
 {
     return DirectX::XMMatrixPerspectiveFovLH(fovY, aspectRatio, nearClip, farClip);
 }
@@ -120,7 +120,7 @@ inline Cloud::Math::Matrix4 Cloud::Math::Matrix4::Inverse(const Matrix4& matrix)
     return DirectX::XMMatrixInverse(0, matrix.m_dxMatrix);
 }
 
-inline Cloud::Math::Matrix4 Cloud::Math::Matrix4::Translation(CLfloat x, CLfloat y, CLfloat z)
+inline Cloud::Math::Matrix4 Cloud::Math::Matrix4::Translation(float x, float y, float z)
 {
     return DirectX::XMMatrixTranslation(x, y, z);
 }
@@ -135,7 +135,7 @@ inline Cloud::Math::Matrix4 Cloud::Math::Matrix4::Transpose(const Matrix4& matri
     return DirectX::XMMatrixTranspose(matrix.m_dxMatrix);
 }
 
-inline Cloud::Math::Matrix4 Cloud::Math::Matrix4::Rotation(CLfloat x, CLfloat y, CLfloat z)
+inline Cloud::Math::Matrix4 Cloud::Math::Matrix4::Rotation(float x, float y, float z)
 {                            
     return DirectX::XMMatrixRotationRollPitchYaw(x, y, z);
 }
@@ -145,7 +145,7 @@ inline Cloud::Math::Matrix4 Cloud::Math::Matrix4::Rotation(const Float4& rotatio
     return DirectX::XMMatrixRotationRollPitchYawFromVector(rotation.GetDxVector());
 }
 
-inline Cloud::Math::Matrix4 Cloud::Math::Matrix4::Scale(CLfloat x, CLfloat y, CLfloat z)
+inline Cloud::Math::Matrix4 Cloud::Math::Matrix4::Scale(float x, float y, float z)
 {                            
     return DirectX::XMMatrixScaling(x, y, z);
 }

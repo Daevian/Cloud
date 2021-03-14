@@ -13,10 +13,10 @@ namespace Cloud
         {
         public:
             inline Float2();
-            inline Float2(CLfloat xValue, CLfloat yValue);
+            inline Float2(float xValue, float yValue);
             inline Float2(const Float2& float2);
 
-            inline void Set(CLfloat xValue, CLfloat yValue);
+            inline void Set(float xValue, float yValue);
 
             inline Float2 operator+(const Float2& float2) const;
             inline Float2 operator-(const Float2& float2) const;
@@ -27,38 +27,38 @@ namespace Cloud
             inline Float2& operator*=(const Float2& float2);
             inline Float2& operator/=(const Float2& float2);
 
-            inline Float2 operator+(const CLfloat& scalar) const;
-            inline Float2 operator-(const CLfloat& scalar) const;
-            inline Float2 operator*(const CLfloat& scalar) const;
-            inline Float2 operator/(const CLfloat& scalar) const;
-            inline Float2& operator+=(const CLfloat& scalar);
-            inline Float2& operator-=(const CLfloat& scalar);
-            inline Float2& operator*=(const CLfloat& scalar);
-            inline Float2& operator/=(const CLfloat& scalar);
+            inline Float2 operator+(const float& scalar) const;
+            inline Float2 operator-(const float& scalar) const;
+            inline Float2 operator*(const float& scalar) const;
+            inline Float2 operator/(const float& scalar) const;
+            inline Float2& operator+=(const float& scalar);
+            inline Float2& operator-=(const float& scalar);
+            inline Float2& operator*=(const float& scalar);
+            inline Float2& operator/=(const float& scalar);
 
             inline Float2& operator=(const Float2& float2);
-            inline CLbool operator==(const Float2& float2) const;
+            inline bool operator==(const Float2& float2) const;
 
-            inline CLfloat Dot(const Float2& float2) const;
+            inline float Dot(const Float2& float2) const;
 
-            inline CLfloat Length() const;
-            inline CLfloat Length2() const;
+            inline float Length() const;
+            inline float Length2() const;
 
             inline Float2& Normalize();
 
             union
             {
-                std::array<CLfloat, 2> a;
+                std::array<float, 2> a;
                 struct
                 {
-                    CLfloat x, y;
+                    float x, y;
                 };
             };
         };
     }
 }
 
-typedef Cloud::Math::Float2 ClFloat2;
+typedef Cloud::Math::Float2 float2;
 
 #include "Float2.inl"
 

@@ -13,9 +13,9 @@ namespace Renderer
         Camera();
         ~Camera();
 
-        void SetTranslation(const ClFloat4& translation);
+        void SetTranslation(const float4& translation);
         void SetRotation(const ClMatrix4& rotationMatrix);
-        void SetPerspective(CLfloat fovY, CLfloat aspectRatio, CLfloat nearClip, CLfloat farClip);
+        void SetPerspective(float fovY, float aspectRatio, float nearClip, float farClip);
 
         const ClMatrix4& GetCameraTransform()                               const { return m_cameraTransform; }
         const ClMatrix4& GetView()                                          const { return m_view; }
@@ -23,7 +23,7 @@ namespace Renderer
 
         void SetCameraTransform(const ClMatrix4& matrix)                       { m_cameraTransform = matrix; }
 
-        void Translate(const ClFloat4& translation);
+        void Translate(const float4& translation);
         void UpdateView();
 
     private:

@@ -22,14 +22,14 @@ namespace Cloud
         };
 
         GfxFormat   GetFormat(const std::string& formatName);
-        CLuint      GetFormatSize(GfxFormat format);
-        CLuint      BitsPerPixel(DXGI_FORMAT format);
-        void        GetSurfaceInfo( CLuint width,
-                                    CLuint height,
+        uint      GetFormatSize(GfxFormat format);
+        uint      BitsPerPixel(DXGI_FORMAT format);
+        void        GetSurfaceInfo( uint width,
+                                    uint height,
                                     DXGI_FORMAT fmt,
-                                    CLuint* outNumBytes,
-                                    CLuint* outRowBytes,
-                                    CLuint* outNumRows );
+                                    uint* outNumBytes,
+                                    uint* outRowBytes,
+                                    uint* outNumRows );
     }
 }
 

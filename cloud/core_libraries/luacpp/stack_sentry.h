@@ -18,7 +18,7 @@ namespace Cloud
 
     private:
         const LuaState& m_state;
-        const CLint m_stackSize;
+        const int m_stackSize;
     };
 }
 

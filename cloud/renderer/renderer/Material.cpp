@@ -15,7 +15,7 @@ Cloud::Renderer::Material::Material(const ResourceId& id)
 
 void Cloud::Renderer::Material::PopulateDebugMenu()
 {
-    ImGui::ColorEdit4("F0", reinterpret_cast<CLfloat*>(&m_materialData.f0));
+    ImGui::ColorEdit4("F0", reinterpret_cast<float*>(&m_materialData.f0));
     ImGui::SliderFloat("Roughness", &m_materialData.roughness, 0.0f, 1.0f, "%.3f");
 
     m_materialConstBuffer->Reset();

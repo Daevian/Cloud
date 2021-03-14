@@ -115,8 +115,8 @@ void Cloud::Renderer::RenderingDevice::SetVertexBuffer(VertexBuffer* /*vertexBuf
 {
     if (vertexBuffer)
     {
-        CLuint stride = vertexBuffer->GetVertexSize();
-        CLuint offset = 0;
+        uint stride = vertexBuffer->GetVertexSize();
+        uint offset = 0;
         ID3D11Buffer* buffer = vertexBuffer->GetBuffer();
         RenderCore::Instance().GetContext()->IASetVertexBuffers(0, 1, &buffer, &stride, &offset);
         m_vertexCount = vertexBuffer->GetVertexCount();
@@ -155,8 +155,8 @@ void Cloud::Renderer::RenderingDevice::SetInstanceBuffer(GfxInstanceBuffer* /*in
 {
     if (instanceBuffer)
     {
-        CLuint stride = instanceBuffer->GetInstanceSize();
-        CLuint offset = 0;
+        uint stride = instanceBuffer->GetInstanceSize();
+        uint offset = 0;
         ID3D11Buffer* buffer = instanceBuffer->GetBuffer();
         RenderCore::Instance().GetContext()->IASetVertexBuffers(1, 1, &buffer, &stride, &offset);
     }
@@ -166,7 +166,7 @@ void Cloud::Renderer::RenderingDevice::SetInstanceBuffer(GfxInstanceBuffer* /*in
     }
 }
 
-void Cloud::Renderer::RenderingDevice::SetConstantBuffer(GfxConstantBuffer* constantBuffer, CLuint slot)
+void Cloud::Renderer::RenderingDevice::SetConstantBuffer(GfxConstantBuffer* constantBuffer, uint slot)
 {
     if (constantBuffer)
     {
@@ -196,7 +196,7 @@ void Cloud::Renderer::RenderingDevice::SetTexturePS(GfxTexture* texture)
     }
 }
 
-void Cloud::Renderer::RenderingDevice::SetBufferCS(GfxBuffer* buffer, CLuint slot)
+void Cloud::Renderer::RenderingDevice::SetBufferCS(GfxBuffer* buffer, uint slot)
 {
     if (buffer)
     {
@@ -211,7 +211,7 @@ void Cloud::Renderer::RenderingDevice::SetBufferCS(GfxBuffer* buffer, CLuint slo
     }
 }
 
-void Cloud::Renderer::RenderingDevice::SetConstantBufferCS(GfxBuffer* buffer, CLuint slot)
+void Cloud::Renderer::RenderingDevice::SetConstantBufferCS(GfxBuffer* buffer, uint slot)
 {
     if (buffer)
     {
@@ -226,7 +226,7 @@ void Cloud::Renderer::RenderingDevice::SetConstantBufferCS(GfxBuffer* buffer, CL
     }
 }
 
-void Cloud::Renderer::RenderingDevice::SetUnorderedAccessView(GfxBuffer* buffer, CLuint slot)
+void Cloud::Renderer::RenderingDevice::SetUnorderedAccessView(GfxBuffer* buffer, uint slot)
 {
     if (buffer)
     {
@@ -259,7 +259,7 @@ void Cloud::Renderer::RenderingDevice::SetRenderTarget(GfxTexture* renderTarget,
     RenderCore::Instance().GetContext()->OMSetRenderTargets(1, &rtv, dsv);
 }
 
-void Cloud::Renderer::RenderingDevice::SetSamplerState(ID3D11SamplerState* samplerState, CLuint slot)
+void Cloud::Renderer::RenderingDevice::SetSamplerState(ID3D11SamplerState* samplerState, uint slot)
 {
     RenderCore::Instance().GetContext()->PSSetSamplers(slot, 1, &samplerState);
 }
@@ -272,7 +272,7 @@ void Cloud::Renderer::RenderingDevice::Copy(GfxBuffer* source, GfxBuffer* dest)
     RenderCore::Instance().GetContext()->CopyResource(dest->GetBuffer(), source->GetBuffer());
 }
 
-CLbool Cloud::Renderer::RenderingDevice::Map(const GfxBufferMapDesc& desc, GfxMappedResource& mappedResource)
+bool Cloud::Renderer::RenderingDevice::Map(const GfxBufferMapDesc& desc, GfxMappedResource& mappedResource)
 {
     CL_ASSERT_NULL(desc.buffer);
 
@@ -305,31 +305,31 @@ void Cloud::Renderer::RenderingDevice::UpdateSubresource(GfxBuffer* buffer, void
     RenderCore::Instance().GetContext()->UpdateSubresource(buffer->GetBuffer(), 0, nullptr, data, 0, 0);
 }
 
-void Cloud::Renderer::RenderingDevice::Draw(CLint vertexCount)
+void Cloud::Renderer::RenderingDevice::Draw(int vertexCount)
 {
     vertexCount = vertexCount < 0 ? m_vertexCount : vertexCount;
     RenderCore::Instance().GetContext()->Draw(vertexCount, 0);
 }
 
-void Cloud::Renderer::RenderingDevice::DrawInstanced(CLuint instanceCount, CLint vertexCount)
+void Cloud::Renderer::RenderingDevice::DrawInstanced(uint instanceCount, int vertexCount)
 {
     vertexCount = vertexCount < 0 ? m_vertexCount : vertexCount;
     RenderCore::Instance().GetContext()->DrawInstanced(vertexCount, instanceCount, 0, 0);
 }
 
-void Cloud::Renderer::RenderingDevice::DrawIndexed(CLint indexCount)
+void Cloud::Renderer::RenderingDevice::DrawIndexed(int indexCount)
 {
     indexCount = indexCount < 0 ? m_indexCount : indexCount;
     RenderCore::Instance().GetContext()->DrawIndexed(indexCount, 0, 0);
 }
 
-void Cloud::Renderer::RenderingDevice::DrawIndexedInstanced(CLuint instanceCount, CLint indexCount)
+void Cloud::Renderer::RenderingDevice::DrawIndexedInstanced(uint instanceCount, int indexCount)
 {
     indexCount = indexCount < 0 ? m_indexCount : indexCount;
     RenderCore::Instance().GetContext()->DrawIndexedInstanced(indexCount, instanceCount, 0, 0, 0);
 }
 
-void Cloud::Renderer::RenderingDevice::Dispatch(const CLuint threadGroupCountX, const CLuint threadGroupCountY, const CLuint threadGroupCountZ)
+void Cloud::Renderer::RenderingDevice::Dispatch(const uint threadGroupCountX, const uint threadGroupCountY, const uint threadGroupCountZ)
 {
     RenderCore::Instance().GetContext()->Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
 }
@@ -337,7 +337,7 @@ void Cloud::Renderer::RenderingDevice::Dispatch(const CLuint threadGroupCountX, 
 void Cloud::Renderer::RenderingDevice::ClearColour(GfxTexture& texture)
 {
     CL_ASSERT(texture.GetRtv(), "Can't clear colour on a non-rtv texture");
-    CLfloat clearColour[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+    float clearColour[4] = {0.0f, 0.0f, 0.0f, 1.0f};
     RenderCore::Instance().GetContext()->ClearRenderTargetView(texture.GetRtv(), clearColour);
 }
 

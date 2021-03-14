@@ -8,7 +8,7 @@ Cloud::Renderer::GfxConstantBuffer::GfxConstantBuffer()
 {
 }
 
-CLbool Cloud::Renderer::GfxConstantBuffer::Initialise(CLuint versions)
+bool Cloud::Renderer::GfxConstantBuffer::Initialise(uint versions)
 {
     m_versions = versions;
 
@@ -76,7 +76,7 @@ CLbool Cloud::Renderer::GfxConstantBuffer::Initialise(CLuint versions)
 #endif
 }
 
-CLbool Cloud::Renderer::GfxConstantBuffer::Initialise(CLint dataSize, const void* initialData, CLuint versions)
+bool Cloud::Renderer::GfxConstantBuffer::Initialise(int dataSize, const void* initialData, uint versions)
 {
     SetData(initialData, dataSize);
     return Initialise(versions);
@@ -99,7 +99,7 @@ void Cloud::Renderer::GfxConstantBuffer::Uninitialise()
 #endif
 }
 
-void Cloud::Renderer::GfxConstantBuffer::SetData(const void* data, CLint dataSize)
+void Cloud::Renderer::GfxConstantBuffer::SetData(const void* data, int dataSize)
 {
     m_data = data;
     m_dataSize = dataSize;
@@ -120,7 +120,7 @@ void Cloud::Renderer::GfxConstantBuffer::GPUUpdateConstantBuffer()
 D3D12_GPU_VIRTUAL_ADDRESS Cloud::Renderer::GfxConstantBuffer::UpdateConstantBuffer(const void* data)
 {
     m_currentVersion++;
-    CL_ASSERT(m_currentVersion < static_cast<CLint>(m_versions), "ran out of versions!");
+    CL_ASSERT(m_currentVersion < static_cast<int>(m_versions), "ran out of versions!");
 
     const auto alignedDataSize = CL_ALIGN_TO(m_dataSize, c_cbufferAlignment);
     const auto offset = m_currentVersion * alignedDataSize;

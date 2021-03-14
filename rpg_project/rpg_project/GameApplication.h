@@ -13,19 +13,19 @@ namespace RPG
         HINSTANCE m_hInstance;
         HINSTANCE m_prevHInstance;
         LPWSTR m_cmdLine;
-        CLint m_cmdShow;
+        int m_cmdShow;
         HWND m_hWnd;
     };
 
     class Application
     {
     public:
-        static CLbool Create();
+        static bool Create();
         static void Destroy();
 
         static Application& Instance() { return *s_instance; }
 
-        CLbool Initialise();
+        bool Initialise();
         void Shutdown();
 
         void Run();
@@ -37,20 +37,20 @@ namespace RPG
         UIManager&                  GetUIManager()  { return m_uiManager; }
         Cloud::Input::InputManager& GetInput()      { return m_inputManager; }
 
-        CLbool IsDebugCameraActive() const          { return m_debugCameraActive; }
+        bool IsDebugCameraActive() const          { return m_debugCameraActive; }
 
     private:
         Application();
         ~Application();
 
-        CLbool InitialiseWindow();
-        CLbool CreateWindowsWindowClass();
-        CLbool CreateWindowsWindow();
+        bool InitialiseWindow();
+        bool CreateWindowsWindowClass();
+        bool CreateWindowsWindow();
 
         void Update();
         void Render();
 
-        void UpdateDebugCamera(CLfloat timeStep);
+        void UpdateDebugCamera(float timeStep);
         void DrawInputDebug();
 
         static Application* s_instance;
@@ -61,12 +61,12 @@ namespace RPG
         UIManager m_uiManager;
         Game m_game;
 
-        CLbool m_exitFlag;
-        CLuint m_frameCount;
+        bool m_exitFlag;
+        uint m_frameCount;
 
-        CLbool m_debugCameraActive;
-        ClFloat4 m_cameraPosition;
-        ClFloat4 m_cameraRotation;
+        bool m_debugCameraActive;
+        float4 m_cameraPosition;
+        float4 m_cameraRotation;
     };
 }
 

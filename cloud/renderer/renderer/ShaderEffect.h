@@ -15,7 +15,7 @@ namespace Cloud
             ShaderEffect();
             ~ShaderEffect();
 
-            CLbool Load(const std::string& effectPath);
+            bool Load(const std::string& effectPath);
             void Unload();
 
             const InputLayout&      GetInputLayout() const      { return m_inputLayout; }
@@ -29,27 +29,27 @@ namespace Cloud
             ID3D11BlendState*       GetBlendState() const       { return m_blendState.get(); }
 #endif
 
-            const ClString&         GetPath() const             { return m_effectPath; }
+            const Cloud::String&         GetPath() const             { return m_effectPath; }
 
         private:
-            CLbool LoadShaders(const InputLayout::InputLayoutDesc& inputLayoutDesc,
+            bool LoadShaders(const InputLayout::InputLayoutDesc& inputLayoutDesc,
                                const D3D12_BLEND_DESC& blendState,
                                const D3D12_RASTERIZER_DESC& rasterizerState,
                                const D3D12_DEPTH_STENCIL_DESC& depthStencilState);
 
-            CLbool ParseInputLayout(const Json::Value& inputLayout, const Json::Value& instanceInputLayout, InputLayout::InputLayoutDesc& inputLayoutDescOutput);
-            CLbool ParseBlendState(const Json::Value& blendState, D3D12_BLEND_DESC& blendStateDesc);
-            CLbool ParseRasterizerState(const Json::Value& rasterizerState, D3D12_RASTERIZER_DESC& rasterizerStateDesc);
-            CLbool ParseDepthStencilState(const Json::Value& depthStencilState, D3D12_DEPTH_STENCIL_DESC& depthStencilStateDesc);
+            bool ParseInputLayout(const Json::Value& inputLayout, const Json::Value& instanceInputLayout, InputLayout::InputLayoutDesc& inputLayoutDescOutput);
+            bool ParseBlendState(const Json::Value& blendState, D3D12_BLEND_DESC& blendStateDesc);
+            bool ParseRasterizerState(const Json::Value& rasterizerState, D3D12_RASTERIZER_DESC& rasterizerStateDesc);
+            bool ParseDepthStencilState(const Json::Value& depthStencilState, D3D12_DEPTH_STENCIL_DESC& depthStencilStateDesc);
 #ifdef USE_DIRECTX12
-            ComPtr<ID3DBlob> CompileShader(const ClString& shaderPath, const ClString& entryPoint, const ClString& shaderModel);
+            ComPtr<ID3DBlob> CompileShader(const Cloud::String& shaderPath, const Cloud::String& entryPoint, const Cloud::String& shaderModel);
 #else
-            CLbool CompileShader(const ClString& shaderPath, const ClString& entryPoint, const ClString& shaderModel, ID3DBlob*& shaderBlobOutput);
-            CLbool CreateVertexShader(ID3DBlob* vertexShaderBlob);
-            CLbool CreateGeometryShader(ID3DBlob* geometryShaderBlob);
-            CLbool CreatePixelShader(ID3DBlob* pixelShaderBlob);
+            bool CompileShader(const Cloud::String& shaderPath, const Cloud::String& entryPoint, const Cloud::String& shaderModel, ID3DBlob*& shaderBlobOutput);
+            bool CreateVertexShader(ID3DBlob* vertexShaderBlob);
+            bool CreateGeometryShader(ID3DBlob* geometryShaderBlob);
+            bool CreatePixelShader(ID3DBlob* pixelShaderBlob);
 #endif
-            CLbool CreateBlendState();
+            bool CreateBlendState();
 
 #ifdef USE_DIRECTX12
             ComPtr<ID3D12PipelineState> m_pipelineState;
@@ -61,14 +61,14 @@ namespace Cloud
 #endif
             InputLayout             m_inputLayout;
 
-            ClString                m_vsFile;
-            ClString                m_gsFile;
-            ClString                m_psFile;
-            ClString                m_vsEntryPoint;
-            ClString                m_gsEntryPoint;
-            ClString                m_psEntryPoint;
+            Cloud::String                m_vsFile;
+            Cloud::String                m_gsFile;
+            Cloud::String                m_psFile;
+            Cloud::String                m_vsEntryPoint;
+            Cloud::String                m_gsEntryPoint;
+            Cloud::String                m_psEntryPoint;
 
-            ClString                m_effectPath;
+            Cloud::String                m_effectPath;
         };
     }
 }

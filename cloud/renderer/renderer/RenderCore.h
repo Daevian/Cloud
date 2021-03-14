@@ -35,11 +35,11 @@ namespace Cloud
             struct Settings
             {
                 HINSTANCE m_hInstance;
-                CLint m_cmdShow;
+                int m_cmdShow;
                 HWND m_hWnd;
             };
 
-            static CLbool Create(const Settings& settings);
+            static bool Create(const Settings& settings);
             static void Destroy();
 
             static RenderCore& Instance() { return *s_instance; }
@@ -80,11 +80,11 @@ namespace Cloud
             ID3D12DescriptorHeap*   GetCbvHeap() { return m_cbvHeap.Get(); }
             ID3D12DescriptorHeap*   GetDsvHeap() { return m_dsvHeap.Get(); }
             //ID3D12DescriptorHeap*   GetSrvHeap() { return m_cbvHeap.Get(); }
-            static const CLuint c_cbvDescCount = 2;
-            static const CLuint c_srvDescCount = 1;
-            CLuint m_cbvHeapIndex = 0;
-            CLuint m_srvHeapIndex = 0;
-            CLuint m_dsvHeapIndex = 0;
+            static const uint c_cbvDescCount = 2;
+            static const uint c_srvDescCount = 1;
+            uint m_cbvHeapIndex = 0;
+            uint m_srvHeapIndex = 0;
+            uint m_dsvHeapIndex = 0;
             CD3DX12_VIEWPORT&       GetViewPort() { return m_viewPort; }
             CD3DX12_RECT&           GetScissorRect() { return m_scissorRect; }
             CD3DX12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBuffer();
@@ -101,7 +101,7 @@ namespace Cloud
 
 #ifdef USE_DIRECTX12
 #else
-            static void SetDebugObjectName(ID3D11DeviceChild* resource, const CLchar* name);
+            static void SetDebugObjectName(ID3D11DeviceChild* resource, const t_char* name);
 #endif
 
         private:
@@ -116,18 +116,18 @@ namespace Cloud
                 }
             };
 
-            CLbool Initialise(const Settings& settings);
+            bool Initialise(const Settings& settings);
 
             void Shutdown();
 
-            CLbool EnableDebugLayer();
-            CLbool InitSwapChain();
-            CLbool InitBackBuffer();
-            CLbool InitDepthBuffer();
-            CLbool InitConstantBuffers();
+            bool EnableDebugLayer();
+            bool InitSwapChain();
+            bool InitBackBuffer();
+            bool InitDepthBuffer();
+            bool InitConstantBuffers();
             void InitViewPort();
 
-            CLuint GetMSAAQuality(CLuint samples, DXGI_FORMAT format);
+            uint GetMSAAQuality(uint samples, DXGI_FORMAT format);
 
             static std::unique_ptr<RenderCore, Deleter> s_instance;
 
@@ -138,7 +138,7 @@ namespace Cloud
             GfxShaderFactory m_gfxShaderFactory;
             
 #ifdef USE_DIRECTX12
-            static const CLuint c_frameBufferCount = 2;
+            static const uint c_frameBufferCount = 2;
 
             ComPtr<IDXGIFactory4> m_factory;
             ComPtr<IDXGIAdapter1> m_hardwareAdapter;
@@ -157,7 +157,7 @@ namespace Cloud
 
             UINT m_frameIndex = 0;
 
-            CLuint m_recordedCommandLists = 0;
+            uint m_recordedCommandLists = 0;
             std::array<ComPtr<ID3D12GraphicsCommandList>, 10> m_commandLists;
             ComPtr<ID3D12GraphicsCommandList> m_frameBeginCl;
             ComPtr<ID3D12GraphicsCommandList> m_frameEndCl;

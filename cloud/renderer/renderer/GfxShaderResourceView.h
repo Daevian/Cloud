@@ -12,7 +12,7 @@ namespace Renderer
     public:
         GfxShaderResourceView();
 
-        CLbool  Init(const GfxBuffer& buffer);
+        bool  Init(const GfxBuffer& buffer);
         void    Uninit();
 
         ID3D11ShaderResourceView* GetSRV() const { return m_srv; }

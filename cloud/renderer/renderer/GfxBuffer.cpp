@@ -120,7 +120,7 @@ void Cloud::Renderer::GfxBufferFactory::InitUav(const GfxBufferDesc& /*desc*/, G
 #endif
 }
 
-CLbool Cloud::Renderer::GfxBufferFactory::VerifySetup(const GfxBufferDesc& desc)
+bool Cloud::Renderer::GfxBufferFactory::VerifySetup(const GfxBufferDesc& desc)
 {
 #ifdef USE_DIRECTX12
     CL_UNUSED(desc);

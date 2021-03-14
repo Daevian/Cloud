@@ -12,10 +12,10 @@ namespace Cloud
         public:
             SpriteFactory();
 
-            CLbool CreateSprite(const std::string& spriteName, Sprite& spriteOutput);
+            bool CreateSprite(const std::string& spriteName, Sprite& spriteOutput);
 
         private:
-            CLbool ParseSprite(const std::string& spriteName, Sprite& spriteOutput);
+            bool ParseSprite(const std::string& spriteName, Sprite& spriteOutput);
 
         };
     }

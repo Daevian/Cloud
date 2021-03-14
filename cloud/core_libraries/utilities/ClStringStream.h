@@ -3,6 +3,10 @@
 
 #include <sstream>
 
-typedef std::stringstream ClStringStream;
+namespace Cloud
+{
+	using StringStream = std::stringstream;
+}
+
 
 #endif // CLOUD_UTILITIES_STRINGSTREAM_HEADER

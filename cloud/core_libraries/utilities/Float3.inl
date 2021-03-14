@@ -10,7 +10,7 @@ inline Cloud::Math::Float3::Float3()
 {
 }
 
-inline Cloud::Math::Float3::Float3(CLfloat xValue, CLfloat yValue, CLfloat zValue)
+inline Cloud::Math::Float3::Float3(float xValue, float yValue, float zValue)
 :x(xValue)
 ,y(yValue)
 ,z(zValue)
@@ -24,7 +24,7 @@ inline Cloud::Math::Float3::Float3(const Float3& float3)
 {
 }
 
-inline void Cloud::Math::Float3::Set(CLfloat xValue, CLfloat yValue, CLfloat zValue)
+inline void Cloud::Math::Float3::Set(float xValue, float yValue, float zValue)
 {
     x = xValue;
     y = yValue;
@@ -57,27 +57,27 @@ inline Cloud::Math::Float3& Cloud::Math::Float3::operator-=(const Cloud::Math::F
     return(*this);
 }
 
-inline Cloud::Math::Float3 Cloud::Math::Float3::operator+(const CLfloat& scalar) const
+inline Cloud::Math::Float3 Cloud::Math::Float3::operator+(const float& scalar) const
 {
     return Float3(*this) += scalar;
 }
 
-inline Cloud::Math::Float3 Cloud::Math::Float3::operator-(const CLfloat& scalar) const
+inline Cloud::Math::Float3 Cloud::Math::Float3::operator-(const float& scalar) const
 {
     return Float3(*this) -= scalar;
 }
 
-inline Cloud::Math::Float3 Cloud::Math::Float3::operator*(const CLfloat& scalar) const
+inline Cloud::Math::Float3 Cloud::Math::Float3::operator*(const float& scalar) const
 {
     return Float3(*this) *= scalar;
 }
 
-inline Cloud::Math::Float3 Cloud::Math::Float3::operator/(const CLfloat& scalar) const
+inline Cloud::Math::Float3 Cloud::Math::Float3::operator/(const float& scalar) const
 {
     return Float3(*this) /= scalar;
 }
 
-inline Cloud::Math::Float3& Cloud::Math::Float3::operator+=(const CLfloat& scalar)
+inline Cloud::Math::Float3& Cloud::Math::Float3::operator+=(const float& scalar)
 {
     this->x += scalar;
     this->y += scalar;
@@ -85,7 +85,7 @@ inline Cloud::Math::Float3& Cloud::Math::Float3::operator+=(const CLfloat& scala
     return(*this);
 }
 
-inline Cloud::Math::Float3& Cloud::Math::Float3::operator-=(const CLfloat& scalar)
+inline Cloud::Math::Float3& Cloud::Math::Float3::operator-=(const float& scalar)
 {
     this->x -= scalar;
     this->y -= scalar;
@@ -93,7 +93,7 @@ inline Cloud::Math::Float3& Cloud::Math::Float3::operator-=(const CLfloat& scala
     return(*this);
 }
 
-inline Cloud::Math::Float3& Cloud::Math::Float3::operator*=(const CLfloat& scalar)
+inline Cloud::Math::Float3& Cloud::Math::Float3::operator*=(const float& scalar)
 {
     this->x *= scalar;
     this->y *= scalar;
@@ -101,7 +101,7 @@ inline Cloud::Math::Float3& Cloud::Math::Float3::operator*=(const CLfloat& scala
     return(*this);
 }
 
-inline Cloud::Math::Float3& Cloud::Math::Float3::operator/=(const CLfloat& scalar)
+inline Cloud::Math::Float3& Cloud::Math::Float3::operator/=(const float& scalar)
 {
     this->x /= scalar;
     this->y /= scalar;
@@ -117,7 +117,7 @@ inline Cloud::Math::Float3& Cloud::Math::Float3::operator=(const Cloud::Math::Fl
     return(*this);
 }
 
-inline CLbool Cloud::Math::Float3::operator==(const Cloud::Math::Float3& float3) const
+inline bool Cloud::Math::Float3::operator==(const Cloud::Math::Float3& float3) const
 {
     if (this->x != float3.x) return false;
     if (this->y != float3.y) return false;
@@ -134,31 +134,31 @@ inline Cloud::Math::Float3 Cloud::Math::Float3::Cross(const Cloud::Math::Float3&
     return result;
 }
 
-inline CLfloat Cloud::Math::Float3::Dot(const Cloud::Math::Float3& float3) const
+inline float Cloud::Math::Float3::Dot(const Cloud::Math::Float3& float3) const
 {
-    CLfloat result = 0.0f;
+    float result = 0.0f;
     result += this->x * float3.x;
     result += this->y * float3.y;
     result += this->z * float3.z;
     return result;
 }
 
-inline CLfloat Cloud::Math::Float3::Length() const
+inline float Cloud::Math::Float3::Length() const
 {
     return sqrtf(Length2());
 }
 
-inline CLfloat Cloud::Math::Float3::Length2() const
+inline float Cloud::Math::Float3::Length2() const
 {
     return (x * x) + (y * y) + (z * z);
 }
 
 inline Cloud::Math::Float3& Cloud::Math::Float3::Normalize()
 {
-    CLfloat length = Length();
+    float length = Length();
     if(length != 0.0f)
     {
-        CLfloat inverseLength = 1.0f / length;
+        float inverseLength = 1.0f / length;
         x *= inverseLength;
         y *= inverseLength;
         z *= inverseLength;

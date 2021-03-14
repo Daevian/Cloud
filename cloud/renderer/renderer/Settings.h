@@ -8,7 +8,7 @@ namespace Cloud
         class Settings
         {
         public:
-            static CLbool Create();
+            static bool Create();
             static void Destroy();
 
             static Settings& Instance() { return *s_instance; }
@@ -19,7 +19,7 @@ namespace Cloud
             Settings();
             ~Settings();
 
-            CLbool Initialise();
+            bool Initialise();
             void Shutdown();
 
             static Settings* s_instance;

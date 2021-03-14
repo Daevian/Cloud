@@ -13,7 +13,7 @@ Cloud::Renderer::GfxFormat Cloud::Renderer::GetFormat(const std::string& formatN
     return GfxFormat::UNKNOWN;
 }
 
-CLuint Cloud::Renderer::GetFormatSize(GfxFormat format)
+uint Cloud::Renderer::GetFormatSize(GfxFormat format)
 {
     switch (format)
     {
@@ -34,7 +34,7 @@ CLuint Cloud::Renderer::GetFormatSize(GfxFormat format)
     }
 }
 
-CLuint Cloud::Renderer::BitsPerPixel(DXGI_FORMAT format)
+uint Cloud::Renderer::BitsPerPixel(DXGI_FORMAT format)
 {
     switch (format)
     {
@@ -164,16 +164,16 @@ CLuint Cloud::Renderer::BitsPerPixel(DXGI_FORMAT format)
     }
 }
 
-void Cloud::Renderer::GetSurfaceInfo(CLuint width, CLuint height, DXGI_FORMAT fmt, CLuint* outNumBytes, CLuint* outRowBytes, CLuint* outNumRows)
+void Cloud::Renderer::GetSurfaceInfo(uint width, uint height, DXGI_FORMAT fmt, uint* outNumBytes, uint* outRowBytes, uint* outNumRows)
 {
     {
-        CLuint numBytes = 0;
-        CLuint rowBytes = 0;
-        CLuint numRows = 0;
+        uint numBytes = 0;
+        uint rowBytes = 0;
+        uint numRows = 0;
 
         bool bc = false;
         bool packed  = false;
-        CLuint bcnumBytesPerBlock = 0;
+        uint bcnumBytesPerBlock = 0;
         switch (fmt)
         {
         case DXGI_FORMAT_BC1_TYPELESS:
@@ -213,15 +213,15 @@ void Cloud::Renderer::GetSurfaceInfo(CLuint width, CLuint height, DXGI_FORMAT fm
 
         if (bc)
         {
-            CLuint numBlocksWide = 0;
+            uint numBlocksWide = 0;
             if (width > 0)
             {
-                numBlocksWide = std::max<CLuint>( 1, (width + 3) / 4 );
+                numBlocksWide = std::max<uint>( 1, (width + 3) / 4 );
             }
-            CLuint numBlocksHigh = 0;
+            uint numBlocksHigh = 0;
             if (height > 0)
             {
-                numBlocksHigh = std::max<CLuint>( 1, (height + 3) / 4 );
+                numBlocksHigh = std::max<uint>( 1, (height + 3) / 4 );
             }
             rowBytes = numBlocksWide * bcnumBytesPerBlock;
             numRows = numBlocksHigh;
@@ -233,7 +233,7 @@ void Cloud::Renderer::GetSurfaceInfo(CLuint width, CLuint height, DXGI_FORMAT fm
         }
         else
         {
-            CLuint bpp = BitsPerPixel( fmt );
+            uint bpp = BitsPerPixel( fmt );
             rowBytes = ( width * bpp + 7 ) / 8; // round up to nearest byte
             numRows = height;
         }

@@ -32,44 +32,44 @@ namespace Cloud
     {
         struct DdsPixelFormat
         {
-            CLuint32    size;
-            CLuint32    flags;
-            CLuint32    fourCC;
-            CLuint32    RGBBitCount;
-            CLuint32    RBitMask;
-            CLuint32    GBitMask;
-            CLuint32    BBitMask;
-            CLuint32    ABitMask;
+            uint32    size;
+            uint32    flags;
+            uint32    fourCC;
+            uint32    RGBBitCount;
+            uint32    RBitMask;
+            uint32    GBitMask;
+            uint32    BBitMask;
+            uint32    ABitMask;
         };
 
         struct DdsHeader
         {
-            CLuint32        size;
-            CLuint32        flags;
-            CLuint32        height;
-            CLuint32        width;
-            CLuint32        pitchOrLinearSize;
-            CLuint32        depth; // only if DDS_HEADER_FLAGS_VOLUME is set in flags
-            CLuint32        mipMapCount;
-            CLuint32        reserved1[11];
+            uint32        size;
+            uint32        flags;
+            uint32        height;
+            uint32        width;
+            uint32        pitchOrLinearSize;
+            uint32        depth; // only if DDS_HEADER_FLAGS_VOLUME is set in flags
+            uint32        mipMapCount;
+            uint32        reserved1[11];
             DdsPixelFormat  ddspf;
-            CLuint32        caps;
-            CLuint32        caps2;
-            CLuint32        caps3;
-            CLuint32        caps4;
-            CLuint32        reserved2;
+            uint32        caps;
+            uint32        caps2;
+            uint32        caps3;
+            uint32        caps4;
+            uint32        reserved2;
         };
 
         struct DdsHeaderDXT10
         {
             DXGI_FORMAT     dxgiFormat;
-            CLuint32        resourceDimension;
-            CLuint32        miscFlag; // see D3D11_RESOURCE_MISC_FLAG
-            CLuint32        arraySize;
-            CLuint32        miscFlags2;
+            uint32        resourceDimension;
+            uint32        miscFlag; // see D3D11_RESOURCE_MISC_FLAG
+            uint32        arraySize;
+            uint32        miscFlags2;
         };
 
-        static const CLuint32 DDS_MAGIC = 0x20534444; // "DDS "
+        static const uint32 DDS_MAGIC = 0x20534444; // "DDS "
         
         DXGI_FORMAT GetDXGIFormat(const DdsPixelFormat& ddpf);
     }

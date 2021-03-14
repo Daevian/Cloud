@@ -14,7 +14,7 @@ namespace Cloud
         public:
             virtual ~BaseLogHandler() {};
 
-            virtual void HandleTrace(const CLchar* output) const = 0;
+            virtual void HandleTrace(const t_char* output) const = 0;
         };
     }
 }

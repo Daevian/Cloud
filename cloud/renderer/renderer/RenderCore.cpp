@@ -20,7 +20,7 @@ Cloud::Renderer::RenderCore::~RenderCore()
 {
 }
 
-CLbool Cloud::Renderer::RenderCore::Create(const Settings& settings)
+bool Cloud::Renderer::RenderCore::Create(const Settings& settings)
 {
     CL_ASSERT(s_instance == 0, "RenderCore already created. Can't re-create!");
 
@@ -44,7 +44,7 @@ void Cloud::Renderer::RenderCore::Destroy()
     }
 }
 
-CLbool Cloud::Renderer::RenderCore::Initialise(const Settings& settings)
+bool Cloud::Renderer::RenderCore::Initialise(const Settings& settings)
 {
     m_settings = settings;
 
@@ -180,8 +180,8 @@ CLbool Cloud::Renderer::RenderCore::Initialise(const Settings& settings)
         //ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, c_cbvDescCount, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
         //ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, c_srvDescCount, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
         //rootParameters[0].InitAsDescriptorTable(2, ranges.data(), D3D12_SHADER_VISIBILITY_ALL);
-        //CLuint rootParam = 0;
-        CLuint cbufferIndex = 0;
+        //uint rootParam = 0;
+        uint cbufferIndex = 0;
         rootParameters[0].InitAsConstantBufferView(cbufferIndex++); // per scene
         rootParameters[1].InitAsConstantBufferView(cbufferIndex++); // per model
         rootParameters[2].InitAsConstantBufferView(cbufferIndex++); // per material
@@ -215,7 +215,7 @@ CLbool Cloud::Renderer::RenderCore::Initialise(const Settings& settings)
             D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
         CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
-        desc.Init_1_1(static_cast<CLuint>(rootParameters.size()), rootParameters.data(), 1, &sampler, rootSignatureFlags);
+        desc.Init_1_1(static_cast<uint>(rootParameters.size()), rootParameters.data(), 1, &sampler, rootSignatureFlags);
 
         ComPtr<ID3DBlob> signature;
         ComPtr<ID3DBlob> error;
@@ -236,7 +236,7 @@ CLbool Cloud::Renderer::RenderCore::Initialise(const Settings& settings)
     return true;
 }
 
-CLbool Cloud::Renderer::RenderCore::EnableDebugLayer()
+bool Cloud::Renderer::RenderCore::EnableDebugLayer()
 {
     ComPtr<ID3D12Debug> debugController;
     if (FAILED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
@@ -296,7 +296,7 @@ void Cloud::Renderer::RenderCore::Shutdown()
     CL_TRACE_CHANNEL("INIT", "[RenderCore] Shut down!");
 }
 
-CLbool Cloud::Renderer::RenderCore::InitSwapChain()
+bool Cloud::Renderer::RenderCore::InitSwapChain()
 {
 #ifdef USE_DIRECTX12
 
@@ -444,7 +444,7 @@ CLbool Cloud::Renderer::RenderCore::InitSwapChain()
         D3D_FEATURE_LEVEL_10_0,
     };
 
-    CLuint supportedFeatureLevelCount = sizeof(supportedFeatureLevels) / sizeof(D3D_FEATURE_LEVEL);
+    uint supportedFeatureLevelCount = sizeof(supportedFeatureLevels) / sizeof(D3D_FEATURE_LEVEL);
     ID3D11Device* device;
     IDXGISwapChain* swapChain;
     ID3D11DeviceContext* context;
@@ -477,7 +477,7 @@ CLbool Cloud::Renderer::RenderCore::InitSwapChain()
 #endif // USE_DIRECTX12
 }
 
-CLbool Cloud::Renderer::RenderCore::InitBackBuffer()
+bool Cloud::Renderer::RenderCore::InitBackBuffer()
 {
 #ifdef USE_DIRECTX12
 
@@ -495,7 +495,7 @@ CLbool Cloud::Renderer::RenderCore::InitBackBuffer()
 #endif // USE_DIRECTX12
 }
 
-CLbool Cloud::Renderer::RenderCore::InitDepthBuffer()
+bool Cloud::Renderer::RenderCore::InitDepthBuffer()
 {
     auto& settings = Cloud::Renderer::Settings::Instance().GetRoot();
 
@@ -543,7 +543,7 @@ CLbool Cloud::Renderer::RenderCore::InitDepthBuffer()
     return true;
 }
 
-CLbool Cloud::Renderer::RenderCore::InitConstantBuffers()
+bool Cloud::Renderer::RenderCore::InitConstantBuffers()
 {
     m_perSceneConstBuffer.SetData(&m_perSceneConstData, sizeof(PerSceneConstBuffer));
     if (!m_perSceneConstBuffer.Initialise(128))
@@ -558,8 +558,8 @@ CLbool Cloud::Renderer::RenderCore::InitConstantBuffers()
 
 void Cloud::Renderer::RenderCore::InitViewPort()
 {
-    m_viewPort.Width = static_cast<CLfloat>(Cloud::Renderer::Settings::Instance().GetRoot()["Resolution"]["Width"].asDouble());
-    m_viewPort.Height = static_cast<CLfloat>(Cloud::Renderer::Settings::Instance().GetRoot()["Resolution"]["Height"].asDouble());
+    m_viewPort.Width = static_cast<float>(Cloud::Renderer::Settings::Instance().GetRoot()["Resolution"]["Width"].asDouble());
+    m_viewPort.Height = static_cast<float>(Cloud::Renderer::Settings::Instance().GetRoot()["Resolution"]["Height"].asDouble());
     m_viewPort.MinDepth = 0.0f;
     m_viewPort.MaxDepth = 1.0f;
     m_viewPort.TopLeftX = 0;
@@ -624,7 +624,7 @@ void Cloud::Renderer::RenderCore::RecordCommandLists()
         m_frameBeginCl->ResourceBarrier(1, &presentToRtvBarrier);
 
         auto&& rtvHandle = GetCurrentBackBuffer();
-        const std::array<CLfloat, 4> clearColor = { 0.0f, 0.2f, 0.4f, 1.0f };
+        const std::array<float, 4> clearColor = { 0.0f, 0.2f, 0.4f, 1.0f };
         m_frameBeginCl->ClearRenderTargetView(rtvHandle, clearColor.data(), 0, nullptr);
 
         if (FAILED(m_frameBeginCl->Close()))
@@ -673,7 +673,7 @@ void Cloud::Renderer::RenderCore::Present()
 
     std::vector<ID3D12CommandList*> commandLists;
     commandLists.emplace_back(m_frameBeginCl.Get());
-    for (CLuint i = 0; i < m_recordedCommandLists; i++)
+    for (uint i = 0; i < m_recordedCommandLists; i++)
     {
         commandLists.emplace_back(m_commandLists[i].Get());
     }
@@ -683,9 +683,9 @@ void Cloud::Renderer::RenderCore::Present()
     m_recordedCommandLists = 0;
 
 
-    m_commandQueue->ExecuteCommandLists(static_cast<CLuint>(commandLists.size()), commandLists.data());
+    m_commandQueue->ExecuteCommandLists(static_cast<uint>(commandLists.size()), commandLists.data());
 
-    const CLbool enableVSync = Cloud::Renderer::Settings::Instance().GetRoot()["Graphics"]["VSync"].asBool();
+    const bool enableVSync = Cloud::Renderer::Settings::Instance().GetRoot()["Graphics"]["VSync"].asBool();
 
     if (FAILED(m_swapChain->Present(enableVSync ? 1 : 0, 0)))
     {
@@ -702,7 +702,7 @@ void Cloud::Renderer::RenderCore::Present()
     m_perSceneConstBuffer.Reset();
 
 #else
-    const CLbool enableVSync = Cloud::Renderer::Settings::Instance().GetRoot()["Graphics"]["VSync"].asBool();
+    const bool enableVSync = Cloud::Renderer::Settings::Instance().GetRoot()["Graphics"]["VSync"].asBool();
     m_swapChain->Present(enableVSync ? 1 : 0, 0);
 #endif
 }
@@ -710,14 +710,14 @@ void Cloud::Renderer::RenderCore::Present()
 void Cloud::Renderer::RenderCore::Flush()
 {
     std::vector<ID3D12CommandList*> commandLists;
-    for (CLuint i = 0; i < m_recordedCommandLists; i++)
+    for (uint i = 0; i < m_recordedCommandLists; i++)
     {
         commandLists.emplace_back(m_commandLists[i].Get());
     }
 
     m_recordedCommandLists = 0;
 
-    m_commandQueue->ExecuteCommandLists(static_cast<CLuint>(commandLists.size()), commandLists.data());
+    m_commandQueue->ExecuteCommandLists(static_cast<uint>(commandLists.size()), commandLists.data());
 
     // wait for gpu idle
     WaitForPreviousFrame();
@@ -758,12 +758,12 @@ void Cloud::Renderer::RenderCore::WaitForPreviousFrame()
     }
 }
 
-CLuint Cloud::Renderer::RenderCore::GetMSAAQuality(CLuint /*samples*/, DXGI_FORMAT /*format*/)
+uint Cloud::Renderer::RenderCore::GetMSAAQuality(uint /*samples*/, DXGI_FORMAT /*format*/)
 {
 #ifdef USE_DIRECTX12
     return 0;
 #else
-    CLuint quality = 1;
+    uint quality = 1;
     HRESULT result = m_device->CheckMultisampleQualityLevels(format, samples, &quality);
     if (FAILED(result))
     {
@@ -791,11 +791,11 @@ Cloud::Renderer::GfxComputeShader::UniquePtr Cloud::Renderer::RenderCore::Create
 
 #ifdef USE_DIRECTX12
 #else
-void Cloud::Renderer::RenderCore::SetDebugObjectName(ID3D11DeviceChild* resource, const CLchar* name)
+void Cloud::Renderer::RenderCore::SetDebugObjectName(ID3D11DeviceChild* resource, const t_char* name)
 {
     {
 #if defined(_DEBUG) || defined(PROFILE)
-        resource->SetPrivateData(WKPDID_D3DDebugObjectName, (CLuint)ClStrlen(name), name);
+        resource->SetPrivateData(WKPDID_D3DDebugObjectName, (uint)ClStrlen(name), name);
 #else
         CL_UNUSED(resource);
         CL_UNUSED(name);

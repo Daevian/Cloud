@@ -12,27 +12,27 @@ namespace Cloud
         public:
             GfxInstanceBuffer();
 
-            CLbool Initialise();
+            bool Initialise();
             void Uninitialise();
 
-            CLint   GetInstanceCount()                                   const { return m_instanceCount; }
-            CLint   GetInstanceSize()                                    const { return m_instanceSize; }
+            int   GetInstanceCount()                                   const { return m_instanceCount; }
+            int   GetInstanceSize()                                    const { return m_instanceSize; }
             void*   GetInstanceData()                                    const { return m_instanceData; }
 #ifdef USE_DIRECTX12
 #else
             ID3D11Buffer* GetBuffer()                                    const { return m_instanceBuffer; }
 #endif
 
-            void SetInstanceCount(CLint vertexCount)                     { m_instanceCount = vertexCount; }
-            void SetInstanceSize(CLint vertexSize)                       { m_instanceSize = vertexSize; }
+            void SetInstanceCount(int vertexCount)                     { m_instanceCount = vertexCount; }
+            void SetInstanceSize(int vertexSize)                       { m_instanceSize = vertexSize; }
             void SetInstanceData(void* vertexData)                     { m_instanceData = vertexData; }
 
             void GpuSetInstanceBuffer();
             void GpuUpdateInstanceBuffer();
 
         private:
-            CLint m_instanceCount;
-            CLint m_instanceSize;
+            int m_instanceCount;
+            int m_instanceSize;
             void* m_instanceData;
 #ifdef USE_DIRECTX12
 #else

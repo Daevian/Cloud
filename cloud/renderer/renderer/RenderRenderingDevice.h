@@ -22,19 +22,19 @@ namespace Cloud
         struct GfxBufferMapDesc
         {
             GfxBuffer*  buffer;
-            CLuint      subresource;
+            uint      subresource;
 #ifdef USE_DIRECTX12
 #else
             D3D11_MAP   mapType;
 #endif
-            CLuint      mapFlags;
+            uint      mapFlags;
         };
 
         struct GfxMappedResource
         {
             void*   data;
-            CLuint  rowPitch;
-            CLuint  depthPitch;
+            uint  rowPitch;
+            uint  depthPitch;
         };
 
         class RenderingDevice
@@ -55,34 +55,34 @@ namespace Cloud
             void SetVertexBuffer(VertexBuffer* vertexBuffer);
             void SetIndexBuffer(IndexBuffer* indexBuffer);
             void SetInstanceBuffer(GfxInstanceBuffer* vertexBuffer);
-            void SetConstantBuffer(GfxConstantBuffer* constantBuffer, CLuint slot);
+            void SetConstantBuffer(GfxConstantBuffer* constantBuffer, uint slot);
             void SetPrimitiveTopology(GfxPrimitiveTopology topology);
 
             void SetTexturePS(GfxTexture* texture);
-            void SetBufferCS(GfxBuffer* buffer, CLuint slot);
-            void SetConstantBufferCS(GfxBuffer* buffer, CLuint slot);
-            void SetUnorderedAccessView(GfxBuffer* buffer, CLuint slot);
+            void SetBufferCS(GfxBuffer* buffer, uint slot);
+            void SetConstantBufferCS(GfxBuffer* buffer, uint slot);
+            void SetUnorderedAccessView(GfxBuffer* buffer, uint slot);
             void SetRenderTarget(GfxTexture* renderTarget, GfxTexture* depthStencil = nullptr);
-            void SetSamplerState(ID3D11SamplerState* samplerState, CLuint slot);
+            void SetSamplerState(ID3D11SamplerState* samplerState, uint slot);
 
             void Copy(GfxBuffer* source, GfxBuffer* dest);
-            CLbool Map(const GfxBufferMapDesc& desc, GfxMappedResource& mappedResource);
+            bool Map(const GfxBufferMapDesc& desc, GfxMappedResource& mappedResource);
             void Unmap(const GfxBufferMapDesc& desc);
             void UpdateSubresource(GfxBuffer* buffer, void* data);
 
-            void Draw(CLint vertexCount = -1);
-            void DrawInstanced(CLuint instanceCount, CLint vertexCount = -1);
-            void DrawIndexed(CLint indexCount = -1);
-            void DrawIndexedInstanced(CLuint instanceCount, CLint indexCount = -1);
-            void Dispatch(const CLuint threadGroupCountX, const CLuint threadGroupCountY, const CLuint threadGroupCountZ);
+            void Draw(int vertexCount = -1);
+            void DrawInstanced(uint instanceCount, int vertexCount = -1);
+            void DrawIndexed(int indexCount = -1);
+            void DrawIndexedInstanced(uint instanceCount, int indexCount = -1);
+            void Dispatch(const uint threadGroupCountX, const uint threadGroupCountY, const uint threadGroupCountZ);
 
             void ClearColour(GfxTexture& texture);
             void ClearDepth(GfxTexture& texture);
 #endif
 
         private:
-            CLuint          m_vertexCount;
-            CLuint          m_indexCount;
+            uint          m_vertexCount;
+            uint          m_indexCount;
         };
     }
 }

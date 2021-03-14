@@ -17,14 +17,14 @@ namespace Cloud
         {
             struct BitonicSortConstBuffer
             {
-                CLuint level;
-                CLuint levelMask;
+                uint level;
+                uint levelMask;
             };
 
             struct TransposeConstBuffer
             {
-                CLuint width;
-                CLuint height;
+                uint width;
+                uint height;
             };
 
         public:
@@ -38,8 +38,8 @@ namespace Cloud
             void Dispatch();
 
         private:
-            void UpdateBitonicSortConstBuffer(CLuint level, CLuint levelMask);
-            void UpdateTransposeConstBuffer(CLuint width, CLuint height);
+            void UpdateBitonicSortConstBuffer(uint level, uint levelMask);
+            void UpdateTransposeConstBuffer(uint width, uint height);
 
             GfxComputeShader::UniquePtr m_bitonicSortShader;
             GfxComputeShader::UniquePtr m_transposeShader;
@@ -50,8 +50,8 @@ namespace Cloud
             GfxBuffer::UniquePtr m_outputBuffer;
             GfxBuffer::UniquePtr m_debugBuffer;
 
-            static const CLuint c_bitonicBlockSize = 512;
-            static const CLuint c_elementCount = 65536;
+            static const uint c_bitonicBlockSize = 512;
+            static const uint c_elementCount = 65536;
             std::array<ElementType, c_elementCount> m_buffer0;
         };
     }

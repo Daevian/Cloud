@@ -2,7 +2,7 @@
 
 #include "../utilities/windows.h"
 
-void Cloud::Debug::WinConsoleLogHandler::HandleTrace(const CLchar* output) const
+void Cloud::Debug::WinConsoleLogHandler::HandleTrace(const t_char* output) const
 {
     OutputDebugStringA(output);
     OutputDebugStringA("\n");

@@ -50,7 +50,7 @@ RPG::Application::~Application()
 {
 }
 
-CLbool RPG::Application::Create()
+bool RPG::Application::Create()
 {
     CL_ASSERT(s_instance == 0, "DebugLog already created. Can't re-create!");
 
@@ -73,7 +73,7 @@ void RPG::Application::Destroy()
     }
 }
 
-CLbool RPG::Application::Initialise()
+bool RPG::Application::Initialise()
 {
     if (!Cloud::Debug::DebugLog::Create()) { return false; }
     CL_TRACE_CHANNEL("INIT", "DebugLog initialised!");
@@ -137,8 +137,8 @@ void RPG::Application::Run()
             Render();
 
             ++m_frameCount;
-            const CLfloat fps = static_cast<CLfloat>(m_frameCount) / static_cast<CLfloat>(m_time.GetTotalTime());
-            ClStringStream windowText;
+            const float fps = static_cast<float>(m_frameCount) / static_cast<float>(m_time.GetTotalTime());
+            Cloud::StringStream windowText;
             windowText << "FPS: " << fps;
             SetWindowTextA(m_appInfo.m_hWnd, windowText.str().c_str());
         }
@@ -150,7 +150,7 @@ void RPG::Application::Exit()
     m_exitFlag = true;
 }
 
-CLbool RPG::Application::InitialiseWindow()
+bool RPG::Application::InitialiseWindow()
 {
     if (!CreateWindowsWindowClass()) return false;
     if (!CreateWindowsWindow()) return false;
@@ -165,7 +165,7 @@ CLbool RPG::Application::InitialiseWindow()
     return true;
 }
 
-CLbool RPG::Application::CreateWindowsWindowClass()
+bool RPG::Application::CreateWindowsWindowClass()
 {
     WNDCLASSEX wcex;
     wcex.cbSize = sizeof(WNDCLASSEX);
@@ -190,7 +190,7 @@ CLbool RPG::Application::CreateWindowsWindowClass()
     return true;
 }
 
-CLbool RPG::Application::CreateWindowsWindow()
+bool RPG::Application::CreateWindowsWindow()
 {
     RECT rc = {0,
         0,
@@ -225,8 +225,8 @@ void RPG::Application::Update()
 {
     m_time.Update();
     m_inputManager.Update();
-    UpdateDebugCamera((CLfloat)m_time.GetTimeStep());
-    m_game.Update((CLfloat)m_time.GetTimeStep());
+    UpdateDebugCamera((float)m_time.GetTimeStep());
+    m_game.Update((float)m_time.GetTimeStep());
     m_uiManager.Update();
     m_renderer.Update(m_time.GetTotalTime(), m_time.GetTimeStep());
 
@@ -235,7 +235,7 @@ void RPG::Application::Update()
         Cloud::Renderer::Renderer::s_showDebugMenu = !Cloud::Renderer::Renderer::s_showDebugMenu;
     }
 
-    CLbool enableInputDebug = true;
+    bool enableInputDebug = true;
     if (enableInputDebug)
     {
         DrawInputDebug();
@@ -253,7 +253,7 @@ void RPG::Application::Render()
     m_renderer.Render();
 }
 
-void RPG::Application::UpdateDebugCamera(CLfloat timeStep)
+void RPG::Application::UpdateDebugCamera(float timeStep)
 {
     if (m_inputManager.GetPadButtonPressed(0, Cloud::Input::PadButton::B))
     {
@@ -267,10 +267,10 @@ void RPG::Application::UpdateDebugCamera(CLfloat timeStep)
     if (!m_debugCameraActive)
         return;
 
-    CLfloat cameraSpeed = 10.f;
-    const CLfloat rotationSpeed = 1.5f;
+    float cameraSpeed = 10.f;
+    const float rotationSpeed = 1.5f;
     
-    ClFloat4 cameraMovement(0.0f);
+    float4 cameraMovement(0.0f);
 
     {
         cameraSpeed *= m_inputManager.GetPadButtonDown(0, Cloud::Input::PadButton::A) ? 3.0f : 1.0f;
@@ -280,58 +280,58 @@ void RPG::Application::UpdateDebugCamera(CLfloat timeStep)
         auto leftTrigger  = m_inputManager.GetPadLeftTrigger(0);
         auto rightTrigger = m_inputManager.GetPadRightTrigger(0);
 
-        cameraMovement = ClFloat4(leftStick.x, -leftTrigger + rightTrigger, leftStick.y, 0.0f);
-        m_cameraRotation += ClFloat4(-rightStick.y, rightStick.x, 0.0f, 0.0f) * rotationSpeed * timeStep;
+        cameraMovement = float4(leftStick.x, -leftTrigger + rightTrigger, leftStick.y, 0.0f);
+        m_cameraRotation += float4(-rightStick.y, rightStick.x, 0.0f, 0.0f) * rotationSpeed * timeStep;
     }
 
     if (m_inputManager.GetKeyDown(Cloud::Input::Key::Left))
     {
-        m_cameraRotation += ClFloat4(0.0f, -1.0f, 0.0f, 0.0f) * rotationSpeed * timeStep;
+        m_cameraRotation += float4(0.0f, -1.0f, 0.0f, 0.0f) * rotationSpeed * timeStep;
     }
 
     if (m_inputManager.GetKeyDown(Cloud::Input::Key::Right))
     {
-        m_cameraRotation += ClFloat4(0.0f, 1.0f, 0.0f, 0.0f) * rotationSpeed * timeStep;
+        m_cameraRotation += float4(0.0f, 1.0f, 0.0f, 0.0f) * rotationSpeed * timeStep;
     }
 
     if (m_inputManager.GetKeyDown(Cloud::Input::Key::Up))
     {
-        m_cameraRotation += ClFloat4(-1.0f, 0.0f, 0.0f, 0.0f) * rotationSpeed * timeStep;
+        m_cameraRotation += float4(-1.0f, 0.0f, 0.0f, 0.0f) * rotationSpeed * timeStep;
     }
 
     if (m_inputManager.GetKeyDown(Cloud::Input::Key::Down))
     {
-        m_cameraRotation += ClFloat4(1.0f, 0.0f, 0.0f, 0.0f) * rotationSpeed * timeStep;
+        m_cameraRotation += float4(1.0f, 0.0f, 0.0f, 0.0f) * rotationSpeed * timeStep;
     }
 
     if (m_inputManager.GetKeyDown(Cloud::Input::Key::A))
     {
-        cameraMovement = ClFloat4(-1.0f, 0.0f, 0.0f, 0.0f);
+        cameraMovement = float4(-1.0f, 0.0f, 0.0f, 0.0f);
     }
 
     if (m_inputManager.GetKeyDown(Cloud::Input::Key::D))
     {
-        cameraMovement = ClFloat4(1.0f, 0.0f, 0.0f, 0.0f);
+        cameraMovement = float4(1.0f, 0.0f, 0.0f, 0.0f);
     }
 
     if (m_inputManager.GetKeyDown(Cloud::Input::Key::W))
     {
-        cameraMovement = ClFloat4(0.0f, 0.0f, 1.0f, 0.0f);
+        cameraMovement = float4(0.0f, 0.0f, 1.0f, 0.0f);
     }
 
     if (m_inputManager.GetKeyDown(Cloud::Input::Key::S))
     {
-        cameraMovement = ClFloat4(0.0f, 0.0f, -1.0f, 0.0f);
+        cameraMovement = float4(0.0f, 0.0f, -1.0f, 0.0f);
     }
 
     if (m_inputManager.GetKeyDown(Cloud::Input::Key::Space))
     {
-        cameraMovement = ClFloat4(0.0f, 1.0f, 0.0f, 0.0f);
+        cameraMovement = float4(0.0f, 1.0f, 0.0f, 0.0f);
     }
 
     if (m_inputManager.GetKeyDown(Cloud::Input::Key::LeftCtrl))
     {
-        cameraMovement = ClFloat4(0.0f, -1.0f, 0.0f, 0.0f);
+        cameraMovement = float4(0.0f, -1.0f, 0.0f, 0.0f);
     }
 
     ClMatrix4 rotationMatrix = ClMatrix4::Rotation(m_cameraRotation);
@@ -349,9 +349,9 @@ void RPG::Application::UpdateDebugCamera(CLfloat timeStep)
 void RPG::Application::DrawInputDebug()
 {
     auto& settings = Cloud::Renderer::Settings::Instance().GetRoot();
-    const CLfloat width = (CLfloat)settings["Resolution"]["Width"].asInt();
-    const CLfloat height = (CLfloat)settings["Resolution"]["Height"].asInt();
-    const CLfloat ratio = width / height;
+    const float width = (float)settings["Resolution"]["Width"].asInt();
+    const float height = (float)settings["Resolution"]["Height"].asInt();
+    const float ratio = width / height;
 
     auto& debugRenderer = m_renderer.GetDebugRendererForGame();
 
@@ -359,9 +359,9 @@ void RPG::Application::DrawInputDebug()
         auto leftStick = m_inputManager.GetPadLeftStick(0);
         auto rightStick = m_inputManager.GetPadRightStick(0);
 
-        const ClFloat2 centerLeft(-0.5f, -0.5f);
-        const ClFloat2 centerRight(0.5f, -0.5f);
-        const ClFloat2 scale(0.2f, 0.2f * ratio);
+        const float2 centerLeft(-0.5f, -0.5f);
+        const float2 centerRight(0.5f, -0.5f);
+        const float2 scale(0.2f, 0.2f * ratio);
         debugRenderer.AddLine2D(centerLeft,  centerLeft  + leftStick  * scale, FLOAT4_RED(1.0f));
         debugRenderer.AddLine2D(centerRight, centerRight + rightStick * scale, FLOAT4_RED(1.0f));
     }
@@ -370,9 +370,9 @@ void RPG::Application::DrawInputDebug()
         auto leftTrigger = 0.5f;// m_inputManager.GetPadLeftTrigger(0);
         auto rightTrigger = 1.0f;// m_inputManager.GetPadRightTrigger(0);
 
-        const ClFloat2 centerLeft(-0.85f, 0.0f);
-        const ClFloat2 centerRight(0.85f, 0.0f);
-        const ClFloat2 scale(0.1f, 0.8f);
+        const float2 centerLeft(-0.85f, 0.0f);
+        const float2 centerRight(0.85f, 0.0f);
+        const float2 scale(0.1f, 0.8f);
         debugRenderer.AddBar(centerLeft,  scale, FLOAT4_RED(0.7f), leftTrigger);
         debugRenderer.AddBar(centerRight, scale, FLOAT4_RED(0.7f), rightTrigger);
     }

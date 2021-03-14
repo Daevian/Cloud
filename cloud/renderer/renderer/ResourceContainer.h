@@ -15,18 +15,18 @@ namespace Cloud
                 }
             };
 
-            ResourceId(const CLchar* name);
+            ResourceId(const t_char* name);
 
-            CLbool operator==(const ResourceId& other) const
+            bool operator==(const ResourceId& other) const
             {
                 return m_hash == other.m_hash;
             }
 
-            CLuint64 GetHash() const            { return m_hash; }
-            const CLchar* GetDebugName() const  { return m_name.c_str(); }
+            uint64 GetHash() const            { return m_hash; }
+            const t_char* GetDebugName() const  { return m_name.c_str(); }
 
         private:
-            CLuint64 m_hash = 0;
+            uint64 m_hash = 0;
             std::string m_name;
         };
 

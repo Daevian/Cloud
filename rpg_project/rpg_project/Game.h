@@ -29,30 +29,30 @@ namespace RPG
 
         void SetEnginePivot(VehicleEnginePivot* enginePivot)        { m_enginePivot = enginePivot; }
 
-        void SetOffset(const ClFloat4& offset)                      { m_offset = offset; }
-        void SetStrafeTarget(const CLfloat strafe)                  { m_strafeTarget = strafe; }
-        void SetRotationTarget(const ClFloat2& rotation)            { m_rotationTarget.Set(rotation.x * 0.1f, rotation.y * 0.2f, 0.0f, 0.0f); }
-        void SetAcceleration(CLfloat acceleration)                  { m_acceleration = acceleration; }
-        void SetBrakeForce(CLfloat brakeForce)                      { m_brakeForce = brakeForce; }
+        void SetOffset(const float4& offset)                      { m_offset = offset; }
+        void SetStrafeTarget(const float strafe)                  { m_strafeTarget = strafe; }
+        void SetRotationTarget(const float2& rotation)            { m_rotationTarget.Set(rotation.x * 0.1f, rotation.y * 0.2f, 0.0f, 0.0f); }
+        void SetAcceleration(float acceleration)                  { m_acceleration = acceleration; }
+        void SetBrakeForce(float brakeForce)                      { m_brakeForce = brakeForce; }
 
-        CLfloat GetAcceleration() const                             { return m_acceleration; }
-        CLfloat GetBrakeForce() const                               { return m_brakeForce; }
+        float GetAcceleration() const                             { return m_acceleration; }
+        float GetBrakeForce() const                               { return m_brakeForce; }
 
-        void Update(CLfloat timeStep);
+        void Update(float timeStep);
         void Reset();
 
         void Render();
 
     private:
         ClMatrix4 m_transform;
-        ClFloat4 m_offset;
-        ClFloat4 m_position;
-        ClFloat4 m_rotation;
-        ClFloat4 m_rotationTarget;
-        CLfloat m_strafe;
-        CLfloat m_strafeTarget;
-        CLfloat m_acceleration;
-        CLfloat m_brakeForce;
+        float4 m_offset;
+        float4 m_position;
+        float4 m_rotation;
+        float4 m_rotationTarget;
+        float m_strafe;
+        float m_strafeTarget;
+        float m_acceleration;
+        float m_brakeForce;
 
         VehicleEnginePivot* m_enginePivot;
     };
@@ -64,18 +64,18 @@ namespace RPG
 
         void Initialise();
         void Reset();
-        void Update(CLfloat timeStep);
+        void Update(float timeStep);
         void Render();
 
-        void SetEngineRotation(EngineSide engine, const ClFloat2& rotation);
-        void SetEngineStrafe(EngineSide engine, const CLfloat strafe);
-        void SetEngineAcceleration(EngineSide engine, CLfloat acceleration);
-        void SetEngineBrakeForce(EngineSide engine, CLfloat brakes);
+        void SetEngineRotation(EngineSide engine, const float2& rotation);
+        void SetEngineStrafe(EngineSide engine, const float strafe);
+        void SetEngineAcceleration(EngineSide engine, float acceleration);
+        void SetEngineBrakeForce(EngineSide engine, float brakes);
 
-        void SetSteerAmount(const CLfloat steerAmount)              { m_steerAmount = steerAmount; }
-        void SetStrafeAmount(const CLfloat strafeAmount)            { m_strafeAmount = strafeAmount; }
-        void SetPosition(const ClFloat4& position)                  { m_position = position; }
-        void SetRotationTarget(const ClFloat3& rotation)            { m_rotationTarget.Set(rotation.x * 0.1f, rotation.y * 0.2f, rotation.z * 0.2f, 0.0f); }
+        void SetSteerAmount(const float steerAmount)              { m_steerAmount = steerAmount; }
+        void SetStrafeAmount(const float strafeAmount)            { m_strafeAmount = strafeAmount; }
+        void SetPosition(const float4& position)                  { m_position = position; }
+        void SetRotationTarget(const float3& rotation)            { m_rotationTarget.Set(rotation.x * 0.1f, rotation.y * 0.2f, rotation.z * 0.2f, 0.0f); }
 
         const ClMatrix4& GetTransform() const                       { return m_transform; }
         const ClMatrix4& GetTransformWithoutRotation() const        { return m_transformWithoutRotation; }
@@ -84,19 +84,19 @@ namespace RPG
         ClMatrix4 m_transform;
         ClMatrix4 m_transformWithoutRotation;
 
-        ClFloat4 m_position;
-        ClFloat4 m_rotation;
-        ClFloat4 m_rotationTarget;
-        ClFloat4 m_velocity;
-        ClFloat4 m_heading;
-        CLfloat m_steerAmount;
-        CLfloat m_strafeAmount;
-        CLfloat m_strafeVelocity;
-        CLfloat m_accelerationMultiplier;
-        CLfloat m_maxVelocity;
-        CLfloat m_brakeDragMultiplier;
+        float4 m_position;
+        float4 m_rotation;
+        float4 m_rotationTarget;
+        float4 m_velocity;
+        float4 m_heading;
+        float m_steerAmount;
+        float m_strafeAmount;
+        float m_strafeVelocity;
+        float m_accelerationMultiplier;
+        float m_maxVelocity;
+        float m_brakeDragMultiplier;
 
-        StaticArray<VehicleEngine, (CLuint)EngineSide::Max> m_engines;
+        StaticArray<VehicleEngine, (uint)EngineSide::Max> m_engines;
     };
 
     class VehiclePod
@@ -104,13 +104,13 @@ namespace RPG
     public:
         VehiclePod();
 
-        void SetPosition(const ClFloat4& position)          { m_position = position; }
+        void SetPosition(const float4& position)          { m_position = position; }
 
-        void Update(CLfloat timeStep);
+        void Update(float timeStep);
         void Render();
 
     private:
-        ClFloat4 m_position;
+        float4 m_position;
     };
 
     class Vehicle
@@ -120,7 +120,7 @@ namespace RPG
 
         void Initialise();
         void Reset();
-        void Update(CLfloat timeStep);
+        void Update(float timeStep);
         void Render();
 
         void AttachCamera(Cloud::Renderer::Camera* camera);
@@ -141,7 +141,7 @@ namespace RPG
         Game();
 
         void Initialise();
-        void Update(CLfloat timeStep);
+        void Update(float timeStep);
         void Render();
 
     private:

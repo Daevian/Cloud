@@ -7,14 +7,14 @@ Cloud::Renderer::InputLayout::InputLayout()
 {
 }
 
-CLbool Cloud::Renderer::InputLayout::Init(ID3DBlob* vertexShaderBlob, const InputLayoutDesc& elementDescs)
+bool Cloud::Renderer::InputLayout::Init(ID3DBlob* vertexShaderBlob, const InputLayoutDesc& elementDescs)
 {
 #ifdef USE_DIRECTX12
     CL_UNUSED(vertexShaderBlob);
 
     m_inputElementDescs.reserve(elementDescs.Count());
 
-    for (CLint i = 0; i < elementDescs.Count(); ++i)
+    for (int i = 0; i < elementDescs.Count(); ++i)
     {
         auto&& elementDesc = elementDescs[i];
 
@@ -36,7 +36,7 @@ CLbool Cloud::Renderer::InputLayout::Init(ID3DBlob* vertexShaderBlob, const Inpu
 
     Utils::DynamicArray<D3D11_INPUT_ELEMENT_DESC> inputElements(elementDescs.Count(), 1);
 
-    for (CLint i = 0; i < elementDescs.Count(); ++i)
+    for (int i = 0; i < elementDescs.Count(); ++i)
     {
         const InputElementDesc& elementDesc = elementDescs[i];
 

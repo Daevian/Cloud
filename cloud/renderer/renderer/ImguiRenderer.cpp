@@ -53,8 +53,8 @@ void Cloud::Renderer::ImguiRenderer::CreateGfxResources()
 {
     m_pso = RenderCore::Instance().GetEffectContainer().FindEffect("data/core/imgui/imgui.eff");
 
-    const CLint c_vertexCount = 5000;
-    const CLint c_indexCount  = 10000;
+    const int c_vertexCount = 5000;
+    const int c_indexCount  = 10000;
 
     m_vb.SetVertexCount(c_vertexCount);
     m_vb.SetVertexSize(sizeof(ImDrawVert));
@@ -74,7 +74,7 @@ void Cloud::Renderer::ImguiRenderer::CreateFontTexture()
     int width, height, bytesPerPixel;
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &bytesPerPixel);
 
-    CL_ASSERT(bytesPerPixel == sizeof(CLuint32), "outputs 4 8-bit channel per pixel, otherwise imgui has changed");
+    CL_ASSERT(bytesPerPixel == sizeof(uint32), "outputs 4 8-bit channel per pixel, otherwise imgui has changed");
     // Upload texture to graphics system
     {
         GfxTextureDesc desc = {};
@@ -170,7 +170,7 @@ void Cloud::Renderer::ImguiRenderer::RenderDrawLists(ID3D12GraphicsCommandList* 
     renderCore.GpuUpdatePerSceneConstBuffer();
 
     std::array<ID3D12DescriptorHeap*, 1> heaps = { renderCore.GetCbvHeap() };
-    commandList->SetDescriptorHeaps(static_cast<CLuint>(heaps.size()), heaps.data());
+    commandList->SetDescriptorHeaps(static_cast<uint>(heaps.size()), heaps.data());
 
     commandList->SetGraphicsRootSignature(renderCore.GetRootSignature());
 
@@ -195,7 +195,7 @@ void Cloud::Renderer::ImguiRenderer::RenderDrawLists(ID3D12GraphicsCommandList* 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     std::array<D3D12_VERTEX_BUFFER_VIEW, 1> vbs = { m_vb.GetView() };
-    commandList->IASetVertexBuffers(0, static_cast<CLuint>(vbs.size()), vbs.data());
+    commandList->IASetVertexBuffers(0, static_cast<uint>(vbs.size()), vbs.data());
     commandList->IASetIndexBuffer(&m_ib.GetView());
 
     int vertexOffset = 0;

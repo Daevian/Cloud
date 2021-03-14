@@ -12,43 +12,43 @@ namespace Cloud
         {
         public:
             Float3();
-            Float3(CLfloat xValue, CLfloat yValue, CLfloat zValue);
+            Float3(float xValue, float yValue, float zValue);
             Float3(const Float3& float3);
 
-            inline void Set(CLfloat xValue, CLfloat yValue, CLfloat zValue);
+            inline void Set(float xValue, float yValue, float zValue);
 
             inline Float3 operator+(const Float3& float3) const;
             inline Float3 operator-(const Float3& float3) const;
             inline Float3& operator+=(const Float3& float3);
             inline Float3& operator-=(const Float3& float3);
 
-            inline Float3 operator+(const CLfloat& scalar) const;
-            inline Float3 operator-(const CLfloat& scalar) const;
-            inline Float3 operator*(const CLfloat& scalar) const;
-            inline Float3 operator/(const CLfloat& scalar) const;
-            inline Float3& operator+=(const CLfloat& scalar);
-            inline Float3& operator-=(const CLfloat& scalar);
-            inline Float3& operator*=(const CLfloat& scalar);
-            inline Float3& operator/=(const CLfloat& scalar);
+            inline Float3 operator+(const float& scalar) const;
+            inline Float3 operator-(const float& scalar) const;
+            inline Float3 operator*(const float& scalar) const;
+            inline Float3 operator/(const float& scalar) const;
+            inline Float3& operator+=(const float& scalar);
+            inline Float3& operator-=(const float& scalar);
+            inline Float3& operator*=(const float& scalar);
+            inline Float3& operator/=(const float& scalar);
 
             inline Float3& operator=(const Float3& float3);
 
-            inline CLbool operator==(const Float3& float3) const;
+            inline bool operator==(const Float3& float3) const;
 
             inline Float3 Cross(const Float3& float3) const;
-            inline CLfloat Dot(const Float3& float3) const;
+            inline float Dot(const Float3& float3) const;
 
-            inline CLfloat Length() const;
-            inline CLfloat Length2() const;
+            inline float Length() const;
+            inline float Length2() const;
 
             inline Float3& Normalize();
 
             union
             {
-                CLfloat a[3];
+                float a[3];
                 struct
                 {
-                    CLfloat x, y, z;
+                    float x, y, z;
                 };
             };
         };
@@ -57,7 +57,7 @@ namespace Cloud
 
 #pragma warning (default : 4201)
 
-typedef Cloud::Math::Float3 ClFloat3;
+typedef Cloud::Math::Float3 float3;
 
 #include "Float3.inl"
 

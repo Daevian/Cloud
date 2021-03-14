@@ -12,7 +12,7 @@ namespace Cloud
         struct MaterialData
         {
             Math::Float4 f0 = Math::Float4(1.0f, 0.71f, 0.29f, 1.0f); // gold
-            CLfloat roughness = 0.15f;
+            float roughness = 0.15f;
         };
 
         class Material : public Resource

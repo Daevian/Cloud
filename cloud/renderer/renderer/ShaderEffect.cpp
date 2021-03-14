@@ -13,7 +13,7 @@ Cloud::Renderer::ShaderEffect::~ShaderEffect()
 {
 }
 
-CLbool Cloud::Renderer::ShaderEffect::Load(const std::string& effectPath)
+bool Cloud::Renderer::ShaderEffect::Load(const std::string& effectPath)
 {
     m_effectPath = effectPath;
 
@@ -21,7 +21,7 @@ CLbool Cloud::Renderer::ShaderEffect::Load(const std::string& effectPath)
     std::ifstream jsonFile(effectPath.c_str());
     Json::Reader reader;
 
-    CLbool parseSuccessful = reader.parse(jsonFile, root);
+    bool parseSuccessful = reader.parse(jsonFile, root);
     if (!parseSuccessful)
     {
         std::stringstream assertMessage;
@@ -86,7 +86,7 @@ void Cloud::Renderer::ShaderEffect::Unload()
 #endif
 }
 
-CLbool Cloud::Renderer::ShaderEffect::LoadShaders(const InputLayout::InputLayoutDesc& inputLayoutDesc,
+bool Cloud::Renderer::ShaderEffect::LoadShaders(const InputLayout::InputLayoutDesc& inputLayoutDesc,
                                                   const D3D12_BLEND_DESC& blendState,
                                                   const D3D12_RASTERIZER_DESC& rasterizerState,
                                                   const D3D12_DEPTH_STENCIL_DESC& depthStencilState)
@@ -132,7 +132,7 @@ CLbool Cloud::Renderer::ShaderEffect::LoadShaders(const InputLayout::InputLayout
     {
         auto& inputElementDescs = m_inputLayout.GetInputElementDescs();
         D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-        psoDesc.InputLayout = { inputElementDescs.data(), static_cast<CLuint>(inputElementDescs.size()) };
+        psoDesc.InputLayout = { inputElementDescs.data(), static_cast<uint>(inputElementDescs.size()) };
         psoDesc.pRootSignature = RenderCore::Instance().GetRootSignature();
         psoDesc.VS = vertexShaderBlob ? CD3DX12_SHADER_BYTECODE(vertexShaderBlob.Get()) : CD3DX12_SHADER_BYTECODE(nullptr, 0);
         psoDesc.GS = geometryShaderBlob ? CD3DX12_SHADER_BYTECODE(geometryShaderBlob.Get()) : CD3DX12_SHADER_BYTECODE(nullptr, 0);
@@ -229,7 +229,7 @@ CLbool Cloud::Renderer::ShaderEffect::LoadShaders(const InputLayout::InputLayout
 
 #ifdef USE_DIRECTX12
 
-CLbool Cloud::Renderer::ShaderEffect::ParseInputLayout(const Json::Value& inputLayout, const Json::Value& instanceInputLayout, InputLayout::InputLayoutDesc& inputLayoutDescOutput)
+bool Cloud::Renderer::ShaderEffect::ParseInputLayout(const Json::Value& inputLayout, const Json::Value& instanceInputLayout, InputLayout::InputLayoutDesc& inputLayoutDescOutput)
 {
     enum ElementVariables
     {
@@ -246,8 +246,8 @@ CLbool Cloud::Renderer::ShaderEffect::ParseInputLayout(const Json::Value& inputL
 
     inputLayoutDescOutput.Init(inputLayout.size() + instanceInputLayout.size(), 1);
 
-    CLint elementByteOffset = 0;
-    for (CLuint i = 0; i < inputLayout.size(); ++i)
+    int elementByteOffset = 0;
+    for (uint i = 0; i < inputLayout.size(); ++i)
     {
         inputLayoutDescOutput.Add(InputElementDesc());
         inputLayoutDescOutput[i].name = inputLayout[i][Name].asString();
@@ -261,7 +261,7 @@ CLbool Cloud::Renderer::ShaderEffect::ParseInputLayout(const Json::Value& inputL
     }
 
     elementByteOffset = 0;
-    for (CLuint targetIndex = inputLayoutDescOutput.Count(), sourceIndex = 0; sourceIndex < instanceInputLayout.size(); ++targetIndex, ++sourceIndex)
+    for (uint targetIndex = inputLayoutDescOutput.Count(), sourceIndex = 0; sourceIndex < instanceInputLayout.size(); ++targetIndex, ++sourceIndex)
     {
         inputLayoutDescOutput.Add(InputElementDesc());
         inputLayoutDescOutput[targetIndex].name = instanceInputLayout[sourceIndex][Name].asString();
@@ -371,7 +371,7 @@ D3D12_STENCIL_OP ToStencilOp(const std::string& str)
     return D3D12_STENCIL_OP_KEEP;
 }
 
-CLbool Cloud::Renderer::ShaderEffect::ParseBlendState(const Json::Value& blendState, D3D12_BLEND_DESC& blendStateDesc)
+bool Cloud::Renderer::ShaderEffect::ParseBlendState(const Json::Value& blendState, D3D12_BLEND_DESC& blendStateDesc)
 {
     if (blendState["BlendEnable"].isBool())
     {
@@ -411,7 +411,7 @@ CLbool Cloud::Renderer::ShaderEffect::ParseBlendState(const Json::Value& blendSt
     return true;
 }
 
-CLbool Cloud::Renderer::ShaderEffect::ParseRasterizerState(const Json::Value& rasterizerState, D3D12_RASTERIZER_DESC& rasterizerStateDesc)
+bool Cloud::Renderer::ShaderEffect::ParseRasterizerState(const Json::Value& rasterizerState, D3D12_RASTERIZER_DESC& rasterizerStateDesc)
 {
     if (rasterizerState["FillMode"].isString())
     {
@@ -431,7 +431,7 @@ CLbool Cloud::Renderer::ShaderEffect::ParseRasterizerState(const Json::Value& ra
     return true;
 }
 
-CLbool Cloud::Renderer::ShaderEffect::ParseDepthStencilState(const Json::Value& depthStencilState, D3D12_DEPTH_STENCIL_DESC& depthStencilStateDesc)
+bool Cloud::Renderer::ShaderEffect::ParseDepthStencilState(const Json::Value& depthStencilState, D3D12_DEPTH_STENCIL_DESC& depthStencilStateDesc)
 {
     if (depthStencilState["DepthEnable"].isBool())
     {
@@ -485,9 +485,9 @@ CLbool Cloud::Renderer::ShaderEffect::ParseDepthStencilState(const Json::Value& 
     return true;
 }
 
-Cloud::ComPtr<ID3DBlob> Cloud::Renderer::ShaderEffect::CompileShader(const ClString& shaderPath, const ClString& entryPoint, const ClString& shaderModel)
+Cloud::ComPtr<ID3DBlob> Cloud::Renderer::ShaderEffect::CompileShader(const Cloud::String& shaderPath, const Cloud::String& entryPoint, const Cloud::String& shaderModel)
 {
-    CLdword shaderFlags = 0;//D3DCOMPILE_ENABLE_STRICTNESS;
+    dword shaderFlags = 0;//D3DCOMPILE_ENABLE_STRICTNESS;
 #if defined( DEBUG ) || defined( _DEBUG )
     shaderFlags |= D3DCOMPILE_DEBUG;
     shaderFlags |= D3DCOMPILE_PREFER_FLOW_CONTROL;
@@ -500,7 +500,7 @@ Cloud::ComPtr<ID3DBlob> Cloud::Renderer::ShaderEffect::CompileShader(const ClStr
     CL_UNUSED(entryPoint);
     ID3DBlob* errorBlob = 0;
     HRESULT result = D3DCompileFromFile(
-        ClWString(shaderPath.begin(), shaderPath.end()).c_str(),
+        Cloud::WString(shaderPath.begin(), shaderPath.end()).c_str(),
         nullptr,
         nullptr,
         entryPoint.c_str(),
@@ -519,7 +519,7 @@ Cloud::ComPtr<ID3DBlob> Cloud::Renderer::ShaderEffect::CompileShader(const ClStr
 
         if (errorBlob)
         {
-            CLchar* error = static_cast<CLchar*>(errorBlob->GetBufferPointer());
+            t_char* error = static_cast<t_char*>(errorBlob->GetBufferPointer());
             CL_TRACE_CHANNEL("ERROR", error);
         }
 
@@ -534,9 +534,9 @@ Cloud::ComPtr<ID3DBlob> Cloud::Renderer::ShaderEffect::CompileShader(const ClStr
 #else
 
 
-CLbool Cloud::Renderer::ShaderEffect::CompileShader(const ClString& /*shaderPath*/, const ClString& /*entryPoint*/, const ClString& /*shaderModel*/, ID3DBlob*& /*shaderBlobOutput*/)
+bool Cloud::Renderer::ShaderEffect::CompileShader(const Cloud::String& /*shaderPath*/, const Cloud::String& /*entryPoint*/, const Cloud::String& /*shaderModel*/, ID3DBlob*& /*shaderBlobOutput*/)
 {
-    CLdword shaderFlags = 0;//D3DCOMPILE_ENABLE_STRICTNESS;
+    dword shaderFlags = 0;//D3DCOMPILE_ENABLE_STRICTNESS;
 #if defined( DEBUG ) || defined( _DEBUG )
     shaderFlags |= D3DCOMPILE_DEBUG;
     shaderFlags |= D3DCOMPILE_PREFER_FLOW_CONTROL;
@@ -548,7 +548,7 @@ CLbool Cloud::Renderer::ShaderEffect::CompileShader(const ClString& /*shaderPath
     CL_UNUSED(entryPoint);
     ID3DBlob* errorBlob = 0;
     HRESULT result = D3DCompileFromFile(
-        ClWString(shaderPath.begin(), shaderPath.end()).c_str(),
+        Cloud::WString(shaderPath.begin(), shaderPath.end()).c_str(),
         nullptr,
         nullptr,
         entryPoint.c_str(),
@@ -567,7 +567,7 @@ CLbool Cloud::Renderer::ShaderEffect::CompileShader(const ClString& /*shaderPath
 
         if (errorBlob)
         {
-            CLchar* error = static_cast<CLchar*>(errorBlob->GetBufferPointer());
+            t_char* error = static_cast<t_char*>(errorBlob->GetBufferPointer());
             CL_TRACE_CHANNEL("ERROR", error);
         }
 
@@ -579,7 +579,7 @@ CLbool Cloud::Renderer::ShaderEffect::CompileShader(const ClString& /*shaderPath
     return true;
 }
 
-CLbool Cloud::Renderer::ShaderEffect::CreateVertexShader(ID3DBlob* vertexShaderBlob)
+bool Cloud::Renderer::ShaderEffect::CreateVertexShader(ID3DBlob* vertexShaderBlob)
 {
     CL_ASSERT_NULL(vertexShaderBlob);
 
@@ -596,7 +596,7 @@ CLbool Cloud::Renderer::ShaderEffect::CreateVertexShader(ID3DBlob* vertexShaderB
     return true;
 }
 
-CLbool Cloud::Renderer::ShaderEffect::CreateGeometryShader(ID3DBlob* geometryShaderBlob)
+bool Cloud::Renderer::ShaderEffect::CreateGeometryShader(ID3DBlob* geometryShaderBlob)
 {
     CL_ASSERT_NULL(geometryShaderBlob);
 
@@ -613,7 +613,7 @@ CLbool Cloud::Renderer::ShaderEffect::CreateGeometryShader(ID3DBlob* geometrySha
     return true;
 }
 
-CLbool Cloud::Renderer::ShaderEffect::CreatePixelShader(ID3DBlob* pixelShaderBlob)
+bool Cloud::Renderer::ShaderEffect::CreatePixelShader(ID3DBlob* pixelShaderBlob)
 {
     CL_ASSERT_NULL(pixelShaderBlob);
 
@@ -631,7 +631,7 @@ CLbool Cloud::Renderer::ShaderEffect::CreatePixelShader(ID3DBlob* pixelShaderBlo
 }
 #endif
 
-CLbool Cloud::Renderer::ShaderEffect::CreateBlendState()
+bool Cloud::Renderer::ShaderEffect::CreateBlendState()
 {
 #ifdef USE_DIRECTX12
     return false;

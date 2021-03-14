@@ -10,159 +10,159 @@ Cloud::LuaState::LuaState(LuaState&& other)
     m_state = std::move(other.m_state);
 }
 
-void Cloud::LuaState::Register(const CLchar* funcName, lua_CFunction func)
+void Cloud::LuaState::Register(const t_char* funcName, lua_CFunction func)
 {
     lua_register(GetState(), funcName, func);
 }
 
-CLbool Cloud::LuaState::CheckStack(CLint requiredStackSlots)
+bool Cloud::LuaState::CheckStack(int requiredStackSlots)
 {
     return lua_checkstack(GetState(), requiredStackSlots) != 0 ? true : false;
 }
 
-CLint Cloud::LuaState::GetTop() const
+int Cloud::LuaState::GetTop() const
 {
     return lua_gettop(GetState());
 }
 
-void Cloud::LuaState::SetTop(CLint stackIndex)
+void Cloud::LuaState::SetTop(int stackIndex)
 {
     lua_settop(GetState(), stackIndex);
 }
 
-Cloud::Lua::Type Cloud::LuaState::Type(CLint stackIndex) const
+Cloud::Lua::Type Cloud::LuaState::Type(int stackIndex) const
 {
     return static_cast<Lua::Type>(lua_type(GetState(), stackIndex));
 }
 
-const CLchar* Cloud::LuaState::Typename(CLint stackIndex) const
+const t_char* Cloud::LuaState::Typename(int stackIndex) const
 {
     return luaL_typename(GetState(), stackIndex);
 }
 
-void Cloud::LuaState::Push(CLbool value)
+void Cloud::LuaState::Push(bool value)
 {
     lua_pushboolean(GetState(), value ? 1 : 0);
 }
 
-void Cloud::LuaState::Push(CLint value)
+void Cloud::LuaState::Push(int value)
 {
     lua_pushinteger(GetState(), static_cast<lua_Integer>(value));
 }
 
-void Cloud::LuaState::Push(CLfloat value)
+void Cloud::LuaState::Push(float value)
 {
     lua_pushnumber(GetState(), static_cast<lua_Number>(value));
 }
 
-const CLchar* Cloud::LuaState::Push(const CLchar* value)
+const t_char* Cloud::LuaState::Push(const t_char* value)
 {
     return lua_pushstring(GetState(), value);
 }
 
-void Cloud::LuaState::Pop(CLint numElements)
+void Cloud::LuaState::Pop(int numElements)
 {
     lua_pop(GetState(), numElements);
 }
 
-void Cloud::LuaState::Remove(CLint stackIndex)
+void Cloud::LuaState::Remove(int stackIndex)
 {
     lua_remove(GetState(), stackIndex);
 }
 
-void Cloud::LuaState::PushValue(CLint sourceIndex)
+void Cloud::LuaState::PushValue(int sourceIndex)
 {
     lua_pushvalue(GetState(), sourceIndex);
 }
 
-void Cloud::LuaState::Insert(CLint targetIndex)
+void Cloud::LuaState::Insert(int targetIndex)
 {
     lua_insert(GetState(), targetIndex);
 }
 
-void Cloud::LuaState::Replace(CLint targetIndex)
+void Cloud::LuaState::Replace(int targetIndex)
 {
     lua_replace(GetState(), targetIndex);
 }
 
-void Cloud::LuaState::CreateTable(CLint narr, CLint nrec)
+void Cloud::LuaState::CreateTable(int narr, int nrec)
 {
     lua_createtable(GetState(), narr, nrec);
 }
 
-Cloud::Lua::Type Cloud::LuaState::GetTable(CLint stackIndex)
+Cloud::Lua::Type Cloud::LuaState::GetTable(int stackIndex)
 {
     return static_cast<Lua::Type>(GetState(), stackIndex);
 }
 
-void Cloud::LuaState::SetTable(CLint stackIndex)
+void Cloud::LuaState::SetTable(int stackIndex)
 {
     // todo: check if table
     lua_settable(GetState(), stackIndex);
 }
 
-Cloud::Lua::Type Cloud::LuaState::GetField(CLint stackIndex, const CLchar* key)
+Cloud::Lua::Type Cloud::LuaState::GetField(int stackIndex, const t_char* key)
 {
     return static_cast<Lua::Type>(lua_getfield(GetState(), stackIndex, key));
 }
 
-void Cloud::LuaState::SetField(CLint targetIndex, const CLchar* key)
+void Cloud::LuaState::SetField(int targetIndex, const t_char* key)
 {
     // todo: check if table
     lua_setfield(GetState(), targetIndex, key);
 }
 
-CLbool Cloud::LuaState::GetMetatable(CLint stackIndex)
+bool Cloud::LuaState::GetMetatable(int stackIndex)
 {
     return lua_getmetatable(GetState(), stackIndex) != 0 ? true : false;
 }
 
-void Cloud::LuaState::SetMetatable(CLint stackIndex)
+void Cloud::LuaState::SetMetatable(int stackIndex)
 {
     lua_setmetatable(GetState(), stackIndex);
 }
 
-Cloud::Lua::Type Cloud::LuaState::GetGlobal(const CLchar* name)
+Cloud::Lua::Type Cloud::LuaState::GetGlobal(const t_char* name)
 {
     return static_cast<Lua::Type>(lua_getglobal(GetState(), name));
 }
 
-void Cloud::LuaState::SetGlobal(const CLchar* name)
+void Cloud::LuaState::SetGlobal(const t_char* name)
 {
     lua_setglobal(GetState(), name);
 }
 
-Cloud::Lua::Type Cloud::LuaState::RawGet(CLint stackIndex)
+Cloud::Lua::Type Cloud::LuaState::RawGet(int stackIndex)
 {
     return static_cast<Lua::Type>(lua_rawget(GetState(), stackIndex));
 }
 
-void Cloud::LuaState::RawSet(CLint stackIndex)
+void Cloud::LuaState::RawSet(int stackIndex)
 {
     lua_rawset(GetState(), stackIndex);
 }
 
-Cloud::Lua::Type Cloud::LuaState::RawGetI(CLint stackIndex, CLint tableIndex)
+Cloud::Lua::Type Cloud::LuaState::RawGetI(int stackIndex, int tableIndex)
 {
     return static_cast<Lua::Type>(lua_rawgeti(GetState(), stackIndex, tableIndex));
 }
 
-void Cloud::LuaState::RawSetI(CLint stackIndex, CLint tableIndex)
+void Cloud::LuaState::RawSetI(int stackIndex, int tableIndex)
 {
     lua_rawseti(GetState(), stackIndex, tableIndex);
 }
 
-CLsize_t Cloud::LuaState::RawLen(CLint stackIndex) const
+size_t Cloud::LuaState::RawLen(int stackIndex) const
 {
     return lua_rawlen(GetState(), stackIndex);
 }
 
-CLbool Cloud::LuaState::Next(CLint stackIndex)
+bool Cloud::LuaState::Next(int stackIndex)
 {
     return lua_next(GetState(), stackIndex) != 0 ? true : false;
 }
 
-Cloud::Lua::ErrorCode Cloud::LuaState::LoadFile(const CLchar* fileName)
+Cloud::Lua::ErrorCode Cloud::LuaState::LoadFile(const t_char* fileName)
 {
     Lua::ErrorCode result = static_cast<Lua::ErrorCode>(luaL_loadfile(GetState(), fileName));
 
@@ -187,7 +187,7 @@ Cloud::Lua::ErrorCode Cloud::LuaState::LoadFile(const CLchar* fileName)
     return result;
 }
 
-Cloud::Lua::ErrorCode Cloud::LuaState::DoFile(const CLchar* fileName)
+Cloud::Lua::ErrorCode Cloud::LuaState::DoFile(const t_char* fileName)
 {
     Lua::ErrorCode result;
     result = LoadFile(fileName);
@@ -200,7 +200,7 @@ Cloud::Lua::ErrorCode Cloud::LuaState::DoFile(const CLchar* fileName)
     return result;
 }
 
-Cloud::Lua::ErrorCode Cloud::LuaState::PCall(CLint argCount, CLint retArgCount)
+Cloud::Lua::ErrorCode Cloud::LuaState::PCall(int argCount, int retArgCount)
 {
     Lua::ErrorCode result = static_cast<Lua::ErrorCode>(lua_pcall(GetState(), argCount, retArgCount, 0));
 

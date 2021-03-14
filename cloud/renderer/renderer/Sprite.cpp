@@ -24,14 +24,14 @@ Cloud::Renderer::Sprite::Sprite(Sprite&& sprite)
 {
 }
 
-CLbool Cloud::Renderer::Sprite::Init(Texture* texture)
+bool Cloud::Renderer::Sprite::Init(Texture* texture)
 {
     m_effect = RenderCore::Instance().GetEffectContainer().GetEffect("data/effects/sprite.effect");
     m_texture = texture;
 
     m_vertexBuffer.SetVertexCount(1);
     m_vertexBuffer.SetVertexSize(sizeof(SpriteVertex));
-    m_vertexBuffer.SetVertexData((CLchar*)&m_vertex);
+    m_vertexBuffer.SetVertexData((t_char*)&m_vertex);
     //m_vertexBuffer.SetTopology(GfxPrimitiveTopology::Pointlist);
 
     if (!m_vertexBuffer.Initialise()) return false;

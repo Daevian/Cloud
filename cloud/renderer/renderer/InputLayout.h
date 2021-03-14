@@ -11,10 +11,10 @@ namespace Cloud
         {
             std::string name;
             GfxFormat   format;
-            CLint       semanticIndex;
-            CLint       byteOffset;
-            CLint       instanceDataStepRate;
-            CLbool      isInstanceData;
+            int       semanticIndex;
+            int       byteOffset;
+            int       instanceDataStepRate;
+            bool      isInstanceData;
         };
 
         class InputLayout
@@ -24,7 +24,7 @@ namespace Cloud
 
             InputLayout();
 
-            CLbool Init(ID3DBlob* vertexShaderBlob, const InputLayoutDesc& elementDescs);
+            bool Init(ID3DBlob* vertexShaderBlob, const InputLayoutDesc& elementDescs);
             void Unload();
 
 #ifdef USE_DIRECTX12

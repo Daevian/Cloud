@@ -12,20 +12,20 @@ namespace Cloud
             struct InitialData
             {
                 void*       data;
-                CLsize_t    size;
+                size_t    size;
             };
 
-            ClDebugName                 name;
-            CLuint                      width;
-            CLuint                      height;
-            CLuint                      depth;
+            Cloud::DebugName                 name;
+            uint                      width;
+            uint                      height;
+            uint                      depth;
 #ifdef USE_DIRECTX12
             D3D12_RESOURCE_DIMENSION    dim;
 #else
             D3D11_RESOURCE_DIMENSION    dim;
 #endif
-            CLuint                      arraySize;
-            CLuint                      mipCount;
+            uint                      arraySize;
+            uint                      mipCount;
             DXGI_FORMAT                 format;
 #ifdef USE_DIRECTX12
             D3D12_RESOURCE_FLAGS        flags;
@@ -34,14 +34,14 @@ namespace Cloud
             D3D12_CLEAR_VALUE           clearValue;
 #else
             D3D11_USAGE                 usage;
-            CLuint                      bindFlags;
-            CLuint                      cpuAccessFlags;
-            CLuint                      miscFlags;
+            uint                      bindFlags;
+            uint                      cpuAccessFlags;
+            uint                      miscFlags;
 #endif
             
             InitialData                 initialData;
             DXGI_SAMPLE_DESC            sampleDesc;
-            CLbool                      isCubeMap;
+            bool                      isCubeMap;
         };
 
         class GfxTexture : public GfxResource
@@ -96,18 +96,18 @@ namespace Cloud
 
 #ifdef USE_DIRECTX12
 #else
-            void FillInitialData(   CLuint width,
-                                    CLuint height,
-                                    CLuint depth,
-                                    CLuint mipCount,
-                                    CLuint arraySize,
+            void FillInitialData(   uint width,
+                                    uint height,
+                                    uint depth,
+                                    uint mipCount,
+                                    uint arraySize,
                                     DXGI_FORMAT format,
-                                    const CLuint8* imageData,
-                                    CLsize_t imageDataSize,
-                                    CLuint& tWidth,
-                                    CLuint& tHeight,
-                                    CLuint& tDepth,
-                                    CLuint& skipMip,
+                                    const uint8* imageData,
+                                    size_t imageDataSize,
+                                    uint& tWidth,
+                                    uint& tHeight,
+                                    uint& tDepth,
+                                    uint& skipMip,
                                     D3D11_SUBRESOURCE_DATA* initData);
 #endif
         };

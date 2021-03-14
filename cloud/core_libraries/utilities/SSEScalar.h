@@ -15,9 +15,9 @@ namespace Cloud
             public:
                 inline Scalar() { }
                 inline Scalar(Vector4 vector);
-                explicit inline Scalar(CLfloat scalar);
+                explicit inline Scalar(float scalar);
 
-                inline operator CLfloat() const;
+                inline operator float() const;
 
 
                 CL_ALIGN(16) Vector4 m_scalar;
@@ -28,12 +28,12 @@ namespace Cloud
             {
             }
 
-            inline Scalar::Scalar(CLfloat scalar)
+            inline Scalar::Scalar(float scalar)
             {
                 m_scalar = _mm_set1_ps(scalar);
             }
 
-            inline Scalar::operator CLfloat() const
+            inline Scalar::operator float() const
             {
                 return *((float*)&m_scalar);
             }

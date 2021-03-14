@@ -8,7 +8,7 @@ RPG::UIElement::UIElement()
 {
 }
 
-CLbool RPG::UIElement::Initialise(Cloud::Renderer::Sprite* sprite)
+bool RPG::UIElement::Initialise(Cloud::Renderer::Sprite* sprite)
 {
     m_sprite = sprite;
     return true;

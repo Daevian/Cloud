@@ -5,22 +5,22 @@
 #include "IndexBuffer.h"
 #include "VertexBuffer.h"
 
-std::unique_ptr<Cloud::Renderer::ModelInstance> Cloud::Renderer::ModelLoader::LoadModel(const CLchar* modelPath)
+std::unique_ptr<Cloud::Renderer::ModelInstance> Cloud::Renderer::ModelLoader::LoadModel(const t_char* modelPath)
 {
     auto&& scene = m_assetImporter.ReadFile(modelPath, 0);
 
     // mesh
     auto&& loadedMesh = scene->mMeshes[0];
     auto&& loadedVertices = std::span<aiVector3D>(loadedMesh->mVertices, loadedMesh->mNumVertices);
-    CLuint index = 0;
+    uint index = 0;
 
     std::vector<Mesh::Vertex> vertices(loadedVertices.size());
-    std::vector<CLuint32> indices(loadedVertices.size());
+    std::vector<uint32> indices(loadedVertices.size());
 
     for (auto&& vertex : loadedVertices)
     {
         auto&& normal = loadedMesh->mNormals[index];
-        vertices[index] = Mesh::Vertex{ ClFloat4(vertex.x, vertex.y, vertex.z, 1.0f), ClFloat3(normal.x, normal.y, normal.z) };
+        vertices[index] = Mesh::Vertex{ float4(vertex.x, vertex.y, vertex.z, 1.0f), float3(normal.x, normal.y, normal.z) };
         indices[index] = index;
         ++index;
     }

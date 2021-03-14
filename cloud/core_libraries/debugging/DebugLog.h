@@ -18,16 +18,16 @@ namespace Cloud
         class DebugLog
         {
         public:
-            static CLbool Create();
+            static bool Create();
             static void Destroy();
 
             static DebugLog& Instance() { return *s_instance; }
 
-            void Trace(const CLchar* output, ...);
-            void TraceChannel(const CLchar* channel, const CLchar* output, ...);
+            void Trace(const t_char* output, ...);
+            void TraceChannel(const t_char* channel, const t_char* output, ...);
 
-            void EnableChannel(const CLchar * channel) { m_channelList[channel] = true; }
-            void DisableChannel(const CLchar * channel) { m_channelList[channel] = false; }
+            void EnableChannel(const t_char * channel) { m_channelList[channel] = true; }
+            void DisableChannel(const t_char * channel) { m_channelList[channel] = false; }
 
             void AddLogHandler(BaseLogHandler* log);
 
@@ -35,18 +35,18 @@ namespace Cloud
             DebugLog();
             ~DebugLog();
 
-            static const CLint MAX_CHARS = 1024;
-            static const CLint MAX_HANDLERS = 4;
+            static const int MAX_CHARS = 1024;
+            static const int MAX_HANDLERS = 4;
 
-            CLbool Initialise();
+            bool Initialise();
             void Shutdown();
 
-            void WriteToChannel(const CLchar* channel, const CLchar* output, va_list args);
-            void WriteToBuffer(std::array<CLchar, MAX_CHARS>& buffer, const CLchar* output, va_list args);
-            void PushBufferToHandlers(const CLchar* buffer);
+            void WriteToChannel(const t_char* channel, const t_char* output, va_list args);
+            void WriteToBuffer(std::array<t_char, MAX_CHARS>& buffer, const t_char* output, va_list args);
+            void PushBufferToHandlers(const t_char* buffer);
 
-            typedef std::pair<const CLchar*, bool> Channel;
-            typedef std::map<const CLchar*, bool> ChannelList;
+            typedef std::pair<const t_char*, bool> Channel;
+            typedef std::map<const t_char*, bool> ChannelList;
             typedef ChannelList::iterator ChannelIterator;
 
             static DebugLog* s_instance;

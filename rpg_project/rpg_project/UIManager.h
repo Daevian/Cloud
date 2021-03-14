@@ -22,7 +22,7 @@ namespace RPG
         UIManager();
         ~UIManager();
 
-        CLbool Initialise(Cloud::Renderer::Renderer& renderer);
+        bool Initialise(Cloud::Renderer::Renderer& renderer);
         void Shutdown();
 
         void Update();
