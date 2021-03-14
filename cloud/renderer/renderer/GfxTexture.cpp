@@ -76,12 +76,12 @@ void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxT
     auto&& device = RenderCore::Instance().GetDevice();
 
     D3D12_RESOURCE_DESC dxDesc = {};
-    dxDesc.MipLevels = gsl::narrow_cast<UINT16>(desc.mipCount);
+    dxDesc.MipLevels = static_cast<UINT16>(desc.mipCount);
     dxDesc.Format = desc.format;
     dxDesc.Width = desc.width;
     dxDesc.Height = desc.height;
     dxDesc.Flags = desc.flags;
-    dxDesc.DepthOrArraySize = gsl::narrow_cast<UINT16>(desc.arraySize);
+    dxDesc.DepthOrArraySize = static_cast<UINT16>(desc.arraySize);
     dxDesc.SampleDesc.Count = desc.sampleDesc.Count;
     dxDesc.SampleDesc.Quality = desc.sampleDesc.Quality;
     dxDesc.Dimension = desc.dim;

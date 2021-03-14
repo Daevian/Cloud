@@ -2,6 +2,7 @@
 #include "ImguiRenderer.h"
 #include "RenderCore.h"
 #include "ShaderEffect.h"
+#include <span>
 
 Cloud::Renderer::ImguiRenderer::ImguiRenderer()
     : m_ib(sizeof(ImDrawIdx))
@@ -139,7 +140,7 @@ void Cloud::Renderer::ImguiRenderer::Render(ID3D12GraphicsCommandList* commandLi
 
 void Cloud::Renderer::ImguiRenderer::RenderDrawLists(ID3D12GraphicsCommandList* commandList, ImDrawData* drawData)
 {
-    auto imguiCmdLists = gsl::span<ImDrawList*>(drawData->CmdLists, drawData->CmdListsCount);
+    auto imguiCmdLists = std::span<ImDrawList*>(drawData->CmdLists, drawData->CmdListsCount);
     auto vertexCount = 0;
     auto indexCount = 0;
     for (auto&& imguiCmdList : imguiCmdLists)
@@ -169,7 +170,7 @@ void Cloud::Renderer::ImguiRenderer::RenderDrawLists(ID3D12GraphicsCommandList* 
     renderCore.GpuUpdatePerSceneConstBuffer();
 
     std::array<ID3D12DescriptorHeap*, 1> heaps = { renderCore.GetCbvHeap() };
-    commandList->SetDescriptorHeaps(gsl::narrow_cast<CLuint>(heaps.size()), heaps.data());
+    commandList->SetDescriptorHeaps(static_cast<CLuint>(heaps.size()), heaps.data());
 
     commandList->SetGraphicsRootSignature(renderCore.GetRootSignature());
 
@@ -194,14 +195,14 @@ void Cloud::Renderer::ImguiRenderer::RenderDrawLists(ID3D12GraphicsCommandList* 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     std::array<D3D12_VERTEX_BUFFER_VIEW, 1> vbs = { m_vb.GetView() };
-    commandList->IASetVertexBuffers(0, gsl::narrow_cast<CLuint>(vbs.size()), vbs.data());
+    commandList->IASetVertexBuffers(0, static_cast<CLuint>(vbs.size()), vbs.data());
     commandList->IASetIndexBuffer(&m_ib.GetView());
 
     int vertexOffset = 0;
     int indexOffset = 0;
     for (auto&& imguiCmdList : imguiCmdLists)
     {
-        auto imguiCmdBuffers = gsl::span<ImDrawCmd>(imguiCmdList->CmdBuffer.Data, imguiCmdList->CmdBuffer.Size);
+        auto imguiCmdBuffers = std::span<ImDrawCmd>(imguiCmdList->CmdBuffer.Data, imguiCmdList->CmdBuffer.Size);
         for (auto&& imguiCmdBuffer : imguiCmdBuffers)
         {
             if (imguiCmdBuffer.UserCallback)

@@ -5,22 +5,16 @@
 
 inline Cloud::Math::Float2::Float2()
     : a{0.0f, 0.0f}
-    , x(0)
-    , y(0)
 {
 }
 
 inline Cloud::Math::Float2::Float2(CLfloat xValue, CLfloat yValue)
     : a{xValue, yValue}
-    , x(xValue)
-    , y(yValue)
 {
 }
 
 inline Cloud::Math::Float2::Float2(const Float2& float2)
     : a{float2.x, float2.y}
-    , x(float2.x)
-    , y(float2.y)
 {
 }
 

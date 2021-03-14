@@ -34,13 +34,13 @@
 
 #include <vector>
 #include <array>
+#include <span>
 #include <map>
 #include <math.h>
 #include <algorithm>
 #include <functional>
 #include <memory>
 #include <mutex>
-#include <gsl.h>
 
 #include "utilities/Windows.h"
 #include "utilities/ClMemory.h"

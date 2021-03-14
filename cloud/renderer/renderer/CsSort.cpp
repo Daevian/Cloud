@@ -7,7 +7,7 @@ Cloud::Renderer::CsSorter::CsSorter()
 {
     for (CLuint i = 0; i < c_elementCount; ++i)
     {
-        m_buffer0[i].f = gsl::narrow_cast<CLfloat>(c_elementCount - i);
+        m_buffer0[i].f = static_cast<CLfloat>(c_elementCount - i);
     }
 }
 

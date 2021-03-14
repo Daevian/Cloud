@@ -132,7 +132,7 @@ CLbool Cloud::Renderer::ShaderEffect::LoadShaders(const InputLayout::InputLayout
     {
         auto& inputElementDescs = m_inputLayout.GetInputElementDescs();
         D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-        psoDesc.InputLayout = { inputElementDescs.data(), gsl::narrow_cast<CLuint>(inputElementDescs.size()) };
+        psoDesc.InputLayout = { inputElementDescs.data(), static_cast<CLuint>(inputElementDescs.size()) };
         psoDesc.pRootSignature = RenderCore::Instance().GetRootSignature();
         psoDesc.VS = vertexShaderBlob ? CD3DX12_SHADER_BYTECODE(vertexShaderBlob.Get()) : CD3DX12_SHADER_BYTECODE(nullptr, 0);
         psoDesc.GS = geometryShaderBlob ? CD3DX12_SHADER_BYTECODE(geometryShaderBlob.Get()) : CD3DX12_SHADER_BYTECODE(nullptr, 0);

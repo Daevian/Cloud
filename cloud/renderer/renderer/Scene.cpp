@@ -24,7 +24,7 @@ void Cloud::Renderer::Scene::RecordCommandList(ID3D12GraphicsCommandList* comman
 
 
     std::array<ID3D12DescriptorHeap*, 1> heaps = { renderCore.GetCbvHeap() };
-    commandList->SetDescriptorHeaps(gsl::narrow_cast<CLuint>(heaps.size()), heaps.data());
+    commandList->SetDescriptorHeaps(static_cast<CLuint>(heaps.size()), heaps.data());
 
     commandList->SetGraphicsRootSignature(renderCore.GetRootSignature());
     commandList->SetGraphicsRootConstantBufferView(0, renderCore.GetPerSceneConstBuffer().GetCurrentVersionGpuAddress());

@@ -11,7 +11,7 @@ std::unique_ptr<Cloud::Renderer::ModelInstance> Cloud::Renderer::ModelLoader::Lo
 
     // mesh
     auto&& loadedMesh = scene->mMeshes[0];
-    auto&& loadedVertices = gsl::span<aiVector3D>(loadedMesh->mVertices, loadedMesh->mNumVertices);
+    auto&& loadedVertices = std::span<aiVector3D>(loadedMesh->mVertices, loadedMesh->mNumVertices);
     CLuint index = 0;
 
     std::vector<Mesh::Vertex> vertices(loadedVertices.size());

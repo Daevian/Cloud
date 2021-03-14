@@ -215,7 +215,7 @@ CLbool Cloud::Renderer::RenderCore::Initialise(const Settings& settings)
             D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
         CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
-        desc.Init_1_1(gsl::narrow_cast<CLuint>(rootParameters.size()), rootParameters.data(), 1, &sampler, rootSignatureFlags);
+        desc.Init_1_1(static_cast<CLuint>(rootParameters.size()), rootParameters.data(), 1, &sampler, rootSignatureFlags);
 
         ComPtr<ID3DBlob> signature;
         ComPtr<ID3DBlob> error;
@@ -683,7 +683,7 @@ void Cloud::Renderer::RenderCore::Present()
     m_recordedCommandLists = 0;
 
 
-    m_commandQueue->ExecuteCommandLists(gsl::narrow_cast<CLuint>(commandLists.size()), commandLists.data());
+    m_commandQueue->ExecuteCommandLists(static_cast<CLuint>(commandLists.size()), commandLists.data());
 
     const CLbool enableVSync = Cloud::Renderer::Settings::Instance().GetRoot()["Graphics"]["VSync"].asBool();
 
@@ -717,7 +717,7 @@ void Cloud::Renderer::RenderCore::Flush()
 
     m_recordedCommandLists = 0;
 
-    m_commandQueue->ExecuteCommandLists(gsl::narrow_cast<CLuint>(commandLists.size()), commandLists.data());
+    m_commandQueue->ExecuteCommandLists(static_cast<CLuint>(commandLists.size()), commandLists.data());
 
     // wait for gpu idle
     WaitForPreviousFrame();

@@ -70,7 +70,7 @@ void Cloud::Renderer::ModelRenderer::Render(ID3D12GraphicsCommandList* commandLi
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     std::array<D3D12_VERTEX_BUFFER_VIEW, 1> vbs = { modelInstance.GetMesh().GetVertexBuffer().GetView() };
-    commandList->IASetVertexBuffers(0, gsl::narrow_cast<CLuint>(vbs.size()), vbs.data());
+    commandList->IASetVertexBuffers(0, static_cast<CLuint>(vbs.size()), vbs.data());
 
     commandList->IASetIndexBuffer(&modelInstance.GetMesh().GetIndexBuffer().GetView());
     commandList->DrawIndexedInstanced(modelInstance.GetMesh().GetIndexBuffer().GetIndexCount(), 1, 0, 0, 0);

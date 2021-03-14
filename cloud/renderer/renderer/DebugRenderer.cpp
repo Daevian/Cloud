@@ -230,7 +230,7 @@ void Cloud::Renderer::DebugRenderer::RecordCommandList(ID3D12GraphicsCommandList
     auto& renderCore = RenderCore::Instance();
 
     std::array<ID3D12DescriptorHeap*, 1> heaps = { renderCore.GetCbvHeap() };
-    commandList->SetDescriptorHeaps(gsl::narrow_cast<CLuint>(heaps.size()), heaps.data());
+    commandList->SetDescriptorHeaps(static_cast<CLuint>(heaps.size()), heaps.data());
 
     commandList->SetGraphicsRootSignature(renderCore.GetRootSignature());
 
@@ -310,7 +310,7 @@ void Cloud::Renderer::DebugRenderer::RenderBoxes(ID3D12GraphicsCommandList* comm
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     std::array<D3D12_VERTEX_BUFFER_VIEW,2> vbs = { m_boxVB.GetView(), m_boxInstanceBuffer.GetView() };
-    commandList->IASetVertexBuffers(0, gsl::narrow_cast<CLuint>(vbs.size()), vbs.data());
+    commandList->IASetVertexBuffers(0, static_cast<CLuint>(vbs.size()), vbs.data());
 
     commandList->IASetIndexBuffer(&m_boxIB.GetView());
     commandList->DrawIndexedInstanced(36, m_boxesToRender, 0, 0, 0);

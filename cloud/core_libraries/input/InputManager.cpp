@@ -4,7 +4,6 @@
 #include "../utilities/DefinesMacros.h"
 #include "../utilities/IntrinsicFunctions.h"
 #include <sstream>
-#include <span.h>
 
 Cloud::Input::InputManager::InputManager()
     : m_directInput(0)
@@ -117,7 +116,7 @@ CLbool Cloud::Input::InputManager::GetKeyReleased(Key key)
 
 CLbool Cloud::Input::InputManager::GetMouseUp(CLuchar key)
 {
-    //auto buttons = gsl::as_span(m_currectMouseState.rgbButtons);
+    //auto buttons = std::as_span(m_currectMouseState.rgbButtons);
     //return (buttons[key] & 0x80) == 0;
     return (m_currectMouseState.rgbButtons[key] & 0x80) == 0;
 }
