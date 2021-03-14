@@ -135,16 +135,16 @@
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\..\core_libraries;..\..\externals;..\..\externals\lua;..\..\externals\imgui;..\..\externals\assimp-3.3.1\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\core_libraries;..\..\externals;..\..\externals\lua;..\..\externals\imgui;B:\dev\Cloud\cloud\externals\assimp-5.0.1\include;B:\dev\Cloud\cloud\externals\assimp-5.0.1\build\include</AdditionalIncludeDirectories>
       <EnablePREfast>false</EnablePREfast>
       <AdditionalOptions>/analyze:stacksize1048576 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>jsoncpp.lib;assimp-vc140-mt.lib</AdditionalDependencies>
+      <AdditionalDependencies>jsoncpp.lib;assimp-vc142-mtd.lib</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>..\..\externals\jsoncpp-src-0.5.0\project\x64\Debug;..\..\externals\assimp-3.3.1\x64\Debug_Static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\externals\jsoncpp-src-0.5.0\project\x64\Debug;..\..\externals\assimp-5.0.1\build\code\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

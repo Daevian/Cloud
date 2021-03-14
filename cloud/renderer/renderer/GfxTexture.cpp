@@ -88,7 +88,7 @@ void Cloud::Renderer::GfxTextureFactory::Init2d(const GfxTextureDesc& desc, GfxT
 
     auto hasInitialData = desc.initialData.data != nullptr;
 
-    auto canClear = (dxDesc.Flags & (D3D12_RESOURCE_DIMENSION_BUFFER | D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)) != 0;
+    auto canClear = (dxDesc.Flags & (static_cast<int>(D3D12_RESOURCE_DIMENSION_BUFFER) | static_cast<int>(D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) | static_cast<int>(D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL))) != 0;
 
     auto&& heapProperties = CD3DX12_HEAP_PROPERTIES(desc.heapType);
     if (FAILED(device->CreateCommittedResource(

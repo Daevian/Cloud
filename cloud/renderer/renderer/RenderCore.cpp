@@ -180,16 +180,16 @@ CLbool Cloud::Renderer::RenderCore::Initialise(const Settings& settings)
         //ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, c_cbvDescCount, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
         //ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, c_srvDescCount, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
         //rootParameters[0].InitAsDescriptorTable(2, ranges.data(), D3D12_SHADER_VISIBILITY_ALL);
-        CLuint rootParam = 0;
+        //CLuint rootParam = 0;
         CLuint cbufferIndex = 0;
-        rootParameters[rootParam++].InitAsConstantBufferView(cbufferIndex++); // per scene
-        rootParameters[rootParam++].InitAsConstantBufferView(cbufferIndex++); // per model
-        rootParameters[rootParam++].InitAsConstantBufferView(cbufferIndex++); // per material
+        rootParameters[0].InitAsConstantBufferView(cbufferIndex++); // per scene
+        rootParameters[1].InitAsConstantBufferView(cbufferIndex++); // per model
+        rootParameters[2].InitAsConstantBufferView(cbufferIndex++); // per material
 
         ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, c_srvDescCount, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
-        rootParameters[rootParam++].InitAsDescriptorTable(1, ranges.data(), D3D12_SHADER_VISIBILITY_PIXEL);
+        rootParameters[3].InitAsDescriptorTable(1, ranges.data(), D3D12_SHADER_VISIBILITY_PIXEL);
 
-        rootParameters[rootParam++].InitAsConstantBufferView(cbufferIndex++); // lighting
+        rootParameters[4].InitAsConstantBufferView(cbufferIndex++); // lighting
 
         // init samplers
         D3D12_STATIC_SAMPLER_DESC sampler = {};
