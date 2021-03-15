@@ -63,6 +63,8 @@
 #include "utilities/Float2.h"
 #include "utilities/Matrix4.h"
 
+#include "utilities/ThreadPool.h"
+
 #include "debugging/DebugLog.h"
 
 #include "renderer/DirectxHelpers.h"

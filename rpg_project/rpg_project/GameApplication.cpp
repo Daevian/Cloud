@@ -78,6 +78,9 @@ bool RPG::Application::Initialise()
     if (!Cloud::Debug::DebugLog::Create()) { return false; }
     CL_TRACE_CHANNEL("INIT", "DebugLog initialised!");
 
+    if (!Cloud::CoreThreadPools::Create()) { return false; }
+    CL_TRACE_CHANNEL("INIT", "CoreThreadPools initialised!");
+
     if (!Cloud::Renderer::Settings::Create()) { return false; }
     CL_TRACE_CHANNEL("INIT", "Settings initialised!");
 
@@ -118,6 +121,7 @@ void RPG::Application::Shutdown()
 
     Cloud::Renderer::RenderCore::Destroy();
     Cloud::Renderer::Settings::Destroy();
+    Cloud::CoreThreadPools::Destroy();
     Cloud::Debug::DebugLog::Destroy();
 }
 

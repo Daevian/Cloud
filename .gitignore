@@ -16,7 +16,9 @@
 *.tlog
 *.pch
 *.nativecodeanalysis.xml
+*.nativecodeanalysis.all.xml
 *.res
 *.pchast
 *.ilk
 *.exe
+*.sarif

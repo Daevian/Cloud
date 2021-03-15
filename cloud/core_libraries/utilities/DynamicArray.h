@@ -2,6 +2,8 @@
 #define CLOUD_DATASTRUCTURES_DYNAMICARRAY_HEADER
 
 #include "DefinesTypes.h"
+#include <vector>
+#include <memory>
 
 namespace Cloud
 {
@@ -46,6 +48,9 @@ namespace Cloud
             int m_growSize;
         };
     }
+
+    template <class T_Type>
+    using Vector = std::vector<T_Type>;
 }
 
 #include "DynamicArray.inl"
