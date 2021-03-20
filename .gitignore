@@ -22,3 +22,5 @@
 *.ilk
 *.exe
 *.sarif
+*.tmp
+!cloud/externals/assimp-5.0.1/**/*.lib
